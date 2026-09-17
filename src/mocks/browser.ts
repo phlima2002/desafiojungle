@@ -1,7 +1,7 @@
 import { setupWorker } from 'msw/browser'
 import { handlers } from './handlers'
-import { resetDatabase, db, mutateNft } from './db'
-import { getScenarioName, setScenario, SCENARIOS, type ScenarioName } from './scenarios'
+import { resetDatabase, db, mutateNft, settleOrder } from './db'
+import { getScenario, getScenarioName, setScenario, SCENARIOS, type ScenarioName } from './scenarios'
 import { realtimeControls } from './socket/server'
 
 export const worker = setupWorker(...handlers)
@@ -60,6 +60,21 @@ const kurioControls = {
   },
 }
 
+/**
+ * A pending order is settled by a timer that lives in the page, so a refresh or
+ * a dropped connection would otherwise leave it pending forever. On every boot
+ * the simulated server picks those orders back up — the same way a real backend
+ * keeps working while the browser is away — which is what makes the "recover a
+ * pending order after refresh" flow deterministic.
+ */
+function resumePendingOrders(): void {
+  const scenario = getScenario()
+  for (const order of db.orders) {
+    if (order.status !== 'pending') continue
+    window.setTimeout(() => settleOrder(order.id, scenario.paymentOutcome), scenario.paymentSettleMs)
+  }
+}
+
 export async function startMockServer(): Promise<void> {
   await worker.start({
     onUnhandledRequest: 'bypass',
@@ -67,4 +82,5 @@ export async function startMockServer(): Promise<void> {
     serviceWorker: { url: `${import.meta.env.BASE_URL}mockServiceWorker.js` },
   })
   window.__kurio = kurioControls
+  resumePendingOrders()
 }

@@ -9,7 +9,7 @@ test.describe('Catálogo', () => {
     await page.getByRole('tab', { name: 'Em alta' }).click()
     await page.getByRole('button', { name: /^Arte digital/ }).click()
     await page.getByRole('button', { name: /^Ethereum/ }).click()
-    await page.getByLabel('Ordenar por:').selectOption('price-asc')
+    await page.getByRole('main').getByLabel('Ordenar por:').selectOption('price-asc')
 
     await expect(page).toHaveURL(/tab=trending/)
     await expect(page).toHaveURL(/categoria=arte-digital/)

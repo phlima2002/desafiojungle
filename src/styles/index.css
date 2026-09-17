@@ -146,6 +146,15 @@
 }
 
 @layer components {
+  label[data-required]::after {
+    content: '*';
+    color: var(--color-danger);
+    font-size: var(--text-h3);
+    line-height: 0;
+    padding-inline-start: 0.25rem;
+    vertical-align: middle;
+  }
+
   /* Skeleton shimmer used by every data-dependent component. Respects
      prefers-reduced-motion by falling back to a static tint. */
   .skeleton {

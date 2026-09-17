@@ -24,7 +24,6 @@ function publicUser(user: MockUser) {
     displayName: user.displayName,
     email: user.email,
     avatarUrl: user.avatarUrl,
-    bio: user.bio,
     createdAt: user.createdAt,
   }
 }
@@ -107,13 +106,14 @@ export const sessionHandlers = [
     const user: MockUser = {
       id: `usr-${crypto.randomUUID().slice(0, 8)}`,
       name: parsed.data.name,
-      displayName: parsed.data.email.split('@')[0]!.replace(/[^a-zA-Z0-9_.-]/g, ''),
+      displayName: parsed.data.name,
+      username: parsed.data.email.split('@')[0]!.replace(/[^a-zA-Z0-9_.-]/g, ''),
       email: parsed.data.email,
       password: parsed.data.password,
       avatarUrl: null,
-      bio: '',
-      website: '',
-      location: '',
+      ensTld: '.eth',
+      ensName: parsed.data.email.split('@')[0]!.replace(/[^a-z0-9-]/gi, '') || 'colecionador',
+      walletLabel: 'Carteira principal',
       createdAt: new Date().toISOString(),
     }
     db.users.push(user)

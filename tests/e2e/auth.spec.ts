@@ -5,35 +5,35 @@ test.describe('Conta e sessão', () => {
     await bootstrap(page)
     await page.goto('/criar-conta')
 
-    await page.getByLabel('Nome').fill('Clara Vidal')
-    await page.getByLabel('E-mail').fill('clara@kurio.test')
-    await page.getByLabel('Senha', { exact: true }).fill('kurio2026')
-    await page.getByLabel('Confirmar senha').fill('kurio2026')
+    await page.getByRole('main').getByLabel('Nome').fill('Clara Vidal')
+    await page.getByRole('main').getByLabel('E-mail').fill('clara@kurio.test')
+    await page.getByRole('main').getByLabel('Senha', { exact: true }).fill('kurio2026')
+    await page.getByRole('main').getByLabel('Confirmar senha').fill('kurio2026')
     await page.getByRole('button', { name: 'Criar conta' }).click()
 
-    await expectSignedIn(page, 'clara')
+    await expectSignedIn(page, 'Clara Vidal')
   })
 
   test('cadastro com e-mail já usado mostra o conflito no campo', async ({ page }) => {
     await bootstrap(page)
     await page.goto('/criar-conta')
 
-    await page.getByLabel('Nome').fill('Ana Duplicada')
-    await page.getByLabel('E-mail').fill(USERS.ana.email)
-    await page.getByLabel('Senha', { exact: true }).fill('kurio2026')
-    await page.getByLabel('Confirmar senha').fill('kurio2026')
+    await page.getByRole('main').getByLabel('Nome').fill('Ana Duplicada')
+    await page.getByRole('main').getByLabel('E-mail').fill(USERS.ana.email)
+    await page.getByRole('main').getByLabel('Senha', { exact: true }).fill('kurio2026')
+    await page.getByRole('main').getByLabel('Confirmar senha').fill('kurio2026')
     await page.getByRole('button', { name: 'Criar conta' }).click()
 
     await expect(page.getByText('E-mail já cadastrado')).toBeVisible()
-    await expect(page.getByLabel('E-mail')).toHaveAttribute('aria-invalid', 'true')
+    await expect(page.getByRole('main').getByLabel('E-mail')).toHaveAttribute('aria-invalid', 'true')
   })
 
   test('validação do formulário acontece antes de chamar a API', async ({ page }) => {
     await bootstrap(page)
     await page.goto('/criar-conta')
 
-    await page.getByLabel('E-mail').fill('não-é-email')
-    await page.getByLabel('Senha', { exact: true }).fill('123')
+    await page.getByRole('main').getByLabel('E-mail').fill('não-é-email')
+    await page.getByRole('main').getByLabel('Senha', { exact: true }).fill('123')
     await page.getByRole('button', { name: 'Criar conta' }).click()
 
     await expect(page.getByText('Informe um e-mail válido')).toBeVisible()
@@ -43,8 +43,8 @@ test.describe('Conta e sessão', () => {
   test('login inválido mostra a mensagem da API', async ({ page }) => {
     await bootstrap(page)
     await page.goto('/entrar')
-    await page.getByLabel('E-mail').fill(USERS.ana.email)
-    await page.getByLabel('Senha', { exact: true }).fill('senha-errada')
+    await page.getByRole('main').getByLabel('E-mail').fill(USERS.ana.email)
+    await page.getByRole('main').getByLabel('Senha', { exact: true }).fill('senha-errada')
     await page.getByRole('button', { name: 'Entrar' }).click()
     await expect(page.getByRole('alert')).toContainText('E-mail ou senha incorretos')
   })

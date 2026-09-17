@@ -44,8 +44,18 @@ declare global {
 }
 
 export const USERS = {
-  ana: { email: 'ana@kurio.test', password: 'kurio2026', displayName: 'anaribeiro' },
-  bruno: { email: 'bruno@kurio.test', password: 'kurio2026', displayName: 'btavares' },
+  ana: {
+    email: 'ana@kurio.test',
+    password: 'kurio2026',
+    displayName: 'Ana Ribeiro',
+    username: 'anaribeiro',
+  },
+  bruno: {
+    email: 'bruno@kurio.test',
+    password: 'kurio2026',
+    displayName: 'Bruno Tavares',
+    username: 'btavares',
+  },
 } as const
 
 /**
@@ -101,8 +111,8 @@ export async function expectSignedIn(page: Page, displayName: string | null) {
 export async function login(page: Page, user: keyof typeof USERS = 'ana') {
   const credentials = USERS[user]
   await page.goto('/entrar')
-  await page.getByLabel('E-mail').fill(credentials.email)
-  await page.getByLabel('Senha', { exact: true }).fill(credentials.password)
+  await page.getByRole('main').getByLabel('E-mail').fill(credentials.email)
+  await page.getByRole('main').getByLabel('Senha', { exact: true }).fill(credentials.password)
   await page.getByRole('button', { name: 'Entrar' }).click()
   await expect(page).not.toHaveURL(/\/entrar/)
   await expectSignedIn(page, credentials.displayName)

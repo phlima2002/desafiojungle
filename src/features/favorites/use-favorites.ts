@@ -38,7 +38,9 @@ export function useToggleFavorite() {
       const previousLists = queryClient.getQueriesData<NftListResponse>({
         queryKey: [...queryKeys.nfts.all, 'list'],
       })
-      const previousDetail = queryClient.getQueryData<NftDetail>(queryKeys.nfts.detail(nftId))
+      const previousDetails = queryClient.getQueriesData<NftDetail>({
+        queryKey: [...queryKeys.nfts.all, 'detail'],
+      })
 
       queryClient.setQueryData<FavoritesResponse>(favoritesKey, (current) =>
         current
@@ -60,20 +62,20 @@ export function useToggleFavorite() {
           : current,
       )
 
-      queryClient.setQueryData<NftDetail>(queryKeys.nfts.detail(nftId), (current) =>
-        current ? { ...current, favorited } : current,
+      // The detail may be cached under the id or the slug, so every entry is
+      // matched by payload rather than by key.
+      queryClient.setQueriesData<NftDetail>({ queryKey: [...queryKeys.nfts.all, 'detail'] }, (current) =>
+        current && current.id === nftId ? { ...current, favorited } : current,
       )
 
-      return { previousFavorites, previousLists, previousDetail, nftId }
+      return { previousFavorites, previousLists, previousDetails }
     },
 
     onError: (_error, _variables, context) => {
       if (!context) return
       if (context.previousFavorites) queryClient.setQueryData(favoritesKey, context.previousFavorites)
       for (const [key, value] of context.previousLists) queryClient.setQueryData(key, value)
-      if (context.previousDetail) {
-        queryClient.setQueryData(queryKeys.nfts.detail(context.nftId), context.previousDetail)
-      }
+      for (const [key, value] of context.previousDetails) queryClient.setQueryData(key, value)
     },
 
     onSettled: () => queryClient.invalidateQueries({ queryKey: favoritesKey }),

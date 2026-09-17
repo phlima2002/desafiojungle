@@ -7,7 +7,7 @@ async function addFirstAvailableToCart(page: import('@playwright/test').Page) {
   const buy = page.getByRole('button', { name: 'Comprar' })
   await expect(buy).toBeEnabled()
   await buy.click()
-  await expect(page.getByRole('status')).toContainText('Adicionado ao carrinho')
+  await expect(page.getByRole('main').getByRole('status')).toContainText('Adicionado ao carrinho')
 }
 
 test.describe('Carrinho', () => {
@@ -21,7 +21,7 @@ test.describe('Carrinho', () => {
 
     await quantity.fill('2')
     await quantity.blur()
-    await expect(page.getByText('Total', { exact: true })).toBeVisible()
+    await expect(page.getByRole('complementary', { name: 'Resumo da carteira' })).toContainText('Total')
 
     await page.getByRole('button', { name: /^Remover/ }).click()
     await expect(page.getByText('Seu carrinho está vazio')).toBeVisible()
@@ -52,12 +52,12 @@ test.describe('Carrinho', () => {
     await addFirstAvailableToCart(page)
     await page.goto('/carrinho')
 
-    await page.getByLabel('Código promocional').fill('KURIO10')
+    await page.getByRole('main').getByLabel('Código promocional').fill('KURIO10')
     await page.getByRole('button', { name: 'Aplicar' }).click()
     await expect(page.getByText('KURIO10 aplicado')).toBeVisible()
 
     await page.getByRole('button', { name: /^Remover o cupom/ }).click()
-    await page.getByLabel('Código promocional').fill('EXPIRADO')
+    await page.getByRole('main').getByLabel('Código promocional').fill('EXPIRADO')
     await page.getByRole('button', { name: 'Aplicar' }).click()
     await expect(page.getByRole('alert')).toContainText('Este cupom expirou')
   })
@@ -67,9 +67,12 @@ test.describe('Carrinho', () => {
     await addFirstAvailableToCart(page)
     await page.goto('/carrinho')
 
-    await page.getByLabel('Código promocional').fill('NAOEXISTE')
+    await page.getByRole('main').getByLabel('Código promocional').fill('NAOEXISTE')
     await page.getByRole('button', { name: 'Aplicar' }).click()
-    await expect(page.getByLabel('Código promocional')).toHaveAttribute('aria-invalid', 'true')
+    await expect(page.getByRole('main').getByLabel('Código promocional')).toHaveAttribute(
+      'aria-invalid',
+      'true',
+    )
     await expect(page.getByRole('alert')).toContainText('Cupom não encontrado')
   })
 
@@ -82,7 +85,9 @@ test.describe('Carrinho', () => {
     const nftId = await page.evaluate(() => window.__kurio!.inspect().carts[0]!.items[0]!.nftId)
     await page.evaluate((id) => window.__kurio!.setNftPrice(id, '7.77'), nftId)
 
-    await expect(page.getByRole('status')).toContainText('Algo mudou enquanto seu carrinho estava aberto')
+    await expect(page.getByRole('main').getByRole('status')).toContainText(
+      'Algo mudou enquanto seu carrinho estava aberto',
+    )
     await expect(page.getByText('7,77 ETH').first()).toBeVisible()
   })
 

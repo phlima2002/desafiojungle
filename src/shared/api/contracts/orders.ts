@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { ethAmountSchema, idSchema, isoDateTimeSchema, versionSchema } from './common'
 import { cartTotalsSchema, couponSchema } from './cart'
 import { networkSchema } from './nft'
+import { collectorDetailsSchema } from './wallets'
 
 export const orderStatusSchema = z.enum(['pending', 'confirmed', 'declined'])
 export type OrderStatus = z.infer<typeof orderStatusSchema>
@@ -18,14 +19,6 @@ export const orderItemSchema = z.object({
   lineTotal: ethAmountSchema,
 })
 export type OrderItem = z.infer<typeof orderItemSchema>
-
-export const collectorDetailsSchema = z.object({
-  fullName: z.string().trim().min(2, 'Informe seu nome completo'),
-  email: z.email('Informe um e-mail válido'),
-  country: z.string().trim().min(2, 'Informe o país'),
-  taxId: z.string().trim().min(6, 'Informe um documento válido'),
-})
-export type CollectorDetails = z.infer<typeof collectorDetailsSchema>
 
 /**
  * The receipt is an immutable snapshot: later catalogue changes never alter a

@@ -2,61 +2,46 @@ import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
-  networkSchema,
+  WALLET_PROVIDER_LABELS,
   walletInputSchema,
-  walletProviderSchema,
-  walletRoleSchema,
   type Wallet,
   type WalletInput,
 } from '@/shared/api/contracts'
 import { isApiError } from '@/shared/api/errors'
 import { cn } from '@/shared/lib/utils'
-import { Field } from '@/features/auth/field'
+import { NETWORK_LABELS } from '@/features/catalog/labels'
 import { useWallets } from './use-account'
-
-const PROVIDER_LABELS: Record<string, string> = {
-  metamask: 'MetaMask',
-  walletconnect: 'WalletConnect',
-  coinbase: 'Coinbase Wallet',
-  ledger: 'Ledger',
-}
-
-const NETWORK_LABELS: Record<string, string> = {
-  ethereum: 'Ethereum',
-  polygon: 'Polygon',
-  solana: 'Solana',
-}
+import { WalletProfileFields } from './wallet-profile-fields'
 
 const EMPTY: WalletInput = {
   label: '',
-  provider: 'metamask',
+  displayName: '',
+  profileName: '',
   network: 'ethereum',
   address: '',
-  role: 'secondary',
+  secondaryAddress: '',
+  provider: 'metamask',
+  referralCode: '',
+  email: '',
+  ensTld: '.eth',
+  ensName: '',
+  role: 'primary',
+}
+
+function toInput(wallet: Wallet): WalletInput {
+  const { id: _id, connected: _connected, createdAt: _createdAt, ...input } = wallet
+  return input
 }
 
 export function WalletsPage() {
   const { query, create, update, connect, disconnect } = useWallets()
   const [editing, setEditing] = useState<Wallet | null>(null)
 
-  const form = useForm<WalletInput>({
-    resolver: zodResolver(walletInputSchema),
-    defaultValues: EMPTY,
-  })
-
+  const form = useForm<WalletInput>({ resolver: zodResolver(walletInputSchema), defaultValues: EMPTY })
   const { reset } = form
+
   useEffect(() => {
-    reset(
-      editing
-        ? {
-            label: editing.label,
-            provider: editing.provider,
-            network: editing.network,
-            address: editing.address,
-            role: editing.role,
-          }
-        : EMPTY,
-    )
+    reset(editing ? toInput(editing) : EMPTY)
   }, [editing, reset])
 
   const onSubmit = form.handleSubmit(async (values) => {
@@ -64,7 +49,7 @@ export function WalletsPage() {
       if (editing) await update.mutateAsync({ id: editing.id, body: values })
       else await create.mutateAsync(values)
       setEditing(null)
-      form.reset(EMPTY)
+      reset(EMPTY)
     } catch (error) {
       if (isApiError(error)) {
         for (const [field, message] of Object.entries(error.fieldErrors())) {
@@ -76,24 +61,33 @@ export function WalletsPage() {
   })
 
   const wallets = query.data?.items ?? []
+  const primary = wallets.find((wallet) => wallet.role === 'primary') ?? null
+  const secondary = wallets.filter((wallet) => wallet.role === 'secondary')
 
   return (
-    <section className="space-y-10">
-      <header>
-        <h1 className="text-h1 font-bold">Carteiras</h1>
-        <p className="mt-2 text-xs text-muted">
-          Cadastre a carteira principal e uma secundária. A conexão é simulada — nenhuma extensão real é
-          acionada.
-        </p>
+    <section className="space-y-8">
+      <header className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-md font-bold">Carteira principal</h1>
+          <p className="mt-1 text-3xs text-muted">
+            Estas carteiras ficam disponíveis no pagamento e para receber NFTs comprados.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            setEditing(null)
+            reset({ ...EMPTY, role: 'primary' })
+          }}
+          className="text-xs font-bold text-accent underline underline-offset-4"
+        >
+          Adicionar
+        </button>
       </header>
 
       {query.isPending ? (
-        <div className="skeleton h-40 w-full rounded-md" aria-hidden />
-      ) : wallets.length === 0 ? (
-        <p className="rounded-md border border-line bg-card p-5 text-xs text-muted">
-          Nenhuma carteira cadastrada ainda.
-        </p>
-      ) : (
+        <div className="skeleton h-32 w-full rounded-md" aria-hidden />
+      ) : wallets.length > 0 ? (
         <ul className="space-y-3">
           {wallets.map((wallet) => (
             <li
@@ -115,7 +109,9 @@ export function WalletsPage() {
                   </span>
                 </p>
                 <p className="text-3xs text-muted">
-                  {PROVIDER_LABELS[wallet.provider]} · {NETWORK_LABELS[wallet.network]}
+                  {WALLET_PROVIDER_LABELS[wallet.provider]} · {NETWORK_LABELS[wallet.network]} ·{' '}
+                  {wallet.ensName}
+                  {wallet.ensTld}
                 </p>
                 <p className="truncate text-3xs text-clay">{wallet.address}</p>
               </div>
@@ -145,7 +141,7 @@ export function WalletsPage() {
             </li>
           ))}
         </ul>
-      )}
+      ) : null}
 
       {connect.isError ? (
         <p role="alert" className="text-3xs text-danger">
@@ -153,8 +149,8 @@ export function WalletsPage() {
         </p>
       ) : null}
 
-      <form onSubmit={onSubmit} noValidate className="max-w-xl space-y-4 border-t border-line pt-8">
-        <h2 className="text-lg font-bold">{editing ? `Editar ${editing.label}` : 'Nova carteira'}</h2>
+      <form onSubmit={onSubmit} noValidate className="space-y-6">
+        <h2 className="sr-only">{editing ? `Editar ${editing.label}` : 'Nova carteira'}</h2>
 
         {form.formState.errors.root ? (
           <p role="alert" className="rounded-sm border border-danger/40 bg-danger/10 p-3 text-xs text-danger">
@@ -162,62 +158,25 @@ export function WalletsPage() {
           </p>
         ) : null}
 
-        <Field label="Apelido" error={form.formState.errors.label?.message}>
-          {(props) => <input {...props} {...form.register('label')} />}
-        </Field>
+        <WalletProfileFields
+          register={form.register as never}
+          errors={form.formState.errors}
+          variant="wallet"
+        />
 
-        <Field label="Provedor" error={form.formState.errors.provider?.message}>
-          {(props) => (
-            <select {...props} {...form.register('provider')}>
-              {walletProviderSchema.options.map((provider) => (
-                <option key={provider} value={provider}>
-                  {PROVIDER_LABELS[provider]}
-                </option>
-              ))}
-            </select>
-          )}
-        </Field>
-
-        <Field label="Rede" error={form.formState.errors.network?.message}>
-          {(props) => (
-            <select {...props} {...form.register('network')}>
-              {networkSchema.options.map((network) => (
-                <option key={network} value={network}>
-                  {NETWORK_LABELS[network]}
-                </option>
-              ))}
-            </select>
-          )}
-        </Field>
-
-        <Field
-          label="Endereço"
-          hint="Ethereum e Polygon usam 0x + 40 caracteres; Solana usa base58."
-          error={form.formState.errors.address?.message}
-        >
-          {(props) => <input {...props} spellCheck={false} {...form.register('address')} />}
-        </Field>
-
-        <Field label="Função" error={form.formState.errors.role?.message}>
-          {(props) => (
-            <select {...props} {...form.register('role')}>
-              {walletRoleSchema.options.map((role) => (
-                <option key={role} value={role}>
-                  {role === 'primary' ? 'Principal' : 'Secundária'}
-                </option>
-              ))}
-            </select>
-          )}
-        </Field>
-
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-4">
           <button
             type="submit"
             disabled={form.formState.isSubmitting}
-            className="rounded-sm bg-primary px-5 py-3 text-xs font-bold text-primary-foreground uppercase disabled:opacity-60"
+            className="rounded-sm bg-primary px-5 py-2.5 text-xs font-bold text-primary-foreground disabled:opacity-60"
           >
             {editing ? 'Salvar carteira' : 'Cadastrar carteira'}
           </button>
+
+          <label className="flex items-center gap-2 text-3xs text-muted">
+            <input type="checkbox" {...form.register('role')} value="primary" className="sr-only" />
+          </label>
+
           {editing ? (
             <button
               type="button"
@@ -227,8 +186,34 @@ export function WalletsPage() {
               cancelar edição
             </button>
           ) : null}
+
+          <label className="flex items-center gap-2 text-3xs">
+            <span>Função</span>
+            <select
+              aria-label="Função da carteira"
+              {...form.register('role')}
+              className="rounded-sm border border-line bg-card px-2 py-1 text-3xs"
+            >
+              <option value="primary">Principal</option>
+              <option value="secondary">Secundária</option>
+            </select>
+          </label>
         </div>
       </form>
+
+      <section className="border-t border-line pt-6">
+        <h2 className="text-md font-bold">Carteira secundária</h2>
+        <p className="mt-1 text-3xs text-muted">
+          {secondary.length > 0
+            ? `${secondary.length} carteira(s) secundária(s) cadastrada(s).`
+            : 'Você ainda não adicionou uma carteira secundária.'}
+        </p>
+        {primary ? (
+          <p className="mt-2 text-3xs text-clay">
+            Principal atual: {primary.label} ({NETWORK_LABELS[primary.network]})
+          </p>
+        ) : null}
+      </section>
     </section>
   )
 }

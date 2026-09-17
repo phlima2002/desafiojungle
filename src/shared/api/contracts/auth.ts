@@ -7,7 +7,6 @@ export const userSchema = z.object({
   displayName: z.string(),
   email: z.email(),
   avatarUrl: z.string().nullable(),
-  bio: z.string(),
   createdAt: isoDateTimeSchema,
 })
 export type User = z.infer<typeof userSchema>

@@ -35,9 +35,10 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
         setLastNftChange(event)
 
         // Patch the detail cache in place — no refetch needed, the event
-        // carries everything that changed.
-        queryClient.setQueryData<NftDetail>(queryKeys.nfts.detail(event.resourceId), (current) =>
-          current && current.version < event.version
+        // carries everything that changed. The detail is cached under whatever
+        // identifier the URL used (id *or* slug), so the match is by payload.
+        queryClient.setQueriesData<NftDetail>({ queryKey: [...queryKeys.nfts.all, 'detail'] }, (current) =>
+          current && current.id === event.resourceId && current.version < event.version
             ? {
                 ...current,
                 price: event.price,

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { Link } from '@tanstack/react-router'
 
 /**
@@ -17,5 +18,22 @@ export function OutOfScope({ title }: { title: string }) {
         Ir para o mercado
       </Link>
     </section>
+  )
+}
+
+/**
+ * A menu entry the layout shows but the challenge excludes. It stays visible
+ * and keyboard-reachable, and says plainly that it leads nowhere, instead of
+ * pretending to work.
+ */
+export function OutOfScopeNotice({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <span
+      title={`${label} não faz parte do escopo do desafio`}
+      aria-disabled="true"
+      className="flex cursor-not-allowed items-center gap-3 rounded-sm px-2 py-2.5 text-sm text-clay"
+    >
+      {children}
+    </span>
   )
 }

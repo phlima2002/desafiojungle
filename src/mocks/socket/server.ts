@@ -29,6 +29,8 @@ interface ConnectionState {
   nftIds: Set<string>
   orderIds: Set<string>
   emit: (event: string, payload: unknown) => void
+  /** Closes the underlying WebSocket, reproducing a dropped connection. */
+  close: () => void
 }
 
 const connections = new Set<ConnectionState>()
@@ -116,6 +118,7 @@ export const socketHandlers = [
       nftIds: new Set(),
       orderIds: new Set(),
       emit: (event, payload) => io.client.emit(event, payload),
+      close: () => connection.client.close(),
     }
     connections.add(state)
 
@@ -169,10 +172,12 @@ export const realtimeControls = {
   /** Number of open mock connections — used to assert cleanup on logout. */
   connectionCount: () => connections.size,
 
-  /** Drops every open socket, simulating a network interruption. */
+  /**
+   * Closes every open socket, reproducing a dropped connection. The client's
+   * own reconnection logic takes over from there.
+   */
   disconnectAll: () => {
-    for (const connection of connections) connection.emit('server.shutdown', {})
-    realtimeLink.broadcast('')
+    for (const connection of connections) connection.close()
     connections.clear()
   },
 

@@ -6,14 +6,15 @@ test.describe('Perfil', () => {
     await login(page, 'ana')
     await page.goto('/conta/perfil')
 
-    await page.getByLabel('Nome', { exact: true }).fill('Ana R. Ribeiro')
-    await page.getByLabel('Localização').fill('Olinda, BR')
-    await page.getByRole('button', { name: 'Salvar alterações' }).click()
-    await expect(page.getByRole('status')).toContainText('Dados salvos')
+    const main = page.getByRole('main')
+    await main.getByLabel('Nome de exibição').fill('Ana R. Ribeiro')
+    await main.getByLabel('Apelido da carteira').fill('Cofre principal')
+    await page.getByRole('button', { name: 'Salvar', exact: true }).first().click()
+    await expect(main.getByRole('status')).toContainText('Dados salvos')
 
     await page.reload()
-    await expect(page.getByLabel('Nome', { exact: true })).toHaveValue('Ana R. Ribeiro')
-    await expect(page.getByLabel('Localização')).toHaveValue('Olinda, BR')
+    await expect(main.getByLabel('Nome de exibição')).toHaveValue('Ana R. Ribeiro')
+    await expect(main.getByLabel('Apelido da carteira')).toHaveValue('Cofre principal')
   })
 
   test('erros de validação e conflito aparecem no campo', async ({ page }) => {
@@ -21,13 +22,14 @@ test.describe('Perfil', () => {
     await login(page, 'ana')
     await page.goto('/conta/perfil')
 
-    await page.getByLabel('Nome de exibição').fill('a')
-    await page.getByRole('button', { name: 'Salvar alterações' }).click()
+    const main = page.getByRole('main')
+    await main.getByLabel('Nome de usuário').fill('a')
+    await page.getByRole('button', { name: 'Salvar', exact: true }).first().click()
     await expect(page.getByText('Use pelo menos 3 caracteres')).toBeVisible()
 
-    await page.getByLabel('Nome de exibição').fill(USERS.bruno.displayName)
-    await page.getByRole('button', { name: 'Salvar alterações' }).click()
-    await expect(page.getByText('Nome de exibição indisponível')).toBeVisible()
+    await main.getByLabel('Nome de usuário').fill(USERS.bruno.username)
+    await page.getByRole('button', { name: 'Salvar', exact: true }).first().click()
+    await expect(page.getByText('Nome de usuário indisponível')).toBeVisible()
   })
 
   test('avatar é enviado e renderizado', async ({ page }) => {
@@ -45,7 +47,7 @@ test.describe('Perfil', () => {
       ),
     })
 
-    await expect(page.getByRole('status')).toContainText('Avatar atualizado')
+    await expect(page.getByRole('main').getByRole('status')).toContainText('Avatar atualizado')
     await expect(page.getByRole('img', { name: /Avatar de/ })).toBeVisible()
   })
 
@@ -54,15 +56,18 @@ test.describe('Perfil', () => {
     await login(page, 'ana')
     await page.goto('/conta/perfil')
 
-    await page.getByLabel('Senha atual').fill('errada')
-    await page.getByLabel('Nova senha', { exact: true }).fill('kurio2027')
-    await page.getByLabel('Confirmar nova senha').fill('kurio2027')
-    await page.getByRole('button', { name: 'Alterar senha' }).click()
+    const main = page.getByRole('main')
+    const savePassword = page.getByRole('button', { name: 'Salvar', exact: true }).last()
+
+    await main.getByLabel('Senha atual').fill('errada')
+    await main.getByLabel('Nova senha', { exact: true }).fill('kurio2027')
+    await main.getByLabel('Confirmar nova senha').fill('kurio2027')
+    await savePassword.click()
     await expect(page.getByText('Senha atual incorreta')).toBeVisible()
 
-    await page.getByLabel('Senha atual').fill(USERS.ana.password)
-    await page.getByRole('button', { name: 'Alterar senha' }).click()
-    await expect(page.getByRole('status')).toContainText('Senha alterada')
+    await main.getByLabel('Senha atual').fill(USERS.ana.password)
+    await savePassword.click()
+    await expect(main.getByRole('status')).toContainText('Senha alterada')
   })
 })
 
@@ -89,8 +94,8 @@ test.describe('Carteiras', () => {
     await login(page, 'ana')
     await page.goto('/conta/carteiras')
 
-    await page.getByLabel('Apelido').fill('Carteira torta')
-    await page.getByLabel('Endereço').fill('0x123')
+    await page.getByRole('main').getByLabel('Apelido da carteira').fill('Carteira torta')
+    await page.getByRole('main').getByLabel('Endereço da carteira').fill('0x123')
     await page.getByRole('button', { name: 'Cadastrar carteira' }).click()
     await expect(page.getByText(/Endereço inválido/)).toBeVisible()
   })
@@ -100,13 +105,19 @@ test.describe('Carteiras', () => {
     await login(page, 'ana')
     await page.goto('/conta/carteiras')
 
-    await page.getByLabel('Apelido').fill('Cofre novo')
-    await page.getByLabel('Endereço').fill('0xabcdefabcdefabcdefabcdefabcdefabcdefabcd')
-    await page.getByLabel('Função').selectOption('primary')
+    const main = page.getByRole('main')
+    await main.getByLabel('Apelido da carteira').fill('Cofre novo')
+    await main.getByLabel('Nome de exibição').fill('Ana Ribeiro')
+    await main.getByLabel('Nome do perfil').fill('Ana Ribeiro')
+    await main.getByLabel('Endereço da carteira').fill('0xabcdefabcdefabcdefabcdefabcdefabcdefabcd')
+    await main.getByLabel('Código de indicação').fill('KURIO-NOVO')
+    await main.getByLabel('E-mail').fill('ana@kurio.test')
+    await main.getByLabel('Nome ENS', { exact: true }).fill('cofrenovo')
+    await main.getByLabel('Função da carteira').selectOption('primary')
     await page.getByRole('button', { name: 'Cadastrar carteira' }).click()
 
     const row = page.getByRole('listitem').filter({ hasText: 'Cofre novo' })
-    await expect(row.getByText('Principal')).toBeVisible()
+    await expect(row.getByText('Principal', { exact: true })).toBeVisible()
 
     // Only one primary at a time.
     await expect(
@@ -114,7 +125,7 @@ test.describe('Carteiras', () => {
     ).toBeVisible()
 
     await page.reload()
-    await expect(page.getByText('Cofre novo')).toBeVisible()
+    await expect(page.getByRole('listitem').filter({ hasText: 'Cofre novo' })).toHaveCount(1)
   })
 
   test('carteiras não vazam entre usuários', async ({ page }) => {
@@ -127,7 +138,7 @@ test.describe('Carteiras', () => {
     await login(page, 'bruno')
     await page.goto('/conta/carteiras')
 
-    await expect(page.getByText('Cofre Coinbase')).toBeVisible()
+    await expect(page.getByRole('listitem').filter({ hasText: 'Cofre Coinbase' })).toHaveCount(1)
     await expect(page.getByRole('listitem').filter({ hasText: 'Carteira principal' })).toHaveCount(0)
   })
 })

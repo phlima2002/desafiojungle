@@ -3,13 +3,16 @@ import type { Cart, CollectorDetails, Coupon, NftDetail, Order, Quote, Wallet } 
 export interface MockUser {
   id: string
   name: string
+  /** Public display name shown on the profile. */
   displayName: string
+  /** Handle used across the app (header, mentions). */
+  username: string
   email: string
   password: string
   avatarUrl: string | null
-  bio: string
-  website: string
-  location: string
+  ensTld: '.eth' | '.box' | '.crypto'
+  ensName: string
+  walletLabel: string
   createdAt: string
 }
 

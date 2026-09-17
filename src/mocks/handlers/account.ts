@@ -21,11 +21,12 @@ function profileOf(user: MockUser) {
     id: user.id,
     name: user.name,
     displayName: user.displayName,
+    username: user.username,
     email: user.email,
     avatarUrl: user.avatarUrl,
-    bio: user.bio,
-    website: user.website,
-    location: user.location,
+    ensTld: user.ensTld,
+    ensName: user.ensName,
+    walletLabel: user.walletLabel,
     createdAt: user.createdAt,
   }
 }
@@ -66,12 +67,12 @@ export const accountHandlers = [
         details: [{ field: 'email', code: 'conflict', message: 'E-mail já cadastrado' }],
       })
     }
-    const nameOwner = db.users.find(
-      (candidate) => candidate.displayName === parsed.data.displayName && candidate.id !== user.id,
+    const usernameOwner = db.users.find(
+      (candidate) => candidate.username === parsed.data.username && candidate.id !== user.id,
     )
-    if (nameOwner) {
-      return errorResponse('CONFLICT', 'Este nome de exibição já está em uso.', {
-        details: [{ field: 'displayName', code: 'conflict', message: 'Nome de exibição indisponível' }],
+    if (usernameOwner) {
+      return errorResponse('CONFLICT', 'Este nome de usuário já está em uso.', {
+        details: [{ field: 'username', code: 'conflict', message: 'Nome de usuário indisponível' }],
       })
     }
 

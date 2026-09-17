@@ -7,16 +7,24 @@ async function addItemAndGoToCheckout(page: Page) {
   const buy = page.getByRole('button', { name: 'Comprar' })
   await expect(buy).toBeEnabled()
   await buy.click()
-  await expect(page.getByRole('status')).toContainText('Adicionado ao carrinho')
+  await expect(page.getByRole('main').getByRole('status')).toContainText('Adicionado ao carrinho')
   await page.goto('/pagamento')
   await waitForMocks(page)
 }
 
+/**
+ * The checkout profile mirrors the layout's field set. The wallet already fills
+ * most of it, so the helper only completes what the seed leaves blank.
+ */
 async function fillCollector(page: Page) {
-  await page.getByLabel('Nome completo').fill('Ana Ribeiro')
-  await page.getByLabel('E-mail').fill('ana@kurio.test')
-  await page.getByLabel('País').fill('Brasil')
-  await page.getByLabel('Documento').fill('12345678909')
+  const main = page.getByRole('main')
+  await main.getByLabel('Nome de exibição').fill('Ana Ribeiro')
+  await main.getByLabel('Nome de usuário').fill('anaribeiro')
+  await main.getByLabel('Nome do perfil').fill('Ana Ribeiro')
+  await main.getByLabel('Endereço da carteira').fill('0x8f2c41b3d5a76e90c1428b7fd3a51e60947ac2db')
+  await main.getByLabel('Código de indicação').fill('KURIO-ANA1')
+  await main.getByLabel('E-mail').fill('ana@kurio.test')
+  await main.getByLabel('Nome ENS', { exact: true }).fill('anaribeiro')
 }
 
 test.describe('Compra', () => {
@@ -26,8 +34,8 @@ test.describe('Compra', () => {
     await addItemAndGoToCheckout(page)
 
     await fillCollector(page)
-    const wallets = page.getByRole('group', { name: 'Carteira e rede' })
-    await expect(wallets.getByText('Conectada').first()).toBeVisible()
+    const walletGroup = page.getByRole('group', { name: 'Carteira e rede' })
+    await expect(walletGroup.getByText('Conectada').first()).toBeVisible()
 
     await page.getByRole('button', { name: 'Confirmar compra' }).click()
 
@@ -114,7 +122,7 @@ test.describe('Compra', () => {
 
     // The quote is re-issued and reports the change; confirming is blocked
     // until the collector reviews it.
-    await expect(page.getByRole('status')).toContainText('Confira o que mudou')
+    await expect(page.getByRole('main').getByRole('status')).toContainText('Confira o que mudou')
     await expect(page.getByRole('button', { name: 'Confirmar compra' })).toBeDisabled()
 
     await page.getByRole('button', { name: 'Revisar e recalcular' }).click()
@@ -132,10 +140,17 @@ test.describe('Compra', () => {
 
     // A Ledger wallet always refuses in the simulation.
     await page.goto('/conta/carteiras')
-    await page.getByLabel('Apelido').fill('Ledger de teste')
-    await page.getByLabel('Provedor').selectOption('ledger')
-    await page.getByLabel('Rede').selectOption('ethereum')
-    await page.getByLabel('Endereço').fill('0x1111111111111111111111111111111111111111')
+    const main = page.getByRole('main')
+    await main.getByLabel('Apelido da carteira').fill('Ledger de teste')
+    await main.getByLabel('Nome de exibição').fill('Ana Ribeiro')
+    await main.getByLabel('Nome do perfil').fill('Ana Ribeiro')
+    await main.getByLabel('Tipo de carteira').selectOption('ledger')
+    await main.getByLabel('Rede', { exact: true }).selectOption('ethereum')
+    await main.getByLabel('Endereço da carteira').fill('0x1111111111111111111111111111111111111111')
+    await main.getByLabel('Código de indicação').fill('KURIO-TEST')
+    await main.getByLabel('E-mail').fill('ana@kurio.test')
+    await main.getByLabel('Nome ENS', { exact: true }).fill('anatest')
+    await main.getByLabel('Função da carteira').selectOption('secondary')
     await page.getByRole('button', { name: 'Cadastrar carteira' }).click()
 
     const row = page.getByRole('listitem').filter({ hasText: 'Ledger de teste' })
