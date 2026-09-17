@@ -1,0 +1,181 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/roboto-mono/wght.css';
+
+/*
+ * KURIO design tokens — extracted from the Figma file
+ * "Frontend Challenge / Marketplace de NFTs GreenMint" via the Figma REST API.
+ * See docs/design-tokens.md for the provenance of every value.
+ */
+@theme {
+  /* ---- palette ---------------------------------------------------- */
+  --color-ink-950: #140d0a; /* page background / text on accent          */
+  --color-ink-900: #241612; /* surface (cards, panels)                   */
+  --color-ink-800: #2f1d15; /* raised surface, gradient stop             */
+  --color-ink-700: #38220f; /* highlight surface (featured blocks)       */
+  --color-line: #3f2319; /* hairline border (default)                 */
+  --color-line-strong: #55321f; /* emphasised border                         */
+
+  --color-cream: #f5f1eb; /* primary foreground                        */
+  --color-sand: #cfb28c; /* secondary foreground                      */
+  --color-clay: #b39463; /* tertiary / disabled foreground            */
+
+  --color-amber-500: #d28a4c; /* primary action, focus ring                */
+  --color-amber-400: #e89b55; /* accent text, prices, active nav           */
+  --color-amber-300: #e3a44e; /* rating / highlight                        */
+
+  --color-danger: #f0805f;
+  --color-danger-strong: #ed1b2e;
+  --color-success: #59c36a;
+  --color-success-strong: #00a66c;
+  --color-warning: #ffda2d;
+
+  --color-brand-google: #4086f4;
+  --color-brand-facebook: #3b5999;
+
+  /* ---- semantic aliases ------------------------------------------- */
+  --color-background: var(--color-ink-950);
+  --color-foreground: var(--color-cream);
+  --color-muted: var(--color-sand);
+  --color-subtle: var(--color-clay);
+  --color-card: var(--color-ink-900);
+  --color-card-raised: var(--color-ink-800);
+  --color-border: var(--color-line);
+  --color-primary: var(--color-amber-500);
+  --color-primary-foreground: var(--color-ink-950);
+  --color-accent: var(--color-amber-400);
+  --color-ring: var(--color-amber-400);
+
+  /* ---- typography -------------------------------------------------- */
+  --font-mono: 'Roboto Mono Variable', ui-monospace, 'Roboto Mono', monospace;
+  --font-sans: var(--font-mono);
+
+  --text-display: 2.6875rem; /* 43px */
+  --text-display--line-height: 4.375rem; /* 70px */
+  --text-display--font-weight: 700;
+  --text-wordmark: 2rem; /* 32px */
+  --text-wordmark--line-height: 2.625rem;
+  --text-wordmark--letter-spacing: 0.1em;
+  --text-h1: 1.75rem; /* 28px */
+  --text-h1--line-height: 2.3125rem;
+  --text-h2: 1.5rem; /* 24px */
+  --text-h2--line-height: 2rem;
+  --text-h3: 1.375rem; /* 22px */
+  --text-h3--line-height: 1.8125rem;
+  --text-h4: 1.25rem; /* 20px */
+  --text-h4--line-height: 1.75rem;
+  --text-lg: 1.125rem; /* 18px */
+  --text-lg--line-height: 1.5rem;
+  --text-md: 1.0625rem; /* 17px */
+  --text-md--line-height: 1.5rem;
+  --text-base: 1rem; /* 16px */
+  --text-base--line-height: 1.3125rem;
+  --text-sm: 0.9375rem; /* 15px */
+  --text-sm--line-height: 1.25rem;
+  --text-xs: 0.875rem; /* 14px */
+  --text-xs--line-height: 1.375rem;
+  --text-2xs: 0.8125rem; /* 13px */
+  --text-2xs--line-height: 1.375rem;
+  --text-3xs: 0.75rem; /* 12px */
+  --text-3xs--line-height: 1rem;
+  --text-micro: 0.625rem; /* 10px */
+  --text-micro--line-height: 0.8125rem;
+  --text-eyebrow: 0.5625rem; /* 9px */
+  --text-eyebrow--line-height: 0.75rem;
+  --text-eyebrow--letter-spacing: 0.1em;
+
+  /* ---- radii ------------------------------------------------------- */
+  --radius-xs: 3px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 16px;
+  --radius-pill: 999px;
+
+  /* ---- elevation --------------------------------------------------- */
+  --shadow-card: 0 8px 20px rgba(10, 6, 4, 0.45);
+  --shadow-soft: 0 4px 12px rgba(20, 13, 10, 0.15);
+  --shadow-pop: 0 12px 40px rgba(10, 6, 4, 0.45);
+
+  /* ---- layout ------------------------------------------------------ */
+  --container-page: 1200px;
+
+  /* ---- motion ------------------------------------------------------ */
+  --animate-shimmer: shimmer 1.6s linear infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@layer base {
+  *,
+  ::after,
+  ::before {
+    border-color: var(--color-border);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scrollbar-gutter: stable;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-mono);
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+  }
+
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+    border-radius: var(--radius-xs);
+  }
+
+  ::selection {
+    background-color: var(--color-amber-500);
+    color: var(--color-ink-950);
+  }
+}
+
+@layer components {
+  /* Skeleton shimmer used by every data-dependent component. Respects
+     prefers-reduced-motion by falling back to a static tint. */
+  .skeleton {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-sm);
+    background-color: color-mix(in oklab, var(--color-ink-800) 85%, transparent);
+    background-image: linear-gradient(
+      90deg,
+      transparent 0%,
+      color-mix(in oklab, var(--color-clay) 18%, transparent) 50%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: var(--animate-shimmer);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+    background-image: none;
+  }
+
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
