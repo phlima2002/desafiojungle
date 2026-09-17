@@ -1,4 +1,4 @@
-import { USERS, bootstrap, expect, login, test, useScenario } from './fixtures'
+import { USERS, bootstrap, expect, expectSignedIn, login, test, useScenario } from './fixtures'
 
 test.describe('Conta e sessão', () => {
   test('cadastro cria a conta e autentica', async ({ page }) => {
@@ -11,7 +11,7 @@ test.describe('Conta e sessão', () => {
     await page.getByLabel('Confirmar senha').fill('kurio2026')
     await page.getByRole('button', { name: 'Criar conta' }).click()
 
-    await expect(page.getByRole('link', { name: 'clara' })).toBeVisible()
+    await expectSignedIn(page, 'clara')
   })
 
   test('cadastro com e-mail já usado mostra o conflito no campo', async ({ page }) => {
@@ -53,7 +53,7 @@ test.describe('Conta e sessão', () => {
     await bootstrap(page)
     await login(page, 'ana')
     await page.reload()
-    await expect(page.getByRole('link', { name: USERS.ana.displayName })).toBeVisible()
+    await expectSignedIn(page, USERS.ana.displayName)
   })
 
   test('rota privada redireciona para o login preservando o destino', async ({ page }) => {
@@ -77,10 +77,10 @@ test.describe('Conta e sessão', () => {
     await login(page, 'ana')
     await page.goto('/conta/perfil')
     await page.getByRole('button', { name: 'Sair' }).click()
-    await expect(page.getByRole('link', { name: 'Entrar' })).toBeVisible()
+    await expectSignedIn(page, null)
 
     await login(page, 'bruno')
-    await expect(page.getByRole('link', { name: USERS.bruno.displayName })).toBeVisible()
+    await expectSignedIn(page, USERS.bruno.displayName)
     await expect(page.getByRole('link', { name: USERS.ana.displayName })).toHaveCount(0)
   })
 })

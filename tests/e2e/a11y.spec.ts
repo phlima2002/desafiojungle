@@ -42,3 +42,37 @@ test.describe('Acessibilidade e responsividade', () => {
     await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1)
   })
 })
+
+test.describe('Menu mobile', () => {
+  test.use({ viewport: { width: 390, height: 844 } })
+
+  test('drawer prende o foco, fecha com Escape e devolve o foco ao gatilho', async ({ page }) => {
+    await bootstrap(page)
+
+    const opener = page.getByRole('button', { name: 'Abrir menu de navegação' })
+    await expect(opener).toBeVisible()
+    await opener.click()
+
+    const dialog = page.getByRole('dialog', { name: 'Menu de navegação' })
+    await expect(dialog).toBeVisible()
+    await expect(opener).toHaveAttribute('aria-expanded', 'true')
+
+    // The focus lives inside the dialog, never behind it.
+    await page.keyboard.press('Tab')
+    const focusedInsideDialog = await page.evaluate(() => Boolean(document.activeElement?.closest('dialog')))
+    expect(focusedInsideDialog).toBe(true)
+
+    await page.keyboard.press('Escape')
+    await expect(dialog).toBeHidden()
+    await expect(opener).toBeFocused()
+  })
+
+  test('navegar pelo menu leva à rota e fecha o drawer', async ({ page }) => {
+    await bootstrap(page)
+    await page.getByRole('button', { name: 'Abrir menu de navegação' }).click()
+    await page.getByRole('dialog').getByRole('link', { name: 'Mercado' }).click()
+
+    await expect(page).toHaveURL(/\/mercado/)
+    await expect(page.getByRole('dialog')).toBeHidden()
+  })
+})

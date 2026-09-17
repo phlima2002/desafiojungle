@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { LogIn, Search, ShoppingCart } from 'lucide-react'
 import { useCartQuery } from '@/features/cart/use-cart'
+import { MobileNav } from './mobile-nav'
 import { useSession } from '@/features/session/use-session'
 
 const NAV = [
@@ -38,7 +39,7 @@ export function SiteHeader() {
           </ul>
         </nav>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           <Link
             to="/mercado"
             className="rounded-sm p-2 text-foreground transition-colors hover:text-accent"
@@ -61,17 +62,19 @@ export function SiteHeader() {
             </span>
           </Link>
 
+          <MobileNav items={NAV} session={session} />
+
           {session ? (
             <Link
               to="/conta/perfil"
-              className="flex items-center gap-2 rounded-sm border border-primary px-3 py-2 text-xs font-medium text-accent transition-colors hover:bg-primary hover:text-primary-foreground"
+              className="hidden items-center gap-2 rounded-sm border border-primary px-3 py-2 text-xs font-medium text-accent transition-colors hover:bg-primary hover:text-primary-foreground md:flex"
             >
               {session.user.displayName}
             </Link>
           ) : (
             <Link
               to="/entrar"
-              className="flex items-center gap-2 rounded-sm bg-primary px-3 py-2 text-xs font-medium text-primary-foreground transition-opacity hover:opacity-90"
+              className="hidden items-center gap-2 rounded-sm bg-primary px-3 py-2 text-xs font-medium text-primary-foreground transition-opacity hover:opacity-90 md:flex"
             >
               <LogIn aria-hidden size={16} />
               Entrar

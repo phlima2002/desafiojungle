@@ -72,13 +72,40 @@ export async function useScenario(page: Page, scenario: ScenarioName) {
   await page.evaluate((name) => window.__kurio!.setScenario(name), scenario)
 }
 
+/**
+ * Asserts the signed-in identity through the API rather than the header, so the
+ * same assertion holds on mobile, where the account link lives inside the menu.
+ */
+export async function expectSignedIn(page: Page, displayName: string | null) {
+  await expect
+    .poll(
+      async () =>
+        page.evaluate(async () => {
+          // The worker may still be booting right after a reload; the poll
+          // retries until the mocked API answers.
+          if (!window.__kurio) return undefined
+          try {
+            const response = await fetch('/api/session')
+            const state = (await response.json()) as
+              { authenticated: true; user: { displayName: string } } | { authenticated: false }
+            return state.authenticated ? state.user.displayName : null
+          } catch {
+            return undefined
+          }
+        }),
+      { timeout: 15_000 },
+    )
+    .toBe(displayName)
+}
+
 export async function login(page: Page, user: keyof typeof USERS = 'ana') {
   const credentials = USERS[user]
   await page.goto('/entrar')
   await page.getByLabel('E-mail').fill(credentials.email)
   await page.getByLabel('Senha', { exact: true }).fill(credentials.password)
   await page.getByRole('button', { name: 'Entrar' }).click()
-  await expect(page.getByRole('link', { name: credentials.displayName })).toBeVisible()
+  await expect(page).not.toHaveURL(/\/entrar/)
+  await expectSignedIn(page, credentials.displayName)
 }
 
 export const test = base

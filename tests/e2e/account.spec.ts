@@ -72,8 +72,9 @@ test.describe('Carteiras', () => {
     await login(page, 'ana')
     await page.goto('/conta/carteiras')
 
-    await expect(page.getByText('Carteira principal')).toBeVisible()
-    await expect(page.getByText('Reserva Polygon')).toBeVisible()
+    const list = page.getByRole('listitem')
+    await expect(list.filter({ hasText: 'Carteira principal' })).toHaveCount(1)
+    await expect(list.filter({ hasText: 'Reserva Polygon' })).toHaveCount(1)
 
     const reserve = page.getByRole('listitem').filter({ hasText: 'Reserva Polygon' })
     await reserve.getByRole('button', { name: 'Conectar' }).click()
@@ -120,7 +121,7 @@ test.describe('Carteiras', () => {
     await bootstrap(page)
     await login(page, 'ana')
     await page.goto('/conta/carteiras')
-    await expect(page.getByText('Carteira principal')).toBeVisible()
+    await expect(page.getByRole('listitem').filter({ hasText: 'Carteira principal' })).toHaveCount(1)
 
     await page.getByRole('button', { name: 'Sair' }).click()
     await login(page, 'bruno')
