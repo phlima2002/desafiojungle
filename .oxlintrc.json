@@ -1,6 +1,11 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "unicorn", "oxc"],
+  "plugins": [
+    "react",
+    "typescript",
+    "unicorn",
+    "oxc"
+  ],
   "categories": {
     "correctness": "error",
     "suspicious": "warn",
@@ -15,31 +20,51 @@
     "no-console": [
       "warn",
       {
-        "allow": ["warn", "error"]
+        "allow": [
+          "warn",
+          "error"
+        ]
       }
     ],
     "react/react-in-jsx-scope": "off",
-    "no-underscore-dangle": "off"
+    "no-underscore-dangle": "off",
+    "react/exhaustive-effect-dependencies": "off"
   },
   "overrides": [
     {
-      "files": ["src/routes/**", "src/features/realtime/realtime-provider.tsx", "src/app/**"],
+      "files": [
+        "src/routes/**",
+        "src/features/realtime/realtime-provider.tsx",
+        "src/app/**"
+      ],
       "rules": {
         "react/only-export-components": "off"
       }
     },
     {
-      "files": ["src/mocks/**", "scripts/**", "tests/**"],
+      "files": [
+        "src/mocks/**",
+        "scripts/**",
+        "tests/**"
+      ],
       "rules": {
         "no-console": "off"
       }
     },
     {
-      "files": ["tests/**"],
+      "files": [
+        "tests/**"
+      ],
       "rules": {
         "no-await-in-loop": "off"
       }
     }
   ],
-  "ignorePatterns": ["dist", "playwright-report", "test-results", "src/routeTree.gen.ts", "lighthouse"]
+  "ignorePatterns": [
+    "dist",
+    "playwright-report",
+    "test-results",
+    "src/routeTree.gen.ts",
+    "lighthouse"
+  ]
 }

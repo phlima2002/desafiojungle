@@ -1,8 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { AccountStub } from '@/features/account/account-stub'
+import { WalletsPage } from '@/features/account/wallets-page'
 
-export const Route = createFileRoute('/conta/carteiras')({
-  component: () => (
-    <AccountStub title="Carteiras" description="Cadastro e edição das carteiras principal e secundária." />
-  ),
-})
+export const Route = createFileRoute('/conta/carteiras')({ component: WalletsPage })
