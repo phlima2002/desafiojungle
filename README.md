@@ -1,5 +1,7 @@
 # Kurio — Marketplace de NFTs
 
+**Aplicação publicada: https://phlima2002.github.io/desafiojungle/**
+
 Implementação do desafio de frontend “Marketplace de NFTs” em React + TypeScript,
 com API, autenticação, carteiras e pagamentos **simulados** na camada de rede.
 
@@ -204,6 +206,8 @@ e pull request. As baselines visuais são de Linux, e o runner também.
   feito para atingir as metas.
 
 ## Deploy
+
+A aplicação está no ar em **https://phlima2002.github.io/desafiojungle/**.
 
 O projeto é estático: `npm run build` gera `dist/`. Há dois caminhos prontos.
 
