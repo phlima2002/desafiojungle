@@ -3,7 +3,6 @@ import { createRoot } from 'react-dom/client'
 import { env } from '@/shared/config/env'
 import { setNetworkGate } from '@/shared/api/client'
 import { AppProviders } from '@/app/providers'
-import { startShellHandoffDeadline } from '@/app/shell-handoff'
 import '@/styles/index.css'
 
 function bootstrap() {
@@ -38,7 +37,6 @@ function bootstrap() {
       </StrictMode>,
     )
 
-  startShellHandoffDeadline()
   requestAnimationFrame(() => setTimeout(render, 0))
 
   if (env.enableMocks) {

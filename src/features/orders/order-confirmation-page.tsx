@@ -20,7 +20,16 @@ function Envelope() {
     <svg viewBox="0 0 64 56" width="64" height="56" aria-hidden className="mx-auto text-primary">
       <rect x="1" y="9" width="62" height="46" rx="4" fill="none" stroke="currentColor" strokeWidth="2" />
       <path d="M1 13 32 33 63 13" fill="none" stroke="currentColor" strokeWidth="2" />
-      <rect x="14" y="1" width="36" height="22" rx="3" fill="var(--color-ink-900)" stroke="currentColor" strokeWidth="2" />
+      <rect
+        x="14"
+        y="1"
+        width="36"
+        height="22"
+        rx="3"
+        fill="var(--color-ink-900)"
+        stroke="currentColor"
+        strokeWidth="2"
+      />
       <text
         x="32"
         y="10"
@@ -119,7 +128,9 @@ export function OrderConfirmationPage({ orderId }: { orderId: string }) {
           <div className="bg-card px-4 py-3">
             <dt className="text-3xs font-bold">ID da transação</dt>
             <dd className="truncate text-3xs text-muted">
-              {data.transactionHash ? `${data.transactionHash.slice(0, 8)}…${data.transactionHash.slice(-4)}` : '—'}
+              {data.transactionHash
+                ? `${data.transactionHash.slice(0, 8)}…${data.transactionHash.slice(-4)}`
+                : '—'}
             </dd>
           </div>
           <div className="bg-card px-4 py-3">

@@ -1,4 +1,4 @@
-import { bootstrap, expect, test } from './fixtures'
+import { bootstrap, expect, login, test } from './fixtures'
 
 test.describe('Acessibilidade e responsividade', () => {
   test('navegação por teclado alcança o conteúdo e mostra o foco', async ({ page }) => {
@@ -14,14 +14,35 @@ test.describe('Acessibilidade e responsividade', () => {
 
   test('não há overflow horizontal em 390, 768 e 1440', async ({ page }) => {
     await bootstrap(page)
+    await login(page, 'ana')
+
+    // Um item no carrinho para que a tabela e o resumo existam de verdade.
+    await page.goto('/nft/emerald-ape-100')
+    await page.getByRole('button', { name: 'Comprar' }).click()
+    await expect(page.getByRole('main').getByRole('status')).toContainText('Adicionado ao carrinho')
+
+    const routes = [
+      '/',
+      '/mercado',
+      '/nft/emerald-ape-100',
+      '/carrinho',
+      '/pagamento',
+      '/conta/perfil',
+      '/conta/carteiras',
+      '/entrar',
+      '/criar-conta',
+    ]
 
     for (const width of [390, 768, 1440]) {
       await page.setViewportSize({ width, height: 900 })
-      await page.waitForTimeout(150)
-      const overflow = await page.evaluate(
-        () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
-      )
-      expect(overflow, `largura ${width}px`).toBeLessThanOrEqual(1)
+      for (const route of routes) {
+        await page.goto(route)
+        await expect(page.locator('.skeleton')).toHaveCount(0)
+        const overflow = await page.evaluate(
+          () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+        )
+        expect(overflow, `${route} em ${width}px`).toBeLessThanOrEqual(1)
+      }
     }
   })
 

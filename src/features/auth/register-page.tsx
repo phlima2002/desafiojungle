@@ -46,7 +46,10 @@ export function RegisterPage() {
     >
       <form onSubmit={onSubmit} noValidate className="space-y-4">
         {register.isError ? (
-          <p role="alert" className="rounded-sm border border-danger/40 bg-danger/10 p-3 text-2xs text-danger">
+          <p
+            role="alert"
+            className="rounded-sm border border-danger/40 bg-danger/10 p-3 text-2xs text-danger"
+          >
             {register.error.message}
           </p>
         ) : null}
@@ -57,7 +60,13 @@ export function RegisterPage() {
 
         <Field label="E-mail" error={form.formState.errors.email?.message}>
           {(props) => (
-            <input {...props} type="email" autoComplete="email" placeholder="contato@email.com" {...form.register('email')} />
+            <input
+              {...props}
+              type="email"
+              autoComplete="email"
+              placeholder="contato@email.com"
+              {...form.register('email')}
+            />
           )}
         </Field>
 

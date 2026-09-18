@@ -55,10 +55,7 @@ function staticShell() {
       // Next to `#root`, not inside it: React clears its own container, and the
       // shell has to outlive the first commit. `#root` is revealed by
       // `shell-handoff.ts`.
-      return html.replace(
-        '<div id="root"></div>',
-        `${SHELL_HTML}<div id="root" style="display:none"></div>`,
-      )
+      return html.replace('<div id="root"></div>', `${SHELL_HTML}<div id="root" style="display:none"></div>`)
     },
   }
 }

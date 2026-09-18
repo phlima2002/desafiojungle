@@ -58,15 +58,11 @@ test.describe('Compra', () => {
 
     await page.getByRole('button', { name: 'Confirmar compra' }).click()
     await expect(page).toHaveURL(/\/pedido\//)
-    await expect(page.getByRole('heading', { level: 1 })).toContainText(
-      'Não foi possível concluir a compra',
-    )
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('Não foi possível concluir a compra')
     await expect(page.getByRole('alert')).toContainText('recusou a assinatura')
 
     await page.reload()
-    await expect(page.getByRole('heading', { level: 1 })).toContainText(
-      'Não foi possível concluir a compra',
-    )
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('Não foi possível concluir a compra')
   })
 
   test('cliques repetidos não criam um segundo pedido', async ({ page }) => {

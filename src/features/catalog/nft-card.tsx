@@ -30,19 +30,19 @@ export function NftCard({ nft, canFavorite, onToggleFavorite, onQuickAdd }: NftC
         />
 
         {nft.rarity !== 'comum' ? (
-          <p className="absolute right-0 top-3 rounded-l-xs bg-primary px-2 py-1 text-3xs font-bold uppercase tracking-wide text-primary-foreground">
+          <p className="absolute top-3 right-0 rounded-l-xs bg-primary px-2 py-1 text-3xs font-bold tracking-wide text-primary-foreground uppercase">
             {RARITY_LABELS[nft.rarity]}
           </p>
         ) : null}
 
         {soldOut ? (
-          <p className="absolute left-3 top-3 rounded-xs bg-ink-950/85 px-2 py-1 text-micro font-bold uppercase tracking-wide text-danger">
+          <p className="absolute top-3 left-3 rounded-xs bg-ink-950/85 px-2 py-1 text-micro font-bold tracking-wide text-danger uppercase">
             Esgotado
           </p>
         ) : null}
 
         {/* Quick actions: revealed on hover, but always reachable by keyboard. */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex justify-center gap-2 p-3 opacity-0 transition-opacity group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100 motion-reduce:transition-none max-md:pointer-events-auto max-md:opacity-100">
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex justify-center gap-2 p-3 opacity-0 transition-opacity group-focus-within:pointer-events-auto group-focus-within:opacity-100 group-hover:pointer-events-auto group-hover:opacity-100 motion-reduce:transition-none max-md:pointer-events-auto max-md:opacity-100">
           {onQuickAdd ? (
             <button
               type="button"

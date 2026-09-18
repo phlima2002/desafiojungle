@@ -77,24 +77,29 @@ export function CartPage() {
               </div>
             ) : null}
 
+            {/* Five columns não cabem em 390 px. Abaixo de `sm` as colunas de
+                preço e total saem da tabela e reaparecem sob o nome do item —
+                nenhum dado é perdido e nada transborda. */}
             <div className="overflow-hidden rounded-md border border-line">
               <table className="w-full border-collapse text-left">
                 <caption className="sr-only">Itens no carrinho, com preço, quantidade e total</caption>
                 <thead>
                   <tr className="border-b border-line text-sm font-bold">
-                    <th scope="col" className="px-4 py-3">
+                    {/* Absorve a sobra: as outras colunas ficam no tamanho
+                        natural e o nome trunca, em vez de empurrar a tabela. */}
+                    <th scope="col" className="w-full px-2 py-3 sm:px-4">
                       NFTs
                     </th>
-                    <th scope="col" className="px-4 py-3">
+                    <th scope="col" className="hidden px-2 py-3 sm:table-cell sm:px-4">
                       Preço
                     </th>
-                    <th scope="col" className="px-4 py-3">
+                    <th scope="col" className="px-2 py-3 sm:px-4">
                       Edições
                     </th>
-                    <th scope="col" className="px-4 py-3">
+                    <th scope="col" className="hidden px-2 py-3 sm:table-cell sm:px-4">
                       Total
                     </th>
-                    <th scope="col" className="px-4 py-3">
+                    <th scope="col" className="px-2 py-3 sm:px-4">
                       <span className="sr-only">Remover</span>
                     </th>
                   </tr>
@@ -102,7 +107,7 @@ export function CartPage() {
                 <tbody>
                   {items.map((item) => (
                     <tr key={item.id} className="border-b border-line/60 bg-card last:border-b-0">
-                      <td className="px-4 py-3">
+                      <td className="w-full max-w-0 px-2 py-3 sm:px-4">
                         <div className="flex items-center gap-3">
                           <img
                             src={item.imageUrl}
@@ -122,15 +127,24 @@ export function CartPage() {
                               {item.name}
                             </Link>
                             <p className="truncate text-3xs text-muted">{item.editionLabel}</p>
+                            <p className="mt-1 text-3xs font-bold text-accent sm:hidden">
+                              {formatEthWithUnit(item.unitPrice)}
+                              {item.quantity > 1 ? (
+                                <span className="font-normal text-muted">
+                                  {' '}
+                                  · total {formatEthWithUnit(item.lineTotal)}
+                                </span>
+                              ) : null}
+                            </p>
                           </div>
                         </div>
                       </td>
 
-                      <td className="px-4 py-3 text-xs font-bold text-accent">
+                      <td className="hidden px-2 py-3 text-xs font-bold text-accent sm:table-cell sm:px-4">
                         {formatEthWithUnit(item.unitPrice)}
                       </td>
 
-                      <td className="px-4 py-3">
+                      <td className="px-2 py-3 sm:px-4">
                         <QuantityStepper
                           value={item.quantity}
                           max={Math.max(1, Math.min(item.available, item.maxPerOrder))}
@@ -139,11 +153,11 @@ export function CartPage() {
                         />
                       </td>
 
-                      <td className="px-4 py-3 text-xs font-bold text-accent">
+                      <td className="hidden px-2 py-3 text-xs font-bold text-accent sm:table-cell sm:px-4">
                         {formatEthWithUnit(item.lineTotal)}
                       </td>
 
-                      <td className="px-4 py-3 text-right">
+                      <td className="px-2 py-3 text-right sm:px-4">
                         <button
                           type="button"
                           onClick={() => removeItem.mutate(item.id)}

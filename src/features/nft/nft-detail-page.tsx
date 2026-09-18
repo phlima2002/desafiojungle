@@ -12,7 +12,6 @@ import { useNftSubscription } from '@/features/realtime/realtime-provider'
 import { useCatalogQuery, useNftDetailQuery } from '@/features/catalog/use-catalog'
 import { NftCard } from '@/features/catalog/nft-card'
 import { NftDetailSkeleton } from './nft-detail-skeleton'
-import { useShellHold } from '@/app/shell-handoff'
 
 type Tab = 'detalhes' | 'avaliacoes'
 
@@ -29,10 +28,8 @@ export function NftDetailPage({ slug }: { slug: string }) {
 
   const nft = detail.data
   useNftSubscription(nft ? [nft.id] : [])
-  // The shell already shows this artwork; don't replace it with a skeleton.
-  useShellHold(detail.isPending)
 
-  if (detail.isPending) return <NftDetailSkeleton />
+  if (detail.isPending) return <NftDetailSkeleton slug={slug} />
   if (!nft) return null
 
   const selected = nft.editions.find((edition) => edition.id === editionId) ?? nft.editions[0]!
@@ -42,7 +39,12 @@ export function NftDetailPage({ slug }: { slug: string }) {
 
   return (
     <article className="mx-auto max-w-page px-4 py-8 sm:px-8">
-      <Breadcrumb items={[{ label: 'Início', to: '/' }, { label: 'Mercado', to: '/mercado' }]} />
+      <Breadcrumb
+        items={[
+          { label: 'Início', to: '/' },
+          { label: 'Mercado', to: '/mercado' },
+        ]}
+      />
 
       <div className="mt-6 grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <div className="flex gap-4">
@@ -99,7 +101,9 @@ export function NftDetailPage({ slug }: { slug: string }) {
                   <Star
                     key={star}
                     size={12}
-                    className={cn(star <= Math.round(nft.rating) ? 'fill-amber-300 text-amber-300' : 'text-clay')}
+                    className={cn(
+                      star <= Math.round(nft.rating) ? 'fill-amber-300 text-amber-300' : 'text-clay',
+                    )}
                   />
                 ))}
               </span>
@@ -133,7 +137,9 @@ export function NftDetailPage({ slug }: { slug: string }) {
                     }}
                     className={cn(
                       'rounded-pill border px-3 py-1 text-3xs transition-colors',
-                      active ? 'border-primary text-accent' : 'border-transparent text-sand hover:text-accent',
+                      active
+                        ? 'border-primary text-accent'
+                        : 'border-transparent text-sand hover:text-accent',
                       unavailable && 'cursor-not-allowed text-clay line-through',
                     )}
                   >
@@ -163,7 +169,7 @@ export function NftDetailPage({ slug }: { slug: string }) {
               type="button"
               disabled={soldOut || addToCart.isPending}
               onClick={() => addToCart.mutate({ nftId: nft.id, editionId: selected.id, quantity })}
-              className="rounded-sm bg-primary px-8 py-2.5 text-3xs font-bold uppercase tracking-wide text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-sm bg-primary px-8 py-2.5 text-3xs font-bold tracking-wide text-primary-foreground uppercase transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {soldOut ? 'Esgotado' : addToCart.isPending ? 'Adicionando…' : 'Comprar'}
             </button>
@@ -242,15 +248,19 @@ export function NftDetailPage({ slug }: { slug: string }) {
             <>
               <p>{nft.description}</p>
               <p>
-                A propriedade inclui a arte em alta resolução, lançamentos exclusivos para colecionadores e
-                um registro permanente de procedência na rede. {nft.creator.name} recebe{' '}
+                A propriedade inclui a arte em alta resolução, lançamentos exclusivos para colecionadores e um
+                registro permanente de procedência na rede. {nft.creator.name} recebe{' '}
                 {nft.royaltiesBasisPoints / 100}% de direitos autorais nas vendas secundárias.
               </p>
               <dl className="space-y-2">
                 <dt className="text-sm font-bold text-foreground">Rede:</dt>
-                <dd>Cunhado na {NETWORK_LABELS[nft.network]} com procedência imutável e metadados em IPFS.</dd>
+                <dd>
+                  Cunhado na {NETWORK_LABELS[nft.network]} com procedência imutável e metadados em IPFS.
+                </dd>
                 <dt className="text-sm font-bold text-foreground">Contrato:</dt>
-                <dd className="break-all">{nft.contractAddress} · Contrato inteligente ERC-721 verificado.</dd>
+                <dd className="break-all">
+                  {nft.contractAddress} · Contrato inteligente ERC-721 verificado.
+                </dd>
                 <dt className="text-sm font-bold text-foreground">Direitos autorais:</dt>
                 <dd>
                   {nft.royaltiesBasisPoints / 100}% nas vendas secundárias, pagos automaticamente pelos

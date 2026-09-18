@@ -1,13 +1,14 @@
 import { Link } from '@tanstack/react-router'
 import { useFeaturedQuery } from './use-catalog'
-import { useShellHold } from '@/app/shell-handoff'
+import { SHELL_HERO_IMAGE } from '@/app/static-shell'
 
 export function HomeHero() {
   const featured = useFeaturedQuery()
   const hero = featured.data?.hero[0]
-
-  // The shell already shows this artwork; don't replace it with a skeleton.
-  useShellHold(featured.isPending)
+  // While the query is in flight the artwork is not unknown: the document was
+  // served with it (see `app/static-shell.ts`). A skeleton here would blink the
+  // piece out of the page for no reason, so the known image stays put.
+  const heroImage = hero?.imageUrl ?? SHELL_HERO_IMAGE
 
   return (
     <section className="mx-auto max-w-page px-4 pt-12 sm:px-8">
@@ -37,19 +38,15 @@ export function HomeHero() {
         {/* Fixed track + fixed box: the placeholder and the final image occupy
             exactly the same space, so swapping them shifts nothing. */}
         <div className="aspect-square w-full max-w-[420px] lg:justify-self-end">
-          {featured.isPending ? (
-            <div className="skeleton size-full rounded-lg" aria-hidden />
-          ) : hero ? (
-            <img
-              src={hero.imageUrl}
-              alt={hero.imageAlt}
-              width={420}
-              height={420}
-              fetchPriority="high"
-              decoding="async"
-              className="size-full rounded-lg object-cover shadow-card"
-            />
-          ) : null}
+          <img
+            src={heroImage}
+            alt={hero?.imageAlt ?? ''}
+            width={420}
+            height={420}
+            fetchPriority="high"
+            decoding="async"
+            className="size-full rounded-lg object-cover shadow-card"
+          />
         </div>
       </div>
     </section>

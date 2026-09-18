@@ -161,7 +161,10 @@ test.describe('Favoritos', () => {
     await page.reload()
     await page.locator('article').first().hover()
     await expect(
-      page.locator('article').first().getByRole('button', { name: /Favoritar|dos favoritos/ }),
+      page
+        .locator('article')
+        .first()
+        .getByRole('button', { name: /Favoritar|dos favoritos/ }),
     ).toHaveAttribute('aria-pressed', 'true')
   })
 })
