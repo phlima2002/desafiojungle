@@ -4,14 +4,15 @@ Implementação do desafio de frontend “Marketplace de NFTs” em React + Type
 com API, autenticação, carteiras e pagamentos **simulados** na camada de rede.
 
 As nove telas do desafio estão implementadas em desktop e mobile, com 29 testes
-de unidade e 126 E2E (incluindo regressão visual) passando nos dois viewports e as quatro metas de
-Lighthouse atingidas nos dois perfis. Veja [ARCHITECTURE.md](./ARCHITECTURE.md)
-para as decisões, os contratos e as limitações conhecidas.
+de unidade e 126 E2E (incluindo regressão visual) passando nos dois viewports, e
+as quatro metas de Lighthouse atingidas nos dois perfis. Veja
+[ARCHITECTURE.md](./ARCHITECTURE.md) para as decisões, os contratos e as
+limitações conhecidas.
 
 | Lighthouse (mediana de 3) | Performance | Accessibility | Best Practices |     SEO |
 | ------------------------- | ----------: | ------------: | -------------: | ------: |
-| Início — mobile           |      **93** |       **100** |        **100** | **100** |
-| Detalhes do NFT — mobile  |      **93** |       **100** |        **100** | **100** |
+| Início — mobile           |      **92** |       **100** |        **100** | **100** |
+| Detalhes do NFT — mobile  |      **91** |       **100** |        **100** | **100** |
 | Início — desktop          |     **100** |       **100** |        **100** | **100** |
 | Detalhes do NFT — desktop |     **100** |       **100** |        **100** | **100** |
 
@@ -35,20 +36,20 @@ Metas: 90 / 95 / 95 / 90. Reprodução e análise em
 
 ## Stack
 
-| Responsabilidade | Tecnologia                                          |
-| ---------------- | --------------------------------------------------- |
-| Interface        | React 19                                            |
-| Linguagem        | TypeScript                                          |
-| Roteamento       | TanStack Router (file-based, search params tipados) |
-| Estado remoto    | TanStack Query v5                                   |
-| Cliente HTTP     | Axios                                               |
-| Contratos        | Zod (validação de request e response)               |
-| Tempo real       | Socket.IO (`socket.io-client`)                      |
-| Estilização      | Tailwind CSS v4 (tokens extraídos do Figma)         |
-| Componentes      | shadcn/ui sobre Radix (`src/components/ui`)         |
-| Mocking          | MSW v2 + `@mswjs/socket.io-binding`                 |
-| Testes E2E       | Playwright (Chromium, desktop + mobile)             |
-| Build            | Vite                                                |
+| Responsabilidade | Tecnologia                                             |
+| ---------------- | ------------------------------------------------------ |
+| Interface        | React 19                                               |
+| Linguagem        | TypeScript                                             |
+| Roteamento       | TanStack Router (file-based, search params tipados)    |
+| Estado remoto    | TanStack Query v5                                      |
+| Cliente HTTP     | Axios                                                  |
+| Contratos        | Zod (validação de request e response)                  |
+| Tempo real       | Socket.IO (`socket.io-client`)                         |
+| Estilização      | Tailwind CSS v4 (tokens extraídos do Figma)            |
+| Componentes      | shadcn/ui sobre Radix (`src/components/ui`)            |
+| Mocking          | MSW v2 + `@mswjs/socket.io-binding`                    |
+| Testes           | Vitest (unidade) + Playwright (E2E e regressão visual) |
+| Build            | Vite                                                   |
 
 ## Setup
 
