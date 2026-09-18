@@ -14,7 +14,10 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
   "include": ["vite.config.ts", "playwright.config.ts", "tests/**/*.ts", "scripts/**/*.ts"]
 }

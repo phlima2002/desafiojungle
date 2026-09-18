@@ -3,8 +3,8 @@
 Implementação do desafio de frontend “Marketplace de NFTs” em React + TypeScript,
 com API, autenticação, carteiras e pagamentos **simulados** na camada de rede.
 
-As nove telas do desafio estão implementadas em desktop e mobile, com 126 testes
-E2E (incluindo regressão visual) passando nos dois viewports e as quatro metas de
+As nove telas do desafio estão implementadas em desktop e mobile, com 29 testes
+de unidade e 126 E2E (incluindo regressão visual) passando nos dois viewports e as quatro metas de
 Lighthouse atingidas nos dois perfis. Veja [ARCHITECTURE.md](./ARCHITECTURE.md)
 para as decisões, os contratos e as limitações conhecidas.
 
@@ -80,6 +80,7 @@ API REST e o canal Socket.IO são interceptados no navegador.
 | `npm run typecheck`       | Checagem de tipos.                                            |
 | `npm run lint`            | Lint (oxlint).                                                |
 | `npm run format`          | Prettier.                                                     |
+| `npm run test:unit`       | Vitest (aritmética em ETH, URL do catálogo, contratos).       |
 | `npm run test:e2e`        | Playwright (sobe o build automaticamente).                    |
 | `npm run test:e2e:ui`     | Playwright em modo interativo.                                |
 | `npm run test:report`     | Abre o relatório HTML do Playwright.                          |
@@ -169,13 +170,22 @@ window.__kurio.inspect() // verdade do servidor simulado
 ## Testes
 
 ```bash
+npm run test:unit                      # Vitest, sem navegador
 npm run test:e2e                       # desktop (1440×900) e mobile (390×844)
 npm run test:e2e -- --project=desktop-chromium
 npm run test:report                    # relatório HTML
 ```
 
-Cada teste parte de um banco recém-semeado no cenário `instant`, então a suíte é
-determinística. Traces e vídeos ficam retidos apenas em falha.
+Cada teste E2E parte de um banco recém-semeado no cenário `instant`, então a
+suíte é determinística. Traces e vídeos ficam retidos apenas em falha.
+
+Os testes de unidade cobrem o que não dá para ver na tela: a aritmética em wei
+(`0.1 + 0.2` tem que ser exatamente `0.3`, e 18 casas não podem se perder), a
+serialização dos search params — arrays como chave repetida, e não JSON — e os
+contratos em Zod, incluindo a validação de endereço por rede.
+
+`.github/workflows/ci.yml` roda tipos, lint, formato, unidade e E2E a cada push
+e pull request. As baselines visuais são de Linux, e o runner também.
 
 ## Documentação
 
