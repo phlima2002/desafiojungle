@@ -60,14 +60,17 @@ carrega o mesmo índice que o seed usa (`…-100`, `…-107`, `…-114`), então
 caminho da imagem é derivável na hora do parse. Num app com backend real esse
 papel seria do documento renderizado no servidor.
 
-### 2. Handoff explícito (`src/app/shell-handoff.ts`)
+### 2. Handoff sem piscada (`src/app/shell-handoff.ts`)
 
-Trocar o shell pelo React assim que ele monta reintroduziria o problema por
-outro caminho: a arte já pintada sumiria, daria lugar a um skeleton e voltaria
-um segundo depois. Então `#root` nasce oculto e quem mostraria skeleton onde o
-shell já mostra conteúdo **segura** o handoff (`useShellHold`). Com teto de
-2,5 s: uma query presa degrada para o skeleton de sempre, nunca para tela em
-branco.
+Trocar o shell pelo React reintroduziria o problema por outro caminho: a arte já
+pintada sumiria, daria lugar a um skeleton e voltaria um segundo depois. Então
+`#root` nasce oculto e quem desenha a primeira dobra mantém a imagem que já veio
+no documento — `HomeHero` enquanto a query de destaques não responde,
+`NftDetailSkeleton` derivando a arte do slug. O handoff acontece no primeiro
+commit do React: remove o shell e revela `#root`.
+
+Sem temporizador forçando a troca: se o bundle nunca subir, o shell ficar de pé
+é a falha melhor do que um `#root` vazio.
 
 ### 3. Menos JavaScript antes da primeira pintura
 

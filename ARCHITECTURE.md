@@ -295,12 +295,17 @@ o build injeta ao lado de `#root` a marcação da primeira dobra
 (`src/app/static-shell.ts`) — cabeçalho em todas as rotas, headline e arte na
 home, trilha e galeria no detalhe —, e `#root` nasce oculto.
 
-Trocar o shell pelo React assim que ele monta traria o problema de volta por
-outro caminho: a arte já visível sumiria, daria lugar a um skeleton e voltaria
-depois. Então o handoff é explícito (`src/app/shell-handoff.ts`): quem mostraria
-skeleton onde o shell já mostra conteúdo segura a troca com `useShellHold`, e a
-troca acontece quando o último hold é liberado — com teto de 2,5 s, para que uma
-query presa degrade para o skeleton comum, nunca para tela em branco.
+Trocar o shell pelo React poderia trazer o problema de volta por outro caminho:
+a arte já visível sumiria, daria lugar a um skeleton e voltaria depois. Por isso
+quem desenha a primeira dobra **não mostra skeleton onde o shell já mostra
+conteúdo** — `HomeHero` usa a imagem que veio no documento enquanto a query de
+destaques não responde, e `NftDetailSkeleton` deriva a arte do slug. O handoff
+(`src/app/shell-handoff.ts`) acontece no primeiro commit do React, sem timer e
+sem estado compartilhado: remove o shell e revela `#root`.
+
+Não há temporizador forçando a troca. Se o bundle nunca subir, o shell ficar de
+pé é a falha melhor — revelar um `#root` vazio trocaria um cabeçalho e uma obra
+por uma tela em branco.
 
 O que mantém a duplicação honesta são os testes: `tests/e2e/shell.spec.ts`
 compara título, arte principal e miniaturas do shell com o que a aplicação
