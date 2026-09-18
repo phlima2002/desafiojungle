@@ -23,8 +23,14 @@ export function AuthCard({
   children: ReactNode
 }) {
   return (
-    <section className="mx-auto w-full max-w-md px-4 py-14">
-      <div className="rounded-md border border-line bg-card px-6 py-8 shadow-pop sm:px-8">
+    <section className="mx-auto w-full max-w-md px-4 py-10 md:py-14">
+      {/* No celular esta é a tela inteira, e o Figma a abre pela marca: sem
+          cabeçalho global, o KURIO aqui é o que diz onde se está. A partir de
+          `md` o cabeçalho do site cumpre esse papel e o cartão volta. */}
+      <p aria-hidden className="mb-10 text-center text-wordmark font-bold md:hidden">
+        KURIO
+      </p>
+      <div className="px-0 py-0 md:rounded-md md:border md:border-line md:bg-card md:px-8 md:py-8 md:shadow-pop">
         <h1 className="flex items-center justify-center gap-3">
           <Link
             to="/entrar"

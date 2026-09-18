@@ -66,7 +66,7 @@ test.describe('Acessibilidade (axe)', () => {
   test('nenhuma violação com a gaveta de navegação aberta', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 })
     await bootstrap(page)
-    await page.getByRole('button', { name: 'Abrir menu de navegação' }).click()
+    await page.getByRole('button', { name: 'Abrir menu e conta' }).click()
     await expect(page.getByRole('dialog', { name: 'Menu de navegação' })).toBeVisible()
 
     expect(await audit(page)).toEqual([])

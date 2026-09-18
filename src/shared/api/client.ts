@@ -84,9 +84,17 @@ export async function request<TSchema extends z.ZodTypeAny>(
         data: response.data,
       })
     }
+    // Com os mocks ligados, uma resposta em HTML quase sempre quer dizer uma
+    // coisa só: o service worker não interceptou e o servidor devolveu o
+    // `index.html` do fallback de SPA. Dizer isso é bem mais útil do que falar
+    // em contrato — é um problema do ambiente, com solução conhecida.
+    const html = typeof response.data === 'string' && response.data.trimStart().startsWith('<')
     throw new ApiError({
       code: 'INTERNAL_ERROR',
-      message: 'A resposta do servidor não corresponde ao contrato esperado.',
+      message:
+        env.enableMocks && html
+          ? 'O service worker que simula a API não está ativo. Limpe os dados do site (DevTools → Application → Storage → Clear site data) e recarregue.'
+          : 'A resposta do servidor não corresponde ao contrato esperado.',
       status: response.status,
     })
   }

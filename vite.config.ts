@@ -117,6 +117,15 @@ function preloadLatinFont() {
 
 export default defineConfig({
   base,
+  /**
+   * Porta própria, não a 5173 padrão do Vite. O service worker dos mocks vive
+   * na origem inteira, e em `localhost:5173` — a porta que todo projeto Vite
+   * usa — ele disputa escopo com o worker de qualquer outro projeto aberto
+   * antes. O sintoma é a aplicação abrir dizendo que a API não responde o que
+   * devia; a porta dedicada tira a disputa do caminho.
+   */
+  server: { port: 5273 },
+  preview: { port: 4173 },
   plugins: [
     staticShell(),
     spaFallback(),

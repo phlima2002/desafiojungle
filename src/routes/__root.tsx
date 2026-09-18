@@ -34,7 +34,9 @@ function RootLayout() {
           traz o próprio topo e a navegação mora na barra inferior. Os dois
           voltam a partir de `md`, onde o layout é o do desktop. */}
       <SiteHeader />
-      <main id="conteudo" className="flex-1">
+      {/* O espaço no pé é o da barra de navegação fixa do celular: sem ele o
+          fim de uma página curta fica debaixo dela. */}
+      <main id="conteudo" className="flex-1 pb-32 md:pb-0">
         <Outlet />
       </main>
       <SiteFooter />

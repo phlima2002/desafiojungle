@@ -41,10 +41,6 @@ export function MobileTabBar() {
 
   return (
     <>
-      {/* O espaçador ocupa a altura da barra no fluxo, para que o fim de
-          qualquer página fique alcançável acima dela. */}
-      <div aria-hidden className="h-24 md:hidden" />
-
       <nav aria-label="Navegação do aplicativo" className="fixed inset-x-0 bottom-0 z-40 px-4 pb-4 md:hidden">
         <ul className="flex items-center gap-1 rounded-3xl border border-line bg-card/95 px-2 backdrop-blur">
           <li className="flex-1">

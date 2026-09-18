@@ -85,7 +85,11 @@ export function LoginPage() {
           </span>
         </div>
 
-        <Button type="submit" disabled={form.formState.isSubmitting} className="w-full">
+        <Button
+          type="submit"
+          disabled={form.formState.isSubmitting}
+          className="w-full rounded-pill py-3 md:rounded-sm md:py-2"
+        >
           {form.formState.isSubmitting ? 'Entrando…' : 'Entrar'}
         </Button>
       </form>

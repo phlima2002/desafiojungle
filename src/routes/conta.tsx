@@ -30,7 +30,10 @@ function AccountLayout() {
 
   return (
     <div className="mx-auto grid max-w-page gap-8 px-4 py-8 sm:px-8 lg:grid-cols-[220px_minmax(0,1fr)]">
-      <nav aria-label="Menu da conta" className="h-fit rounded-md border border-line bg-card p-4">
+      <nav
+        aria-label="Menu da conta"
+        className="h-fit rounded-2xl bg-card p-4 md:rounded-md md:border md:border-line"
+      >
         <h2 className="px-2 pb-3 text-lg font-bold">Meu perfil</h2>
         <ul className="space-y-0.5 text-sm">
           {ITEMS.map(({ to, label, Icon }) => (

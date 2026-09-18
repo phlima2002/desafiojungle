@@ -13,6 +13,7 @@ import { formatEthWithUnit } from '@/shared/lib/money'
 import { cn } from '@/shared/lib/utils'
 import { NETWORK_LABELS } from '@/features/catalog/labels'
 import { Breadcrumb } from '@/features/shell/breadcrumb'
+import { MobileScreenHeader } from '@/features/shell/mobile-screen-header'
 import { WalletProfileFields } from '@/features/account/wallet-profile-fields'
 import { useCartQuery } from '@/features/cart/use-cart'
 import { useSession } from '@/features/session/use-session'
@@ -180,13 +181,20 @@ export function CheckoutPage() {
   }
 
   return (
-    <div className="mx-auto max-w-page px-4 py-8 sm:px-8">
-      <Breadcrumb
-        items={[{ label: 'Início', to: '/' }, { label: 'Mercado', to: '/mercado' }, { label: 'Pagamento' }]}
-      />
+    <div className="mx-auto max-w-page px-4 py-6 sm:px-8 md:py-8">
+      <MobileScreenHeader title="Pagamento com carteira" />
+      <div className="hidden md:block">
+        <Breadcrumb
+          items={[{ label: 'Início', to: '/' }, { label: 'Mercado', to: '/mercado' }, { label: 'Pagamento' }]}
+        />
+      </div>
       <h1 className="sr-only">Pagamento</h1>
 
-      <form onSubmit={onSubmit} noValidate className="mt-6 grid gap-10 lg:grid-cols-[minmax(0,1fr)_360px]">
+      <form
+        onSubmit={onSubmit}
+        noValidate
+        className="grid gap-8 md:mt-6 md:gap-10 lg:grid-cols-[minmax(0,1fr)_360px]"
+      >
         <section aria-labelledby="perfil-colecionador" className="min-w-0 space-y-6">
           <h2 id="perfil-colecionador" className="text-md font-bold">
             Perfil do colecionador
@@ -461,7 +469,7 @@ export function CheckoutPage() {
             size="sm"
             disabled={!canSubmit}
             aria-busy={phase.kind === 'submitting'}
-            className="w-full"
+            className="w-full rounded-pill py-3 md:rounded-sm md:py-2"
           >
             {phase.kind === 'submitting' ? 'Enviando pedido…' : 'Confirmar compra'}
           </Button>

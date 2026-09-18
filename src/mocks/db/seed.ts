@@ -114,7 +114,7 @@ function buildEditions(index: number, price: string, rng: ReturnType<typeof crea
     return [
       {
         id: `ed-${index}-unique`,
-        label: '1 de 1',
+        label: '1/1',
         supply: 1,
         available: rng.bool(0.75) ? 1 : 0,
         price,
@@ -132,7 +132,7 @@ function buildEditions(index: number, price: string, rng: ReturnType<typeof crea
   return [
     {
       id: `ed-${index}-limited`,
-      label: `Edição limitada · ${supply}`,
+      label: `1/${supply}`,
       supply,
       available,
       price,
@@ -140,7 +140,7 @@ function buildEditions(index: number, price: string, rng: ReturnType<typeof crea
     },
     {
       id: `ed-${index}-open`,
-      label: 'Edição aberta',
+      label: 'Aberta',
       supply: supply * 4,
       available: index % 13 === 0 ? 0 : rng.int(12, supply * 4),
       price: openPrice,

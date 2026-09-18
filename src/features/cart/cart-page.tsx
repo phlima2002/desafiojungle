@@ -3,6 +3,7 @@ import { Link } from '@tanstack/react-router'
 import { Trash2 } from 'lucide-react'
 import { formatEthWithUnit } from '@/shared/lib/money'
 import { Breadcrumb } from '@/features/shell/breadcrumb'
+import { MobileScreenHeader } from '@/features/shell/mobile-screen-header'
 import { useNftSubscription } from '@/features/realtime/realtime-provider'
 import { useCatalogQuery } from '@/features/catalog/use-catalog'
 import { NftCard } from '@/features/catalog/nft-card'
@@ -44,10 +45,13 @@ export function CartPage() {
   const totals = cart.data?.totals
 
   return (
-    <div className="mx-auto max-w-page px-4 py-8 sm:px-8">
-      <Breadcrumb
-        items={[{ label: 'Início', to: '/' }, { label: 'Mercado', to: '/mercado' }, { label: 'Carrinho' }]}
-      />
+    <div className="mx-auto max-w-page px-4 py-6 sm:px-8 md:py-8">
+      <MobileScreenHeader title="Carrinho de NFTs" />
+      <div className="hidden md:block">
+        <Breadcrumb
+          items={[{ label: 'Início', to: '/' }, { label: 'Mercado', to: '/mercado' }, { label: 'Carrinho' }]}
+        />
+      </div>
 
       <h1 className="sr-only">Carrinho de NFTs</h1>
 
@@ -61,7 +65,7 @@ export function CartPage() {
           <Skeleton className="h-72 w-full rounded-md" />
         </div>
       ) : items.length === 0 ? (
-        <div className="mt-10 rounded-md border border-line bg-card p-10 text-center">
+        <div className="mt-10 rounded-2xl bg-card p-10 text-center md:rounded-md md:border md:border-line">
           <p className="text-base font-bold">Seu carrinho está vazio</p>
           <p className="mt-2 text-xs text-muted">Explore o catálogo e adicione edições para continuar.</p>
           <Button asChild size="sm" className="mt-6">
@@ -88,10 +92,58 @@ export function CartPage() {
               </div>
             ) : null}
 
-            {/* Cinco colunas não cabem em 390 px. Abaixo de `sm` as colunas de
-                preço e total saem da tabela e reaparecem sob o nome do item —
-                nenhum dado é perdido e nada transborda. */}
-            <Table>
+            {/* No celular o Figma troca a tabela por cartões: miniatura grande
+                à esquerda, nome, edição e preço empilhados, controle de
+                quantidade à direita. A tabela volta a partir de `sm`, onde as
+                colunas cabem. */}
+            <ul className="space-y-3 sm:hidden">
+              {items.map((item) => (
+                <li key={item.id} className="flex items-center gap-4 rounded-2xl bg-card p-3">
+                  <img
+                    src={item.imageUrl}
+                    alt={item.imageAlt}
+                    width={80}
+                    height={80}
+                    loading="lazy"
+                    decoding="async"
+                    className="size-20 shrink-0 rounded-xl object-cover"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <Link
+                      to="/nft/$slug"
+                      params={{ slug: item.nftSlug }}
+                      className="block truncate text-xs font-bold hover:text-accent"
+                    >
+                      {item.name}
+                    </Link>
+                    <p className="truncate text-3xs text-muted">{item.editionLabel}</p>
+                    <p className="mt-1 text-base font-bold text-accent">
+                      {formatEthWithUnit(item.lineTotal)}
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 flex-col items-end gap-2">
+                    <QuantityStepper
+                      value={item.quantity}
+                      max={Math.max(1, Math.min(item.available, item.maxPerOrder))}
+                      label={item.name}
+                      onChange={(quantity) => updateItem.mutate({ itemId: item.id, quantity })}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeItem.mutate(item.id)}
+                      aria-label={`Remover ${item.name} do carrinho`}
+                      className="size-8 text-sand hover:text-danger"
+                    >
+                      <Trash2 aria-hidden size={16} />
+                    </Button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+
+            <Table containerClassName="hidden sm:block">
               <TableCaption>Itens no carrinho, com preço, quantidade e total</TableCaption>
               <TableHeader>
                 <TableRow className="border-line">
@@ -183,7 +235,10 @@ export function CartPage() {
             </Table>
           </section>
 
-          <aside aria-label="Resumo da carteira" className="h-fit rounded-md border border-line bg-card p-5">
+          <aside
+            aria-label="Resumo da carteira"
+            className="h-fit rounded-2xl bg-card p-5 md:rounded-md md:border md:border-line"
+          >
             <h2 className="text-lg font-bold">Resumo da carteira</h2>
 
             <form
@@ -259,7 +314,7 @@ export function CartPage() {
               </div>
             </dl>
 
-            <Button asChild size="sm" className="mt-5 w-full">
+            <Button asChild size="sm" className="mt-5 w-full rounded-pill py-3 md:rounded-sm md:py-2">
               <Link to="/pagamento">Conectar e finalizar</Link>
             </Button>
             <Button asChild variant="link" size="sm" className="mt-3 w-full text-3xs font-normal">

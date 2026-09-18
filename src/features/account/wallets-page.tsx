@@ -96,7 +96,7 @@ export function WalletsPage() {
           {wallets.map((wallet) => (
             <li
               key={wallet.id}
-              className="flex flex-wrap items-center gap-4 rounded-md border border-line bg-card p-4"
+              className="flex flex-wrap items-center gap-4 rounded-2xl bg-card p-4 md:rounded-md md:border md:border-line"
             >
               <div className="min-w-40 flex-1">
                 <p className="flex items-center gap-2 text-xs font-bold">

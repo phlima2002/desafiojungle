@@ -33,7 +33,7 @@ export function PriceRangeFilter({ bounds, value, onApply }: PriceRangeFilterPro
   }
 
   return (
-    <fieldset className="rounded-md bg-card p-5">
+    <fieldset className="rounded-2xl bg-card p-5 md:rounded-md">
       <legend className="mb-3 text-lg font-bold">Faixa de preço</legend>
 
       <div className="space-y-2">

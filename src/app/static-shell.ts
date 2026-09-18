@@ -105,12 +105,12 @@ export const buildShellHtml = (base = '/') => `<div id="${SHELL_ROOT_ID}" aria-h
 <div class="mt-4 flex justify-center gap-2 md:hidden"><span class="size-2 rounded-pill bg-primary"></span><span class="size-2 rounded-pill bg-line-strong"></span><span class="size-2 rounded-pill bg-line-strong"></span></div>
 </div>
 </section>
-<article id="shell-detail" hidden class="mx-auto max-w-page px-4 py-8 sm:px-8">
-<nav class="text-sm font-bold"><ol class="flex flex-wrap items-center"><li><span class="text-sand">Início</span></li><li class="px-2 text-clay">/</li><li><span class="text-sand">Mercado</span></li></ol></nav>
-<div class="mt-6 grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-<div class="flex gap-4">
-<ul class="flex shrink-0 flex-col gap-3">${GALLERY_OFFSETS.map((_, position) => thumb(position)).join('')}</ul>
-<img alt="" width="600" height="600" fetchpriority="high" decoding="async" class="aspect-square min-w-0 flex-1 rounded-md border border-line object-cover" data-shell-main />
+<article id="shell-detail" hidden class="mx-auto max-w-page pb-8 md:px-4 md:py-8 lg:px-8">
+<div class="hidden md:block"><nav class="text-sm font-bold"><ol class="flex flex-wrap items-center"><li><span class="text-sand">Início</span></li><li class="px-2 text-clay">/</li><li><span class="text-sand">Mercado</span></li></ol></nav></div>
+<div class="grid gap-6 md:mt-6 md:gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+<div class="relative flex flex-col-reverse gap-4 md:flex-row">
+<ul class="flex shrink-0 gap-3 px-4 md:flex-col md:px-0">${GALLERY_OFFSETS.map((_, position) => thumb(position)).join('')}</ul>
+<img alt="" width="600" height="600" fetchpriority="high" decoding="async" class="aspect-square min-w-0 flex-1 rounded-b-3xl object-cover md:rounded-md md:border md:border-line" data-shell-main />
 </div>
 </div>
 </article>

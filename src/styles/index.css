@@ -123,6 +123,16 @@
     border-color: var(--color-border);
   }
 
+  /* A barra de navegação do celular é fixa no pé da tela. Sem esta folga, tudo
+     que o navegador rola até a vista — o alvo de um link âncora, o campo que
+     recebeu foco pelo teclado, o botão no fim de um formulário — para debaixo
+     dela. */
+  @media (width < 48rem) {
+    html {
+      scroll-padding-bottom: 8rem;
+    }
+  }
+
   html {
     -webkit-text-size-adjust: 100%;
     scrollbar-gutter: stable;

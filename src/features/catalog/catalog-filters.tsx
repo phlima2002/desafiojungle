@@ -2,7 +2,7 @@ import type { NftListResponse } from '@/shared/api/contracts'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/components/ui/button'
 import { PriceRangeFilter } from './price-range-filter'
-import { toggleInList, type CatalogSearch } from './search-params'
+import { selectOne, type CatalogSearch } from './search-params'
 
 type Facets = NftListResponse['facets']
 
@@ -53,7 +53,7 @@ export function CatalogFilters({
         </label>
       ) : null}
 
-      <fieldset className="rounded-md bg-card p-5 max-md:rounded-2xl">
+      <fieldset className="rounded-2xl bg-card p-5 md:rounded-md">
         <legend className="mb-3 text-lg font-bold">Coleções</legend>
         <ul className="space-y-2">
           {/* Placeholder rows keep the sidebar's height stable while the
@@ -74,7 +74,7 @@ export function CatalogFilters({
                   variant="ghost"
                   size="sm"
                   aria-pressed={active}
-                  onClick={() => update({ categoria: toggleInList(search.categoria, facet.value as never) })}
+                  onClick={() => update({ categoria: selectOne(search.categoria, facet.value as never) })}
                   className={cn(
                     'h-auto w-full justify-between px-0 py-1 text-sm',
                     active ? 'font-bold text-accent' : 'font-normal text-sand hover:text-accent',
@@ -97,10 +97,10 @@ export function CatalogFilters({
           onApply={(next) => update(next)}
         />
       ) : (
-        <div className="skeleton h-40 w-full rounded-md max-md:rounded-2xl" aria-hidden />
+        <div className="skeleton h-40 w-full rounded-2xl md:rounded-md" aria-hidden />
       )}
 
-      <fieldset className="rounded-md bg-card p-5 max-md:rounded-2xl">
+      <fieldset className="rounded-2xl bg-card p-5 md:rounded-md">
         <legend className="mb-3 text-lg font-bold">Rede</legend>
         <ul className="space-y-2">
           {facets
@@ -119,7 +119,7 @@ export function CatalogFilters({
                   variant="ghost"
                   size="sm"
                   aria-pressed={active}
-                  onClick={() => update({ rede: toggleInList(search.rede, facet.value as never) })}
+                  onClick={() => update({ rede: selectOne(search.rede, facet.value as never) })}
                   className={cn(
                     'h-auto w-full justify-between px-0 py-1 text-sm',
                     active ? 'font-bold text-accent' : 'font-normal text-sand hover:text-accent',

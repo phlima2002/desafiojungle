@@ -12,7 +12,7 @@ import { NftCard, NftCardSkeleton } from './nft-card'
 import { CatalogFilters, SORTS } from './catalog-filters'
 import { MobileCatalogBar } from './mobile-catalog-bar'
 import { SearchField } from './search-field'
-import { PAGE_SIZE, toListQuery, withFilter, type CatalogSearch } from './search-params'
+import { PAGE_SIZE, pageWindow, toListQuery, withFilter, type CatalogSearch } from './search-params'
 import { Button } from '@/components/ui/button'
 
 const TABS = [
@@ -162,7 +162,10 @@ export function CatalogSection({ search, routeId, hero }: CatalogSectionProps) {
                   ))}
                 </ul>
               ) : catalog.isError ? (
-                <div role="alert" className="rounded-md border border-line bg-card p-8 text-center">
+                <div
+                  role="alert"
+                  className="rounded-2xl bg-card p-8 text-center md:rounded-md md:border md:border-line"
+                >
                   <p className="text-base font-bold">Não foi possível carregar o catálogo.</p>
                   <p className="mt-2 text-xs text-muted">{catalog.error.message}</p>
                   <Button
@@ -176,7 +179,7 @@ export function CatalogSection({ search, routeId, hero }: CatalogSectionProps) {
                   </Button>
                 </div>
               ) : items.length === 0 ? (
-                <div className="rounded-md border border-line bg-card p-10 text-center">
+                <div className="rounded-2xl bg-card p-10 text-center md:rounded-md md:border md:border-line">
                   <p className="text-base font-bold">Nenhum NFT encontrado</p>
                   <p className="mt-2 text-xs text-muted">
                     Ajuste a busca ou remova alguns filtros para ver mais resultados.
@@ -216,23 +219,34 @@ export function CatalogSection({ search, routeId, hero }: CatalogSectionProps) {
 
             {pagination && pagination.totalPages > 1 ? (
               <nav aria-label="Paginação" className="flex flex-wrap justify-center gap-2">
-                {Array.from({ length: pagination.totalPages }, (_, index) => index + 1).map((page) => (
-                  <Button
-                    key={page}
-                    type="button"
-                    size="icon"
-                    variant={page === pagination.page ? 'default' : 'secondary'}
-                    aria-current={page === pagination.page ? 'page' : undefined}
-                    onClick={() => update({ pagina: page === 1 ? undefined : page })}
-                    className={cn(
-                      'text-xs',
-                      page !== pagination.page &&
-                        'bg-transparent text-sand hover:border-primary hover:text-accent',
-                    )}
-                  >
-                    {page}
-                  </Button>
-                ))}
+                {pageWindow(pagination.page, pagination.totalPages).map((page, position, list) =>
+                  page === null ? (
+                    <span
+                      key={`gap-depois-de-${list[position - 1] ?? 'inicio'}`}
+                      aria-hidden
+                      className="grid size-9 place-items-center text-xs text-clay"
+                    >
+                      …
+                    </span>
+                  ) : (
+                    <Button
+                      key={page}
+                      type="button"
+                      size="icon"
+                      variant={page === pagination.page ? 'default' : 'secondary'}
+                      aria-current={page === pagination.page ? 'page' : undefined}
+                      aria-label={`Página ${page} de ${pagination.totalPages}`}
+                      onClick={() => update({ pagina: page === 1 ? undefined : page })}
+                      className={cn(
+                        'text-xs',
+                        page !== pagination.page &&
+                          'bg-transparent text-sand hover:border-primary hover:text-accent',
+                      )}
+                    >
+                      {page}
+                    </Button>
+                  ),
+                )}
               </nav>
             ) : null}
           </div>

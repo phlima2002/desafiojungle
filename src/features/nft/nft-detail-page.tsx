@@ -1,9 +1,11 @@
 import { useState } from 'react'
+import { Link } from '@tanstack/react-router'
 import { Heart, Star } from 'lucide-react'
 import { formatEthWithUnit } from '@/shared/lib/money'
 import { cn } from '@/shared/lib/utils'
 import { NETWORK_LABELS } from '@/features/catalog/labels'
 import { Breadcrumb } from '@/features/shell/breadcrumb'
+import { MobileBackButton } from '@/features/shell/mobile-screen-header'
 import { QuantityStepper } from '@/features/cart/quantity-stepper'
 import { useSession } from '@/features/session/use-session'
 import { useToggleFavorite } from '@/features/favorites/use-favorites'
@@ -14,6 +16,7 @@ import { NftCard } from '@/features/catalog/nft-card'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { NftDetailSkeleton } from './nft-detail-skeleton'
+import { ShareButton } from './share-button'
 
 type Tab = 'detalhes' | 'avaliacoes'
 
@@ -40,17 +43,40 @@ export function NftDetailPage({ slug }: { slug: string }) {
   const gallery = nft.gallery
 
   return (
-    <article className="mx-auto max-w-page px-4 py-8 sm:px-8">
-      <Breadcrumb
-        items={[
-          { label: 'Início', to: '/' },
-          { label: 'Mercado', to: '/mercado' },
-        ]}
-      />
+    /* No celular o Figma abre a tela pela arte, sangrando de borda a borda, com
+       voltar e favoritar flutuando sobre ela — por isso o `article` não tem
+       respiro lateral abaixo de `md` e cada bloco cuida do próprio. */
+    <article className="mx-auto max-w-page pb-8 md:px-4 md:py-8 lg:px-8">
+      <div className="hidden md:block">
+        <Breadcrumb
+          items={[
+            { label: 'Início', to: '/' },
+            { label: 'Mercado', to: '/mercado' },
+          ]}
+        />
+      </div>
 
-      <div className="mt-6 grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        <div className="flex gap-4">
-          <ul className="flex shrink-0 flex-col gap-3">
+      <div className="grid gap-6 md:mt-6 md:gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+        <div className="relative flex flex-col-reverse gap-4 md:flex-row">
+          <MobileBackButton className="absolute top-4 left-4 z-10 bg-ink-950/70 md:hidden" />
+          <ShareButton
+            name={nft.name}
+            className="absolute top-4 right-4 z-10 size-11 rounded-pill bg-ink-950/70 text-cream md:hidden"
+          />
+          {session ? (
+            <Button
+              type="button"
+              size="icon"
+              aria-pressed={nft.favorited}
+              onClick={() => toggleFavorite.mutate({ nftId: nft.id, favorited: !nft.favorited })}
+              aria-label={nft.favorited ? `Remover ${nft.name} dos favoritos` : `Favoritar ${nft.name}`}
+              className="absolute top-4 right-16 z-10 size-11 rounded-pill bg-ink-950/70 text-cream md:hidden"
+            >
+              <Heart aria-hidden size={18} className={cn(nft.favorited && 'fill-danger text-danger')} />
+            </Button>
+          ) : null}
+
+          <ul className="flex shrink-0 gap-3 px-4 md:flex-col md:px-0">
             {gallery.map((image, index) => (
               <li key={`${image.url}#${image.alt}`}>
                 <Button
@@ -85,12 +111,58 @@ export function NftDetailPage({ slug }: { slug: string }) {
             height={600}
             fetchPriority="high"
             decoding="async"
-            className="aspect-square min-w-0 flex-1 rounded-md border border-line object-cover"
+            className="aspect-square min-w-0 flex-1 rounded-b-3xl object-cover md:rounded-md md:border md:border-line"
           />
         </div>
 
-        <div className="min-w-0 space-y-4">
-          <h1 className="text-h1 font-bold">{nft.name}</h1>
+        <div className="mx-4 min-w-0 space-y-4 rounded-3xl bg-card p-5 md:mx-0 md:rounded-none md:bg-transparent md:p-0">
+          <div className="flex items-start justify-between gap-3">
+            <h1 className="text-h3 font-bold md:text-h1">{nft.name}</h1>
+
+            <div className="hidden shrink-0 items-center gap-2 md:flex">
+              <ShareButton name={nft.name} />
+              {/* Favoritar exige sessão — quem não entrou vê o botão e é levado
+                  ao login, em vez de o controle simplesmente não existir. */}
+              {session ? (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="icon"
+                  aria-pressed={nft.favorited}
+                  aria-label={nft.favorited ? `Remover ${nft.name} dos favoritos` : `Favoritar ${nft.name}`}
+                  onClick={() => toggleFavorite.mutate({ nftId: nft.id, favorited: !nft.favorited })}
+                  className="bg-transparent text-sand hover:border-primary hover:text-accent"
+                >
+                  <Heart aria-hidden size={16} className={cn(nft.favorited && 'fill-danger text-danger')} />
+                </Button>
+              ) : (
+                <Button
+                  asChild
+                  variant="secondary"
+                  size="icon"
+                  className="bg-transparent text-sand hover:border-primary hover:text-accent"
+                >
+                  <Link
+                    to="/entrar"
+                    search={{ redirect: `/nft/${nft.slug}` }}
+                    aria-label="Entrar para favoritar"
+                  >
+                    <Heart aria-hidden size={16} />
+                  </Link>
+                </Button>
+              )}
+            </div>
+            {/* O selo de nota do Figma: a mesma informação das estrelas, no
+                formato compacto que cabe ao lado do nome no celular. */}
+            <p className="flex shrink-0 items-center gap-1 rounded-pill border border-primary px-3 py-1 text-3xs text-accent md:hidden">
+              <Star aria-hidden size={12} className="fill-amber-300 text-amber-300" />
+              <span>
+                <span className="sr-only">Avaliação </span>
+                {nft.rating}
+                <span className="text-muted">({nft.reviewCount})</span>
+              </span>
+            </p>
+          </div>
 
           <div className="flex flex-wrap items-baseline gap-4">
             <p className="text-h4 font-bold text-accent">{formatEthWithUnit(selected.price)}</p>
@@ -98,7 +170,7 @@ export function NftDetailPage({ slug }: { slug: string }) {
               <p className="text-lg text-clay line-through">{formatEthWithUnit(nft.compareAtPrice)}</p>
             ) : null}
 
-            <p className="flex items-center gap-1 text-3xs text-muted">
+            <p className="hidden items-center gap-1 text-3xs text-muted md:flex">
               <span className="flex" aria-hidden>
                 {[1, 2, 3, 4, 5].map((star) => (
                   <Star
@@ -161,20 +233,28 @@ export function NftDetailPage({ slug }: { slug: string }) {
             </div>
           </fieldset>
 
-          <div className="flex flex-wrap items-center gap-4">
-            <QuantityStepper
-              value={quantity}
-              max={ceiling}
-              label={nft.name}
-              disabled={soldOut}
-              onChange={setQuantity}
-            />
+          {/* No celular a ação de compra fecha a tela: quantidade e preço numa
+              linha, botão largo embaixo — o favoritar já está flutuando sobre a
+              arte, então o botão de texto some. */}
+          <div className="flex flex-col gap-4 md:flex-row md:flex-wrap md:items-center">
+            <div className="flex items-center justify-between gap-4 md:contents">
+              <QuantityStepper
+                value={quantity}
+                max={ceiling}
+                label={nft.name}
+                disabled={soldOut}
+                onChange={setQuantity}
+              />
+              <p aria-hidden className="text-h4 font-bold text-accent md:hidden">
+                {formatEthWithUnit(selected.price)}
+              </p>
+            </div>
 
             <Button
               type="button"
               disabled={soldOut || addToCart.isPending}
               onClick={() => addToCart.mutate({ nftId: nft.id, editionId: selected.id, quantity })}
-              className="h-auto px-8 py-2.5 text-3xs tracking-wide"
+              className="h-auto rounded-pill px-8 py-3 text-3xs tracking-wide max-md:w-full md:rounded-sm md:py-2.5"
             >
               {soldOut ? 'Esgotado' : addToCart.isPending ? 'Adicionando…' : 'Comprar'}
             </Button>
@@ -185,7 +265,7 @@ export function NftDetailPage({ slug }: { slug: string }) {
                 variant="secondary"
                 aria-pressed={nft.favorited}
                 onClick={() => toggleFavorite.mutate({ nftId: nft.id, favorited: !nft.favorited })}
-                className="h-auto bg-transparent px-5 py-2.5 text-3xs font-normal text-sand hover:border-primary hover:text-accent"
+                className="hidden h-auto bg-transparent px-5 py-2.5 text-3xs font-normal text-sand hover:border-primary hover:text-accent md:inline-flex"
               >
                 <Heart aria-hidden size={14} className={cn(nft.favorited && 'fill-danger text-danger')} />
                 {nft.favorited ? 'Nos favoritos' : 'Favoritar'}

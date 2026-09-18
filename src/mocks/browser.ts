@@ -75,7 +75,37 @@ function resumePendingOrders(): void {
   }
 }
 
+/**
+ * Um service worker de *outro* projeto registrado na mesma origem — o que
+ * acontece o tempo todo em `localhost`, porta compartilhada por todo projeto
+ * Vite — intercepta as chamadas antes do nosso, e a aplicação abre dizendo que
+ * a resposta não bate com o contrato. Em vez de exigir um "limpar dados do
+ * site" manual, o boot desregistra quem não é daqui antes de instalar o nosso.
+ *
+ * Sem recarregar a página: o worker do MSW chama `clients.claim()` ao ativar, e
+ * assume o controle da aba por conta própria. Um `location.reload()` aqui
+ * abortaria qualquer navegação em curso — inclusive a que acabou de trazer a
+ * pessoa até esta tela.
+ */
+async function evictForeignWorkers(): Promise<void> {
+  if (!('serviceWorker' in navigator)) return
+  const expected = new URL(`${import.meta.env.BASE_URL}mockServiceWorker.js`, location.origin).href
+
+  const foreign = (await navigator.serviceWorker.getRegistrations()).filter((registration) => {
+    const script = registration.active ?? registration.waiting ?? registration.installing
+    return script ? script.scriptURL !== expected : false
+  })
+
+  await Promise.all(foreign.map((registration) => registration.unregister()))
+}
+
 export async function startMockServer(): Promise<void> {
+  try {
+    await evictForeignWorkers()
+  } catch {
+    // API indisponível ou bloqueada: segue o boot normal.
+  }
+
   await worker.start({
     onUnhandledRequest: 'bypass',
     quiet: true,

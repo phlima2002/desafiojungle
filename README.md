@@ -58,7 +58,7 @@ Metas: 90 / 95 / 95 / 90. Reprodução e análise em
 ```bash
 npm install
 cp .env.example .env      # opcional: os defaults já funcionam
-npm run dev               # http://localhost:5173
+npm run dev               # http://localhost:5273
 ```
 
 Nenhum serviço externo é necessário. O app sobe com a camada de mocks ativa: a

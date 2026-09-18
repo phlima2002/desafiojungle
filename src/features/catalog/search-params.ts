@@ -68,3 +68,30 @@ export function toggleInList<T extends string>(list: readonly T[] | undefined, v
   const next = current.includes(value) ? current.filter((item) => item !== value) : [...current, value]
   return next.length ? next : undefined
 }
+
+/**
+ * Coleção e rede são recortes excludentes na interface: escolher um substitui o
+ * anterior, e tocar no que já está escolhido limpa o filtro. O contrato da API
+ * continua aceitando lista — é o que permite um link compartilhado trazer mais
+ * de um valor —, mas quem clica vê o comportamento de rádio que o layout
+ * promete, com um único item em destaque por vez.
+ */
+export function selectOne<T extends string>(list: readonly T[] | undefined, value: T): T[] | undefined {
+  return list?.includes(value) ? undefined : [value]
+}
+
+/**
+ * O layout mostra quatro páginas por vez e recolhe o resto — listar catorze
+ * botões enche a linha e não ajuda ninguém a se localizar. A janela acompanha a
+ * página atual, a última fica sempre alcançável e o `null` vira as reticências.
+ */
+export function pageWindow(current: number, total: number, size = 4): Array<number | null> {
+  if (total <= size + 1) return Array.from({ length: total }, (_, index) => index + 1)
+
+  const start = Math.min(Math.max(1, current - Math.floor((size - 1) / 2)), total - size + 1)
+  const pages: Array<number | null> = Array.from({ length: size }, (_, index) => start + index)
+
+  if (pages.at(-1) !== total) pages.push(null, total)
+  if (pages[0] !== 1) pages.unshift(1, null)
+  return pages
+}

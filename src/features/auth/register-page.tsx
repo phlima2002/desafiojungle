@@ -90,7 +90,11 @@ export function RegisterPage() {
           )}
         </Field>
 
-        <Button type="submit" disabled={form.formState.isSubmitting} className="w-full">
+        <Button
+          type="submit"
+          disabled={form.formState.isSubmitting}
+          className="w-full rounded-pill py-3 md:rounded-sm md:py-2"
+        >
           {form.formState.isSubmitting ? 'Criando…' : 'Criar conta'}
         </Button>
       </form>

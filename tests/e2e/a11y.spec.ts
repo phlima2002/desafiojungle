@@ -89,10 +89,7 @@ test.describe('Menu do celular', () => {
     // Enquanto o diálogo está aberto o resto da página sai da árvore de
     // acessibilidade — por isso o gatilho é procurado pelo seletor, e não pelo
     // papel: não existir mais para o leitor de tela é o comportamento correto.
-    await expect(page.locator('[aria-label="Abrir menu e conta"]')).toHaveAttribute(
-      'aria-expanded',
-      'true',
-    )
+    await expect(page.locator('[aria-label="Abrir menu e conta"]')).toHaveAttribute('aria-expanded', 'true')
 
     // The focus lives inside the dialog, never behind it.
     await page.keyboard.press('Tab')

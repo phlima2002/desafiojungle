@@ -1,9 +1,16 @@
 import type { ComponentProps } from 'react'
 import { cn } from '@/shared/lib/utils'
 
-function Table({ className, ...props }: ComponentProps<'table'>) {
+function Table({
+  className,
+  containerClassName,
+  ...props
+}: ComponentProps<'table'> & { containerClassName?: string }) {
   return (
-    <div data-slot="table-container" className="w-full overflow-hidden rounded-md border border-line">
+    <div
+      data-slot="table-container"
+      className={cn('w-full overflow-hidden rounded-md border border-line', containerClassName)}
+    >
       <table data-slot="table" className={cn('w-full border-collapse text-left', className)} {...props} />
     </div>
   )

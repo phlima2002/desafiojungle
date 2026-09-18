@@ -105,7 +105,7 @@ export function OrderConfirmationPage({ orderId }: { orderId: string }) {
 
   return (
     <section className="mx-auto max-w-2xl px-4 py-12">
-      <div className="overflow-hidden rounded-md border border-line bg-card">
+      <div className="overflow-hidden rounded-2xl bg-card md:rounded-md md:border md:border-line">
         <div className="space-y-4 px-6 pt-8 text-center">
           <Envelope />
           <h1 className="text-sm font-bold" aria-live="polite">
