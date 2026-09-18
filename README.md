@@ -11,7 +11,7 @@ limitações conhecidas.
 
 | Lighthouse (mediana de 3) | Performance | Accessibility | Best Practices |     SEO |
 | ------------------------- | ----------: | ------------: | -------------: | ------: |
-| Início — mobile           |      **93** |       **100** |        **100** | **100** |
+| Início — mobile           |      **94** |       **100** |        **100** | **100** |
 | Detalhes do NFT — mobile  |      **92** |       **100** |        **100** | **100** |
 | Início — desktop          |     **100** |       **100** |        **100** | **100** |
 | Detalhes do NFT — desktop |     **100** |       **100** |        **100** | **100** |
