@@ -118,6 +118,15 @@ export async function login(page: Page, user: keyof typeof USERS = 'ana') {
   await expectSignedIn(page, credentials.displayName)
 }
 
+/**
+ * Sair e *esperar* sair. Sem a espera, o login seguinte disputa com o
+ * `Set-Cookie` que apaga a sessão, e o teste falha de vez em quando sob carga.
+ */
+export async function logout(page: Page) {
+  await page.getByRole('button', { name: 'Sair' }).click()
+  await expectSignedIn(page, null)
+}
+
 export const test = base
 export { expect }
 

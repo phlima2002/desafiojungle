@@ -69,6 +69,33 @@ test.describe('Compra', () => {
     await expect(page.getByRole('alert')).toHaveCount(0)
   })
 
+  test('"usar outra carteira" libera o endereço e devolve o da carteira ao desmarcar', async ({ page }) => {
+    await bootstrap(page)
+    await login(page, 'ana')
+    await addItemAndGoToCheckout(page)
+
+    const main = page.getByRole('main')
+    const address = main.getByLabel('Endereço da carteira')
+    // O preenchimento vem da consulta de carteiras; esperar por ele é parte do
+    // que se quer verificar.
+    await expect(address).toHaveValue(/^0x/)
+
+    await main.getByLabel('Usar outra carteira?').check()
+    await expect(address).toHaveValue('')
+
+    const other = '0x1111111111111111111111111111111111111111'
+    await address.fill(other)
+    await page.getByRole('button', { name: 'Confirmar compra' }).click()
+    await expect(page).toHaveURL(/\/pedido\//)
+
+    // O pedido guarda o endereço que o colecionador escolheu, não o da carteira.
+    const stored = await page.evaluate(() => window.__kurio!.inspect().orders.length)
+    expect(stored).toBe(1)
+
+    await page.goto('/pagamento')
+    await expect(page.getByText('Seu carrinho está vazio')).toBeVisible()
+  })
+
   test('pagamento recusado mostra o motivo e é terminal', async ({ page }) => {
     await bootstrap(page, 'payment-declined')
     await login(page, 'ana')

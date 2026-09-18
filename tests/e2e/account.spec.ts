@@ -1,4 +1,4 @@
-import { chooseOption, USERS, bootstrap, expect, login, test } from './fixtures'
+import { USERS, bootstrap, chooseOption, expect, login, logout, test } from './fixtures'
 
 test.describe('Perfil', () => {
   test('edita os dados e a alteração permanece após refresh', async ({ page }) => {
@@ -134,7 +134,7 @@ test.describe('Carteiras', () => {
     await page.goto('/conta/carteiras')
     await expect(page.getByRole('listitem').filter({ hasText: 'Carteira principal' })).toHaveCount(1)
 
-    await page.getByRole('button', { name: 'Sair' }).click()
+    await logout(page)
     await login(page, 'bruno')
     await page.goto('/conta/carteiras')
 

@@ -93,12 +93,33 @@ export function CheckoutPage() {
   const selectedWalletId = selectedWallet?.id ?? null
 
   useEffect(() => {
-    if (!selectedWallet || isDirty) return
+    if (!selectedWallet || isDirty || useOtherWallet) return
     resetForm(defaultsFrom(selectedWallet, session?.user.email ?? '', profile.data?.username ?? ''))
     // `selectedWallet` is identified by its id: re-running on every object
     // identity would fight the collector's typing.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedWalletId, session?.user.email, profile.data?.username, resetForm])
+  }, [selectedWalletId, session?.user.email, profile.data?.username, useOtherWallet, resetForm])
+
+  /**
+   * "Usar outra carteira?" é do layout, e significa receber os NFTs num
+   * endereço diferente do da carteira que paga: marcar limpa os campos de
+   * endereço para o colecionador preencher, desmarcar traz os da carteira de
+   * volta. Sem isso a caixa seria enfeite.
+   */
+  const toggleOtherWallet = (checked: boolean) => {
+    setUseOtherWallet(checked)
+    const values = form.getValues()
+    resetForm(
+      checked
+        ? { ...values, address: '', secondaryAddress: '' }
+        : {
+            ...values,
+            address: selectedWallet?.address ?? '',
+            secondaryAddress: selectedWallet?.secondaryAddress ?? '',
+          },
+      { keepDirty: true },
+    )
+  }
 
   useEffect(() => {
     if (phase.kind === 'placed') {
@@ -182,7 +203,7 @@ export function CheckoutPage() {
             <Checkbox
               id="outra-carteira"
               checked={useOtherWallet}
-              onCheckedChange={(checked) => setUseOtherWallet(checked === true)}
+              onCheckedChange={(checked) => toggleOtherWallet(checked === true)}
             />
             <Label htmlFor="outra-carteira" className="text-xs">
               Usar outra carteira?

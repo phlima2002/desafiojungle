@@ -1,4 +1,4 @@
-import { USERS, bootstrap, expect, expectSignedIn, login, test, useScenario } from './fixtures'
+import { USERS, bootstrap, expect, expectSignedIn, login, test, useScenario, logout } from './fixtures'
 
 test.describe('Conta e sessão', () => {
   test('cadastro cria a conta e autentica', async ({ page }) => {
@@ -76,8 +76,7 @@ test.describe('Conta e sessão', () => {
     await bootstrap(page)
     await login(page, 'ana')
     await page.goto('/conta/perfil')
-    await page.getByRole('button', { name: 'Sair' }).click()
-    await expectSignedIn(page, null)
+    await logout(page)
 
     await login(page, 'bruno')
     await expectSignedIn(page, USERS.bruno.displayName)
