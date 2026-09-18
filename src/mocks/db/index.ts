@@ -38,17 +38,20 @@ function load(): MockDatabase {
 
 export let db: MockDatabase = load()
 
-let persistHandle: number | undefined
+/**
+ * Writes synchronously, on purpose. A debounce here used to coalesce bursts,
+ * but it opened a window in which a reload landing right after a mutation read
+ * back the pre-mutation state — the cart emptying itself on F5. The write is a
+ * `JSON.stringify` of a few hundred kB on user-sized actions, which costs a
+ * couple of milliseconds; correctness is worth more than that.
+ */
 export function persist(): void {
   if (typeof window === 'undefined') return
-  if (persistHandle !== undefined) window.clearTimeout(persistHandle)
-  persistHandle = window.setTimeout(() => {
-    try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(db))
-    } catch {
-      /* quota or private mode — the in-memory database keeps working */
-    }
-  }, 40)
+  try {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(db))
+  } catch {
+    /* quota or private mode — the in-memory database keeps working */
+  }
 }
 
 /** Restores the known-good scenario. Every test starts from here. */
@@ -126,6 +129,7 @@ export function toSummary(nft: NftDetail, favoriteIds: readonly string[]): NftSu
     collectionName: nft.collectionName,
     available: nft.available,
     favorited: favoriteIds.includes(nft.id),
+    rarity: nft.rarity,
     listedAt: nft.listedAt,
     trendingScore: nft.trendingScore,
     version: nft.version,

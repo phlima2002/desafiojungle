@@ -40,8 +40,10 @@ test.describe('Compra', () => {
     await page.getByRole('button', { name: 'Confirmar compra' }).click()
 
     await expect(page).toHaveURL(/\/pedido\//)
-    await expect(page.getByRole('heading', { level: 1 })).toContainText('Pedido confirmado')
-    await expect(page.getByText('ID da transação:')).toBeVisible()
+    await expect(page.getByRole('heading', { level: 1 })).toContainText(
+      'Seus NFTs agora estão na sua carteira',
+    )
+    await expect(page.getByText('ID da transação')).toBeVisible()
 
     // Only the purchased line leaves the cart.
     await page.goto('/carrinho')
@@ -56,11 +58,15 @@ test.describe('Compra', () => {
 
     await page.getByRole('button', { name: 'Confirmar compra' }).click()
     await expect(page).toHaveURL(/\/pedido\//)
-    await expect(page.getByRole('heading', { level: 1 })).toContainText('Pedido recusado')
+    await expect(page.getByRole('heading', { level: 1 })).toContainText(
+      'Não foi possível concluir a compra',
+    )
     await expect(page.getByRole('alert')).toContainText('recusou a assinatura')
 
     await page.reload()
-    await expect(page.getByRole('heading', { level: 1 })).toContainText('Pedido recusado')
+    await expect(page.getByRole('heading', { level: 1 })).toContainText(
+      'Não foi possível concluir a compra',
+    )
   })
 
   test('cliques repetidos não criam um segundo pedido', async ({ page }) => {

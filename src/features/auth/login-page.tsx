@@ -1,10 +1,12 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Link, useNavigate } from '@tanstack/react-router'
+import { useNavigate } from '@tanstack/react-router'
 import { loginRequestSchema, type LoginRequest } from '@/shared/api/contracts'
 import { isApiError } from '@/shared/api/errors'
 import { useLogin } from '@/features/session/use-session'
+import { PasswordInput } from '@/features/account/password-field'
 import { Route } from '@/routes/entrar'
+import { AuthCard } from './auth-card'
 import { Field } from './field'
 
 export function LoginPage() {
@@ -31,40 +33,46 @@ export function LoginPage() {
   })
 
   return (
-    <section className="mx-auto max-w-md px-4 py-16">
-      <h1 className="text-h1 font-bold">Entrar</h1>
-      <p className="mt-2 text-2xs text-muted">Entre para gerenciar sua carteira, coleção e pedidos.</p>
-
-      <form onSubmit={onSubmit} noValidate className="mt-8 space-y-4">
+    <AuthCard
+      active="entrar"
+      redirect={search.redirect}
+      description="Entre para gerenciar sua carteira, coleção e perfil de criador."
+    >
+      <form onSubmit={onSubmit} noValidate className="space-y-4">
         {login.isError ? (
-          <p role="alert" className="rounded-sm border border-danger/40 bg-danger/10 p-3 text-xs text-danger">
+          <p role="alert" className="rounded-sm border border-danger/40 bg-danger/10 p-3 text-2xs text-danger">
             {login.error.message}
           </p>
         ) : null}
 
         <Field label="E-mail" error={form.formState.errors.email?.message}>
-          {(props) => <input {...props} type="email" autoComplete="email" {...form.register('email')} />}
+          {(props) => (
+            <input {...props} type="email" autoComplete="email" placeholder="contato@email.com" {...form.register('email')} />
+          )}
         </Field>
 
         <Field label="Senha" error={form.formState.errors.password?.message}>
           {(props) => (
-            <input
-              {...props}
-              type="password"
-              autoComplete="current-password"
-              {...form.register('password')}
-            />
+            <PasswordInput {...props} autoComplete="current-password" {...form.register('password')} />
           )}
         </Field>
 
-        <label className="flex items-center gap-2 text-2xs text-muted">
-          <input
-            type="checkbox"
-            {...form.register('remember')}
-            className="size-4 accent-[var(--color-primary)]"
-          />
-          Manter conectado
-        </label>
+        <div className="flex items-center justify-between gap-4">
+          <label className="flex items-center gap-2 text-2xs text-muted">
+            <input
+              type="checkbox"
+              {...form.register('remember')}
+              className="size-4 accent-[var(--color-primary)]"
+            />
+            Manter conectado
+          </label>
+          <span
+            title="Recuperação de senha não faz parte do escopo do desafio"
+            className="cursor-not-allowed text-2xs text-clay"
+          >
+            Esqueceu a senha?
+          </span>
+        </div>
 
         <button
           type="submit"
@@ -74,13 +82,6 @@ export function LoginPage() {
           {form.formState.isSubmitting ? 'Entrando…' : 'Entrar'}
         </button>
       </form>
-
-      <p className="mt-6 text-2xs text-muted">
-        Ainda não tem conta?{' '}
-        <Link to="/criar-conta" search={{}} className="font-bold text-accent underline underline-offset-4">
-          Criar conta
-        </Link>
-      </p>
-    </section>
+    </AuthCard>
   )
 }

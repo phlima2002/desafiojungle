@@ -1,10 +1,12 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Link, useNavigate } from '@tanstack/react-router'
+import { useNavigate } from '@tanstack/react-router'
 import { registerRequestSchema, type RegisterRequest } from '@/shared/api/contracts'
 import { isApiError } from '@/shared/api/errors'
 import { useRegister } from '@/features/session/use-session'
+import { PasswordInput } from '@/features/account/password-field'
 import { Route } from '@/routes/criar-conta'
+import { AuthCard } from './auth-card'
 import { Field } from './field'
 
 export function RegisterPage() {
@@ -37,13 +39,14 @@ export function RegisterPage() {
   })
 
   return (
-    <section className="mx-auto max-w-md px-4 py-16">
-      <h1 className="text-h1 font-bold">Criar conta</h1>
-      <p className="mt-2 text-2xs text-muted">Leva menos de um minuto e não pede carteira agora.</p>
-
-      <form onSubmit={onSubmit} noValidate className="mt-8 space-y-4">
+    <AuthCard
+      active="criar-conta"
+      redirect={search.redirect}
+      description="Crie sua conta para colecionar, favoritar e acompanhar seus pedidos."
+    >
+      <form onSubmit={onSubmit} noValidate className="space-y-4">
         {register.isError ? (
-          <p role="alert" className="rounded-sm border border-danger/40 bg-danger/10 p-3 text-xs text-danger">
+          <p role="alert" className="rounded-sm border border-danger/40 bg-danger/10 p-3 text-2xs text-danger">
             {register.error.message}
           </p>
         ) : null}
@@ -53,7 +56,9 @@ export function RegisterPage() {
         </Field>
 
         <Field label="E-mail" error={form.formState.errors.email?.message}>
-          {(props) => <input {...props} type="email" autoComplete="email" {...form.register('email')} />}
+          {(props) => (
+            <input {...props} type="email" autoComplete="email" placeholder="contato@email.com" {...form.register('email')} />
+          )}
         </Field>
 
         <Field
@@ -61,16 +66,13 @@ export function RegisterPage() {
           hint="Mínimo de 8 caracteres, com letras e números."
           error={form.formState.errors.password?.message}
         >
-          {(props) => (
-            <input {...props} type="password" autoComplete="new-password" {...form.register('password')} />
-          )}
+          {(props) => <PasswordInput {...props} autoComplete="new-password" {...form.register('password')} />}
         </Field>
 
         <Field label="Confirmar senha" error={form.formState.errors.passwordConfirmation?.message}>
           {(props) => (
-            <input
+            <PasswordInput
               {...props}
-              type="password"
               autoComplete="new-password"
               {...form.register('passwordConfirmation')}
             />
@@ -85,13 +87,6 @@ export function RegisterPage() {
           {form.formState.isSubmitting ? 'Criando…' : 'Criar conta'}
         </button>
       </form>
-
-      <p className="mt-6 text-2xs text-muted">
-        Já tem conta?{' '}
-        <Link to="/entrar" search={{}} className="font-bold text-accent underline underline-offset-4">
-          Entrar
-        </Link>
-      </p>
-    </section>
+    </AuthCard>
   )
 }

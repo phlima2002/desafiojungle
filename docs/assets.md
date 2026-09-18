@@ -1,24 +1,23 @@
 # Assets
 
-## Situação atual
+## Ilustrações
 
 O arquivo do Figma usa **quatro** ilustrações (retratos de macacos), reutilizadas
-em todos os cards, no herói e nos avatares. Elas estão referenciadas no
-repositório como:
+em todos os cards, no herói e nos avatares. Elas estão no repositório como:
 
 ```
-public/nft/ape-varsity.svg
-public/nft/ape-bucket.svg
-public/nft/ape-noir.svg
-public/nft/ape-headphones.svg
+public/nft/ape-varsity.webp
+public/nft/ape-bucket.webp
+public/nft/ape-noir.webp
+public/nft/ape-headphones.webp
 ```
 
-Neste momento esses arquivos são **placeholders gerados por script**
-(`npm run placeholders`), com a paleta de cada obra original, para que o projeto
-rode a partir de um checkout limpo sem depender de nenhum download.
+São as obras originais do Figma, exportadas em PNG 1254×1254 e reencodadas em
+**WebP 512×512 (qualidade ~0,78)**. O card apresenta 368 px e a página de detalhe
+600 px, então 512 px mantém nitidez em telas 1× e 2× sem penalizar o LCP — cada
+arquivo fica entre 14 kB e 20 kB.
 
-As descrições (`alt`) já correspondem às obras reais e ficam em
-`src/mocks/fixtures/catalog.ts`:
+As descrições (`alt`) ficam em `src/mocks/fixtures/catalog.ts`:
 
 | Arquivo          | Alternativa textual                                                 |
 | ---------------- | ------------------------------------------------------------------- |
@@ -27,24 +26,24 @@ As descrições (`alt`) já correspondem às obras reais e ficam em
 | `ape-noir`       | Macaco de pelagem escura com blazer claro sobre fundo verde-água    |
 | `ape-headphones` | Macaco ruivo de fones de ouvido verdes sobre fundo menta            |
 
-## Substituindo pelos assets originais
+Para trocar ou acrescentar uma arte, exporte o PNG do Figma e rode:
 
-1. Exporte as quatro imagens do Figma (ou obtenha os PNGs 1254×1254 originais).
-2. Converta para WebP em 512 px (o tamanho apresentado é 368 px no card e 600 px
-   no detalhe; 512 mantém nitidez sem penalizar o LCP):
+```bash
+cwebp -q 78 -resize 512 512 "nova-arte.png" -o "public/nft/nova-arte.webp"
+```
 
-   ```bash
-   for f in ape-varsity ape-bucket ape-noir ape-headphones; do
-     cwebp -q 80 -resize 512 512 "$f.png" -o "public/nft/$f.webp"
-   done
-   ```
+depois registre o arquivo em `ARTWORKS` (`src/mocks/db/seed.ts`), com o `alt`
+correspondente.
 
-3. Troque a extensão em `src/mocks/db/seed.ts` (`.svg` → `.webp`) e remova os
-   placeholders.
+## Ícones
+
+Os ícones de interface vêm do `lucide-react`. Os links sociais do rodapé usam
+**lettermarks neutras** em vez dos logotipos das redes: o pacote não traz ícones
+de marca, e reproduzir logotipos de terceiros não é apropriado num teste técnico.
 
 ## Fontes
 
 **Roboto Mono** é auto-hospedada via `@fontsource-variable/roboto-mono`, servida
-do mesmo domínio, em WebGL2-friendly `woff2` com `unicode-range` por subconjunto —
-o navegador baixa apenas `latin`. Não há requisição a `fonts.googleapis.com` nem
-a `fonts.gstatic.com`.
+do mesmo domínio, em `woff2` com `unicode-range` por subconjunto — o navegador
+baixa apenas `latin`. Não há requisição a `fonts.googleapis.com` nem a
+`fonts.gstatic.com`.

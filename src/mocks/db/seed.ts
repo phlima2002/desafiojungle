@@ -172,7 +172,7 @@ function buildNfts(seed: number): NftDetail[] {
       id: `nft-${String(i + 1).padStart(3, '0')}`,
       slug,
       name,
-      imageUrl: `/nft/${artwork.file}.svg`,
+      imageUrl: `/nft/${artwork.file}.webp`,
       imageAlt: `${name} — ${artwork.alt}`,
       price,
       compareAtPrice: discounted ? (Number(price) * 1.28).toFixed(2) : null,
@@ -180,12 +180,13 @@ function buildNfts(seed: number): NftDetail[] {
       category,
       creator: {
         ...creatorSeed,
-        avatarUrl: `/nft/${ARTWORKS[(i + 2) % ARTWORKS.length]!.file}.svg`,
+        avatarUrl: `/nft/${ARTWORKS[(i + 2) % ARTWORKS.length]!.file}.webp`,
       },
       collectionId: collection.id,
       collectionName: collection.name,
       available,
       favorited: false,
+      rarity: i % 17 === 0 ? 'lendaria' : i % 5 === 0 ? 'rara' : 'comum',
       listedAt: new Date(BASE_DATE - i * 3.5 * 3600_000).toISOString(),
       trendingScore: Number((rng.next() * 100).toFixed(2)),
       version: 1,
@@ -193,13 +194,13 @@ function buildNfts(seed: number): NftDetail[] {
         'Peça selecionada pela curadoria Kurio. A obra acompanha certificado on-chain, ' +
         'arquivo em alta resolução e acesso à comunidade do criador.',
       gallery: [
-        { url: `/nft/${artwork.file}.svg`, alt: `${name} — ${artwork.alt}` },
+        { url: `/nft/${artwork.file}.webp`, alt: `${name} — ${artwork.alt}` },
         {
-          url: `/nft/${ARTWORKS[(i + 1) % ARTWORKS.length]!.file}.svg`,
+          url: `/nft/${ARTWORKS[(i + 1) % ARTWORKS.length]!.file}.webp`,
           alt: `${name} — variação de cor`,
         },
         {
-          url: `/nft/${ARTWORKS[(i + 3) % ARTWORKS.length]!.file}.svg`,
+          url: `/nft/${ARTWORKS[(i + 3) % ARTWORKS.length]!.file}.webp`,
           alt: `${name} — detalhe do traço`,
         },
       ],

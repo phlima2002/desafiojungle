@@ -61,7 +61,7 @@ test.describe('Regressão visual', () => {
 
     await page.goto('/pagamento')
     await waitForMocks(page)
-    await page.getByRole('main').getByLabel('Nome completo').waitFor()
+    await page.getByRole('main').getByLabel('Nome de exibição').waitFor()
     await settle(page)
     await expect(page).toHaveScreenshot('pagamento.png', { fullPage: true })
   })

@@ -1,13 +1,15 @@
 import { useMemo } from 'react'
 import { Link, useNavigate } from '@tanstack/react-router'
 import type { NftSummary } from '@/shared/api/contracts'
-import { formatEthWithUnit } from '@/shared/lib/money'
 import { cn } from '@/shared/lib/utils'
 import { useSession } from '@/features/session/use-session'
 import { useToggleFavorite } from '@/features/favorites/use-favorites'
+import { useAddToCart } from '@/features/cart/use-cart'
+import { useNftDetail } from './use-quick-add'
 import { useNftSubscription } from '@/features/realtime/realtime-provider'
 import { useCatalogQuery } from './use-catalog'
 import { NftCard, NftCardSkeleton } from './nft-card'
+import { PriceRangeFilter } from './price-range-filter'
 import { PAGE_SIZE, toListQuery, toggleInList, withFilter, type CatalogSearch } from './search-params'
 
 const TABS = [
@@ -33,6 +35,8 @@ export function CatalogSection({ search, routeId }: CatalogSectionProps) {
   const navigate = useNavigate()
   const { session } = useSession()
   const toggleFavorite = useToggleFavorite()
+  const addToCart = useAddToCart()
+  const quickAdd = useNftDetail()
 
   const query = useMemo(() => toListQuery(search), [search])
   const catalog = useCatalogQuery(query)
@@ -91,6 +95,17 @@ export function CatalogSection({ search, routeId }: CatalogSectionProps) {
             </ul>
           </fieldset>
 
+          {facets ? (
+            <PriceRangeFilter
+              key={`${search.min ?? ''}:${search.max ?? ''}:${facets.priceRange.min}:${facets.priceRange.max}`}
+              bounds={facets.priceRange}
+              value={{ min: search.min, max: search.max }}
+              onApply={(next) => update(next)}
+            />
+          ) : (
+            <div className="skeleton h-40 w-full rounded-md" aria-hidden />
+          )}
+
           <fieldset className="rounded-md bg-card p-5">
             <legend className="mb-3 text-lg font-bold">Rede</legend>
             <ul className="space-y-2">
@@ -121,11 +136,6 @@ export function CatalogSection({ search, routeId }: CatalogSectionProps) {
                 )
               })}
             </ul>
-            <p className="mt-4 min-h-[1.375rem] text-xs text-clay">
-              {facets
-                ? `Preço: ${formatEthWithUnit(facets.priceRange.min)} – ${formatEthWithUnit(facets.priceRange.max)}`
-                : null}
-            </p>
           </fieldset>
         </aside>
 
@@ -219,6 +229,14 @@ export function CatalogSection({ search, routeId }: CatalogSectionProps) {
                       canFavorite={Boolean(session)}
                       onToggleFavorite={(target) =>
                         toggleFavorite.mutate({ nftId: target.id, favorited: !target.favorited })
+                      }
+                      onQuickAdd={(target) =>
+                        void quickAdd(target.slug).then((detail) => {
+                          const edition = detail.editions.find((candidate) => candidate.available > 0)
+                          if (edition) {
+                            addToCart.mutate({ nftId: detail.id, editionId: edition.id, quantity: 1 })
+                          }
+                        })
                       }
                     />
                   </li>

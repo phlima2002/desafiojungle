@@ -42,6 +42,15 @@ export const editionSchema = z.object({
 })
 export type Edition = z.infer<typeof editionSchema>
 
+export const raritySchema = z.enum(['comum', 'rara', 'lendaria'])
+export type Rarity = z.infer<typeof raritySchema>
+
+export const RARITY_LABELS: Record<Rarity, string> = {
+  comum: 'Comum',
+  rara: 'Raro',
+  lendaria: 'Lendário',
+}
+
 export const nftSummarySchema = z.object({
   id: idSchema,
   slug: z.string(),
@@ -58,6 +67,7 @@ export const nftSummarySchema = z.object({
   collectionName: z.string(),
   available: z.number().int().nonnegative(),
   favorited: z.boolean(),
+  rarity: raritySchema,
   listedAt: isoDateTimeSchema,
   trendingScore: z.number(),
   version: versionSchema,

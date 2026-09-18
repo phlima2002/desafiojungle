@@ -74,9 +74,13 @@ test.describe('Tempo real', () => {
     await waitForMocks(page)
 
     // The receipt recovers from REST, and the server still holds one order.
-    await expect(page.getByRole('heading', { level: 1 })).toContainText(/Pedido (confirmado|pendente)/)
+    await expect(page.getByRole('heading', { level: 1 })).toContainText(
+      /Seus NFTs agora estão na sua carteira|Estamos confirmando sua compra/,
+    )
     await expect.poll(() => page.evaluate(() => window.__kurio!.inspect().orders.length)).toBe(1)
-    await expect(page.getByRole('heading', { level: 1 })).toContainText('Pedido confirmado')
+    await expect(page.getByRole('heading', { level: 1 })).toContainText(
+      'Seus NFTs agora estão na sua carteira',
+    )
   })
 
   test('reconexão reconcilia o catálogo com o REST', async ({ page }) => {

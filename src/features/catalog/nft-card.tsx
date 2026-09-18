@@ -1,17 +1,20 @@
 import { Link } from '@tanstack/react-router'
-import { Heart } from 'lucide-react'
-import type { NftSummary } from '@/shared/api/contracts'
+import { Heart, Search, ShoppingCart } from 'lucide-react'
+import { RARITY_LABELS, type NftSummary } from '@/shared/api/contracts'
 import { formatEthWithUnit } from '@/shared/lib/money'
 import { cn } from '@/shared/lib/utils'
 
 interface NftCardProps {
   nft: NftSummary
-  onToggleFavorite?: (nft: NftSummary) => void
   canFavorite: boolean
+  onToggleFavorite?: (nft: NftSummary) => void
+  onQuickAdd?: (nft: NftSummary) => void
 }
 
-export function NftCard({ nft, onToggleFavorite, canFavorite }: NftCardProps) {
+export function NftCard({ nft, canFavorite, onToggleFavorite, onQuickAdd }: NftCardProps) {
   const soldOut = nft.available === 0
+  const actionClass =
+    'grid size-8 place-items-center rounded-pill bg-ink-950/80 text-cream transition-colors hover:bg-primary hover:text-primary-foreground disabled:cursor-not-allowed disabled:opacity-40'
 
   return (
     <article className="group relative flex flex-col gap-3">
@@ -25,22 +28,54 @@ export function NftCard({ nft, onToggleFavorite, canFavorite }: NftCardProps) {
           decoding="async"
           className="aspect-square w-full object-cover transition-transform duration-500 group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
         />
+
+        {nft.rarity !== 'comum' ? (
+          <p className="absolute right-0 top-3 rounded-l-xs bg-primary px-2 py-1 text-3xs font-bold uppercase tracking-wide text-primary-foreground">
+            {RARITY_LABELS[nft.rarity]}
+          </p>
+        ) : null}
+
         {soldOut ? (
-          <p className="absolute top-3 left-3 rounded-xs bg-ink-950/85 px-2 py-1 text-micro font-bold tracking-wide text-danger uppercase">
+          <p className="absolute left-3 top-3 rounded-xs bg-ink-950/85 px-2 py-1 text-micro font-bold uppercase tracking-wide text-danger">
             Esgotado
           </p>
         ) : null}
-        {canFavorite && onToggleFavorite ? (
-          <button
-            type="button"
-            onClick={() => onToggleFavorite(nft)}
-            aria-pressed={nft.favorited}
-            aria-label={nft.favorited ? `Remover ${nft.name} dos favoritos` : `Favoritar ${nft.name}`}
-            className="absolute top-3 right-3 z-10 grid size-9 place-items-center rounded-pill bg-ink-950/70 text-cream transition-colors hover:bg-ink-950"
+
+        {/* Quick actions: revealed on hover, but always reachable by keyboard. */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex justify-center gap-2 p-3 opacity-0 transition-opacity group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100 motion-reduce:transition-none max-md:pointer-events-auto max-md:opacity-100">
+          {onQuickAdd ? (
+            <button
+              type="button"
+              className={actionClass}
+              disabled={soldOut}
+              onClick={() => onQuickAdd(nft)}
+              aria-label={soldOut ? `${nft.name} está esgotado` : `Adicionar ${nft.name} ao carrinho`}
+            >
+              <ShoppingCart aria-hidden size={15} />
+            </button>
+          ) : null}
+
+          {canFavorite && onToggleFavorite ? (
+            <button
+              type="button"
+              className={actionClass}
+              onClick={() => onToggleFavorite(nft)}
+              aria-pressed={nft.favorited}
+              aria-label={nft.favorited ? `Remover ${nft.name} dos favoritos` : `Favoritar ${nft.name}`}
+            >
+              <Heart aria-hidden size={15} className={cn(nft.favorited && 'fill-danger text-danger')} />
+            </button>
+          ) : null}
+
+          <Link
+            to="/nft/$slug"
+            params={{ slug: nft.slug }}
+            className={actionClass}
+            aria-label={`Ver detalhes de ${nft.name}`}
           >
-            <Heart aria-hidden size={16} className={cn(nft.favorited && 'fill-danger text-danger')} />
-          </button>
-        ) : null}
+            <Search aria-hidden size={15} />
+          </Link>
+        </div>
       </div>
 
       <div className="space-y-1">

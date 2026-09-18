@@ -82,7 +82,9 @@ test.describe('Carrinho', () => {
     await page.goto('/carrinho')
     await waitForMocks(page)
 
-    const nftId = await page.evaluate(() => window.__kurio!.inspect().carts[0]!.items[0]!.nftId)
+    const nftId = await page.evaluate(
+      () => window.__kurio!.inspect().carts.find((cart) => cart.items.length > 0)!.items[0]!.nftId,
+    )
     await page.evaluate((id) => window.__kurio!.setNftPrice(id, '7.77'), nftId)
 
     await expect(page.getByRole('main').getByRole('status')).toContainText(
@@ -97,7 +99,9 @@ test.describe('Carrinho', () => {
     await page.goto('/carrinho')
     await waitForMocks(page)
 
-    const nftId = await page.evaluate(() => window.__kurio!.inspect().carts[0]!.items[0]!.nftId)
+    const nftId = await page.evaluate(
+      () => window.__kurio!.inspect().carts.find((cart) => cart.items.length > 0)!.items[0]!.nftId,
+    )
     await page.evaluate((id) => window.__kurio!.setNftPrice(id, '5.55'), nftId)
 
     await expect(page.getByText('5,55 ETH').first()).toBeVisible()
@@ -113,7 +117,10 @@ test.describe('Favoritos', () => {
     await login(page, 'ana')
     await page.goto('/mercado')
 
-    const firstCardHeart = page.locator('article').first().getByRole('button')
+    // The quick actions appear on hover, exactly as a collector would reach them.
+    const firstCard = page.locator('article').first()
+    await firstCard.hover()
+    const firstCardHeart = firstCard.getByRole('button', { name: /Favoritar|dos favoritos/ })
     await expect(firstCardHeart).toHaveAttribute('aria-pressed', 'false')
     await firstCardHeart.click()
     await expect(firstCardHeart).toHaveAttribute('aria-pressed', 'true')
@@ -121,7 +128,9 @@ test.describe('Favoritos', () => {
     // With the mutation failing, the heart flips optimistically and then
     // returns to its previous state once the server refuses.
     await useScenario(page, 'favorites-fail')
-    const secondCardHeart = page.locator('article').nth(1).getByRole('button')
+    const secondCard = page.locator('article').nth(1)
+    await secondCard.hover()
+    const secondCardHeart = secondCard.getByRole('button', { name: /Favoritar|dos favoritos/ })
     await secondCardHeart.click()
     await expect(secondCardHeart).toHaveAttribute('aria-pressed', 'false')
   })
@@ -131,11 +140,28 @@ test.describe('Favoritos', () => {
     await login(page, 'ana')
     await page.goto('/mercado')
 
-    const heart = page.locator('article').first().getByRole('button')
+    const card = page.locator('article').first()
+    await card.hover()
+    const heart = card.getByRole('button', { name: /Favoritar|dos favoritos/ })
     await heart.click()
     await expect(heart).toHaveAttribute('aria-pressed', 'true')
 
+    // The flip above is optimistic — wait for the server to actually hold it
+    // before reloading, otherwise the reload would cancel the mutation.
+    await expect
+      .poll(() =>
+        page.evaluate(async () => {
+          const response = await fetch('/api/favorites')
+          const body = (await response.json()) as { nftIds: string[] }
+          return body.nftIds.length
+        }),
+      )
+      .toBeGreaterThan(0)
+
     await page.reload()
-    await expect(page.locator('article').first().getByRole('button')).toHaveAttribute('aria-pressed', 'true')
+    await page.locator('article').first().hover()
+    await expect(
+      page.locator('article').first().getByRole('button', { name: /Favoritar|dos favoritos/ }),
+    ).toHaveAttribute('aria-pressed', 'true')
   })
 })
