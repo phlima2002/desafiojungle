@@ -13,6 +13,7 @@
 - [Camada de mocks](#camada-de-mocks)
 - [Primeira pintura: shell e handoff](#primeira-pintura-shell-e-handoff)
 - [Precisão monetária](#precisão-monetária)
+- [Componentes](#componentes)
 - [Acessibilidade](#acessibilidade)
 - [Limitações conhecidas](#limitações-conhecidas)
 - [Desvios em relação ao Figma](#desvios-em-relação-ao-figma)
@@ -21,7 +22,9 @@
 
 ```
 src/
-  app/          providers, router, query client, guards, serialização de search params
+  app/          providers, router, query client, guards, shell de build e handoff
+  components/
+    ui/         componentes do shadcn/ui (código do projeto, não dependência)
   routes/       rotas file-based do TanStack Router
   features/     um diretório por domínio (catalog, cart, checkout, session, …)
   shared/
@@ -32,8 +35,8 @@ src/
 tests/e2e/      Playwright
 ```
 
-A regra de dependência é de fora para dentro: `features` usa `shared`, `shared`
-não conhece `features`, e `mocks` só depende de `shared/api/contracts` — o mesmo
+A regra de dependência é de fora para dentro: `features` usa `shared` e
+`components`, `shared` não conhece `features`, e `mocks` só depende de `shared/api/contracts` — o mesmo
 contrato que a aplicação consome. Nenhum componente, hook ou interceptor do Axios
 contém resposta fictícia ou caminho alternativo de negócio; toda a simulação vive
 na camada de rede.
@@ -319,6 +322,20 @@ Valores em ETH trafegam como **strings decimais** e toda aritmética acontece em
 `number` em momento algum: soma, desconto (em _basis points_) e multiplicação por
 quantidade são exatos. A formatação é separada do cálculo e usa vírgula decimal
 (pt-BR). Quantidades são inteiras.
+
+## Componentes
+
+A camada de componentes é o **shadcn/ui**: os arquivos são copiados para
+`src/components/ui` e passam a ser código do projeto, sobre os primitivos do
+Radix. Nenhum deles carrega cor literal — todos usam os tokens semânticos do
+`@theme`, que saem do Figma.
+
+O que isso resolve na prática: foco preso e devolvido na gaveta de navegação,
+`aria-selected`/`aria-controls` corretos nas abas, rádio e checkbox operáveis por
+teclado, e um único lugar para mudar a aparência de todos os botões.
+`FormSelect` faz a ponte com o react-hook-form, que precisa de `Controller` para
+um menu do Radix. Detalhes, tabela de uso e as duas exceções deliberadas estão em
+[docs/components.md](./docs/components.md).
 
 ## Acessibilidade
 

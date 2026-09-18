@@ -3,7 +3,7 @@
 Implementação do desafio de frontend “Marketplace de NFTs” em React + TypeScript,
 com API, autenticação, carteiras e pagamentos **simulados** na camada de rede.
 
-As nove telas do desafio estão implementadas em desktop e mobile, com 124 testes
+As nove telas do desafio estão implementadas em desktop e mobile, com 126 testes
 E2E (incluindo regressão visual) passando nos dois viewports e as quatro metas de
 Lighthouse atingidas nos dois perfis. Veja [ARCHITECTURE.md](./ARCHITECTURE.md)
 para as decisões, os contratos e as limitações conhecidas.
@@ -45,6 +45,7 @@ Metas: 90 / 95 / 95 / 90. Reprodução e análise em
 | Contratos        | Zod (validação de request e response)               |
 | Tempo real       | Socket.IO (`socket.io-client`)                      |
 | Estilização      | Tailwind CSS v4 (tokens extraídos do Figma)         |
+| Componentes      | shadcn/ui sobre Radix (`src/components/ui`)         |
 | Mocking          | MSW v2 + `@mswjs/socket.io-binding`                 |
 | Testes E2E       | Playwright (Chromium, desktop + mobile)             |
 | Build            | Vite                                                |
@@ -184,6 +185,8 @@ determinística. Traces e vídeos ficam retidos apenas em falha.
 - [docs/design-tokens.md](./docs/design-tokens.md) — origem de cada cor, tamanho
   e espaçamento extraídos do arquivo do Figma.
 - [docs/assets.md](./docs/assets.md) — origem das imagens, dos ícones e da fonte.
+- [docs/components.md](./docs/components.md) — o que veio do shadcn/ui, como os
+  tokens do Figma entram nos componentes e onde há exceção deliberada.
 - [docs/performance.md](./docs/performance.md) — método, números e o que foi
   feito para atingir as metas.
 

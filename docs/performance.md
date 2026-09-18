@@ -32,15 +32,15 @@ em `lighthouse/reports/`.
 
 | Página          | Perfil  | Performance | Accessibility | Best Practices |     SEO |    LCP | CLS |    TBT |
 | --------------- | ------- | ----------: | ------------: | -------------: | ------: | -----: | --: | -----: |
-| Início          | mobile  |      **93** |       **100** |        **100** | **100** | 2,34 s |   0 | 194 ms |
-| Detalhes do NFT | mobile  |      **93** |       **100** |        **100** | **100** | 2,46 s |   0 | 175 ms |
+| Início          | mobile  |      **92** |       **100** |        **100** | **100** | 2,35 s |   0 | 195 ms |
+| Detalhes do NFT | mobile  |      **91** |       **100** |        **100** | **100** | 2,62 s |   0 | 195 ms |
 | Início          | desktop |     **100** |       **100** |        **100** | **100** | 0,53 s |   0 |   0 ms |
 | Detalhes do NFT | desktop |     **100** |       **100** |        **100** | **100** | 0,54 s |   0 |   0 ms |
 
 Metas: Performance ≥ 90 · Accessibility ≥ 95 · Best Practices ≥ 95 · SEO ≥ 90 —
 **todas atingidas nos dois perfis e nas duas páginas.**
 
-## Como o mobile saiu de 77–82 para 93
+## Como o mobile saiu de 77–82 para 9x (92 na home, 91 no detalhe)
 
 O ponto de partida era um SPA 100% client-side: **nada aparecia até o bundle ser
 baixado, analisado e executado**. First contentful paint ficava em ~2,8 s e o
@@ -72,7 +72,15 @@ commit do React: remove o shell e revela `#root`.
 Sem temporizador forçando a troca: se o bundle nunca subir, o shell ficar de pé
 é a falha melhor do que um `#root` vazio.
 
-### 3. Menos JavaScript antes da primeira pintura
+### 3. O shell tem que bater pixel a pixel
+
+Uma miniatura do shell 4 px mais larga que a da página real estreitava a imagem
+principal na mesma medida. A imagem renderizada depois ficava **maior** que a do
+shell — e uma imagem maior é um novo candidato a LCP: a métrica do detalhe
+voltava de 2,5 s para 4,3 s sem que nada parecesse quebrado. Há um teste
+comparando as duas larguras (`tests/e2e/shell.spec.ts`).
+
+### 4. Menos JavaScript antes da primeira pintura
 
 `autoCodeSplitting` do TanStack Router ligado: cada rota vira seu próprio chunk.
 O chunk de entrada caiu de ~60 kB para ~12 kB gzip e o TBT de 266 ms para
@@ -94,20 +102,24 @@ caminho crítico da home.
 
 ## Caminho crítico atual (gzip)
 
-| Recurso                             |     Tamanho | Papel                                  |
-| ----------------------------------- | ----------: | -------------------------------------- |
-| `react`                             |      ~66 kB | React + React DOM                      |
-| `zod`                               |      ~37 kB | Contratos e validação de search params |
-| `router`                            |      ~26 kB | TanStack Router                        |
-| `contracts`                         |      ~23 kB | Schemas da aplicação                   |
-| `query`                             |      ~13 kB | TanStack Query                         |
-| entrada + rota + utilitários        |      ~25 kB | Aplicação                              |
-| **Total antes da primeira pintura** | **~190 kB** |                                        |
+| Recurso                             |     Tamanho | Papel                                     |
+| ----------------------------------- | ----------: | ----------------------------------------- |
+| `react`                             |      ~74 kB | React, React DOM e os primitivos do Radix |
+| `zod`                               |      ~38 kB | Contratos e validação de search params    |
+| `router`                            |      ~26 kB | TanStack Router                           |
+| `contracts`                         |      ~23 kB | Schemas da aplicação                      |
+| `query`                             |      ~13 kB | TanStack Query                            |
+| entrada + rota + utilitários        |      ~24 kB | Aplicação                                 |
+| **Total antes da primeira pintura** | **~198 kB** |                                           |
 
 A camada de mocks (~165 kB gzip) **não** está nesse caminho: ela é carregada
 depois da primeira pintura.
 
-Esses 190 kB são o que ainda separa o mobile de 100 — eles não atrasam mais a
+O `Dialog` do Radix, o mais pesado do conjunto, fica fora dessa conta: é
+carregado no primeiro clique do menu. O `Ordenar por` do catálogo é um `<select>`
+nativo pelo mesmo motivo — ver [components.md](./components.md).
+
+Esses ~198 kB são o que ainda separa o mobile de 100 — eles não atrasam mais a
 pintura, mas continuam pesando no TBT. O próximo corte natural seria tirar
 `zod` + `contracts` (~60 kB) do caminho crítico, trocando a validação dos search
 params por um parser próprio e carregando os schemas junto da camada de rede.
