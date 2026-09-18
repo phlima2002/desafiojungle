@@ -32,15 +32,20 @@ em `lighthouse/reports/`.
 
 | Página          | Perfil  | Performance | Accessibility | Best Practices |     SEO |    LCP | CLS |    TBT |
 | --------------- | ------- | ----------: | ------------: | -------------: | ------: | -----: | --: | -----: |
-| Início          | mobile  |      **94** |       **100** |        **100** | **100** | 2,36 s |   0 | 146 ms |
-| Detalhes do NFT | mobile  |      **92** |       **100** |        **100** | **100** | 2,63 s |   0 | 189 ms |
-| Início          | desktop |     **100** |       **100** |        **100** | **100** | 0,53 s |   0 |   0 ms |
-| Detalhes do NFT | desktop |     **100** |       **100** |        **100** | **100** | 0,54 s |   0 |   0 ms |
+| Início          | mobile  |      **91** |       **100** |        **100** | **100** | 2,35 s |   0 | 222 ms |
+| Detalhes do NFT | mobile  |      **93** |       **100** |        **100** | **100** | 2,64 s |   0 | 152 ms |
+| Início          | desktop |     **100** |       **100** |        **100** | **100** | 0,52 s |   0 |   0 ms |
+| Detalhes do NFT | desktop |     **100** |       **100** |        **100** | **100** | 0,59 s |   0 |   1 ms |
 
 Metas: Performance ≥ 90 · Accessibility ≥ 95 · Best Practices ≥ 95 · SEO ≥ 90 —
 **todas atingidas nos dois perfis e nas duas páginas.**
 
-## Como o mobile saiu de 77–82 para 9x (92 na home, 91 no detalhe)
+O TBT do perfil mobile é a métrica que mais oscila entre execuções — a mesma
+build mediu de 146 ms a 222 ms conforme a carga da máquina, o que move a nota de
+Performance dentro da faixa 91–94. As medianas acima são de uma máquina ociosa;
+em qualquer uma das execuções as quatro categorias ficaram acima das metas.
+
+## Como o mobile saiu de 77–82 para 9x
 
 O ponto de partida era um SPA 100% client-side: **nada aparecia até o bundle ser
 baixado, analisado e executado**. First contentful paint ficava em ~2,8 s e o
