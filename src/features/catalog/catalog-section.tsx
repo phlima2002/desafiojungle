@@ -194,10 +194,11 @@ export function CatalogSection({ search, routeId, hero }: CatalogSectionProps) {
                 </div>
               ) : (
                 <ul className={cn(GRID, 'transition-opacity', catalog.isFetching && 'opacity-60')}>
-                  {items.map((nft) => (
+                  {items.map((nft, position) => (
                     <li key={nft.id}>
                       <NftCard
                         nft={nft}
+                        priority={position === 0}
                         canFavorite={Boolean(session)}
                         onToggleFavorite={(target) =>
                           toggleFavorite.mutate({ nftId: target.id, favorited: !target.favorited })

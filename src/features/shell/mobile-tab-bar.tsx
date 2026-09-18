@@ -108,7 +108,10 @@ export function MobileTabBar() {
               className={item}
             >
               <User aria-hidden size={20} />
-              <span className="text-eyebrow">{session ? 'Conta' : 'Entrar'}</span>
+              {/* O texto visível precisa caber dentro do nome acessível, senão
+                  o axe reprova (`label-content-name-mismatch`) — daí "Conta"
+                  fixo, e não "Entrar" quando não há sessão. */}
+              <span className="text-eyebrow">Conta</span>
             </button>
           </li>
         </ul>

@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { CatalogSection } from '@/features/catalog/catalog-section'
 import { catalogSearchSchema } from '@/features/catalog/search-params'
 import { HomeHero } from '@/features/catalog/home-hero'
+import { HomeEditorial } from '@/features/catalog/home-editorial'
 
 export const Route = createFileRoute('/')({
   validateSearch: catalogSearchSchema,
@@ -15,6 +16,7 @@ function HomePage() {
   return (
     <div className="space-y-10 pb-8 md:space-y-16">
       <CatalogSection search={search} routeId="/" hero={<HomeHero />} />
+      <HomeEditorial />
     </div>
   )
 }

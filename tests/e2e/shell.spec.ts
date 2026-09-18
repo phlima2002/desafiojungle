@@ -17,7 +17,9 @@ test.describe('Shell estático', () => {
     const shell = page.locator(`#${SHELL_ROOT_ID}`)
     // `getByRole` is out: the shell is `aria-hidden`, so it has no a11y tree.
     await expect(shell.locator('h1')).toHaveText('Seja dono do futuroda arte digital')
-    await expect(shell.locator('img')).toHaveAttribute('src', heroImage())
+    // O shell agora pinta também os primeiros cartões da grade (ver
+    // `static-shell.ts`), então a arte do herói é procurada dentro dele.
+    await expect(shell.locator('#shell-hero img')).toHaveAttribute('src', heroImage())
   })
 
   test('o herói renderizado corresponde ao do shell', async ({ page }) => {

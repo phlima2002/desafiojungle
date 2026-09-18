@@ -74,23 +74,32 @@ export function HomeHero() {
           </div>
         </div>
 
-        {slides.length > 1 ? (
-          <div className="mt-4 flex justify-center gap-2 md:hidden">
-            {slides.map((slide, position) => (
-              <button
-                key={slide.id}
-                type="button"
-                aria-label={`Ver destaque ${position + 1} de ${slides.length}`}
-                aria-current={position === index}
-                onClick={() => setIndex(position)}
+        {/* Os marcadores ocupam o lugar desde o primeiro quadro, mesmo antes de
+            a consulta dizer quantos destaques existem: renderizá-los só depois
+            empurrava o catálogo para baixo ao chegarem (era o CLS de 0,015 que
+            a auditoria apontava). O alvo de toque tem 24px — o ponto visível
+            continua com 8. */}
+        <div className="mt-2 -mb-2 flex justify-center md:hidden">
+          {(slides.length > 0 ? slides.map((slide) => slide.id) : ['a', 'b', 'c']).map((id, position) => (
+            <button
+              key={id}
+              type="button"
+              disabled={slides.length === 0}
+              aria-label={`Ver destaque ${position + 1} de ${slides.length || 3}`}
+              aria-current={position === index}
+              onClick={() => setIndex(position)}
+              className="grid size-6 place-items-center"
+            >
+              <span
+                aria-hidden
                 className={cn(
-                  'size-2 rounded-pill transition-colors',
+                  'block size-2 rounded-pill transition-colors',
                   position === index ? 'bg-primary' : 'bg-line-strong',
                 )}
               />
-            ))}
-          </div>
-        ) : null}
+            </button>
+          ))}
+        </div>
       </div>
     </section>
   )

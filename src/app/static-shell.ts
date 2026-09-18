@@ -77,6 +77,32 @@ const thumb = (position: number) =>
     position === 0 ? 'border-primary' : 'border-transparent'
   }"><img alt="" width="64" height="64" decoding="async" class="size-full object-cover" data-shell-thumb="${position}" /></span></li>`
 
+/**
+ * Os primeiros cartões do catálogo, no documento.
+ *
+ * No celular o herói do Figma é um cartão pequeno, com a arte em 120px: ele
+ * deixou de ser o maior elemento da primeira dobra, e o LCP passou para a
+ * primeira imagem da grade — que só existe depois do bundle, do worker de
+ * mocks e da consulta. A medição caiu de 91 para 77 por isso.
+ *
+ * A grade é semeada de forma determinística e a ordenação padrão é a mais
+ * recente primeiro, que é a ordem do índice: o primeiro cartão é o índice 0, o
+ * segundo o 1, e a arte de cada um sai da mesma função que o detalhe usa. Com
+ * isso as imagens voltam a ser descobríveis no documento inicial.
+ *
+ * As faixas no lugar do nome e do preço existem só para reservar a altura: sem
+ * elas o texto real empurraria a grade para baixo ao chegar (foi o CLS de 0,015
+ * que a auditoria apontou).
+ */
+const shellCard = (index: number, base: string) =>
+  `<li><article class="flex flex-col gap-3"><div class="overflow-hidden rounded-2xl bg-card-raised sm:rounded-md"><img src="${artworkForToken(
+    TOKEN_BASE + index * TOKEN_STEP,
+    0,
+    base,
+  )}" alt="" width="368" height="368" ${
+    index === 0 ? 'fetchpriority="high"' : 'loading="lazy"'
+  } decoding="async" class="aspect-square w-full object-cover" /></div><div class="space-y-1"><span class="block h-4 w-3/4 rounded-xs bg-card-raised"></span><span class="block h-4 w-1/3 rounded-xs bg-card-raised"></span></div></article></li>`
+
 export const buildShellHtml = (base = '/') => `<div id="${SHELL_ROOT_ID}" aria-hidden="true">
 <header class="hidden border-b border-line md:block">
 <div class="mx-auto flex h-18 max-w-page items-center justify-between gap-6 px-4 sm:px-8">
@@ -102,7 +128,20 @@ export const buildShellHtml = (base = '/') => `<div id="${SHELL_ROOT_ID}" aria-h
 </div>
 <div class="aspect-square w-[7.5rem] sm:w-[13rem] md:w-full md:max-w-[420px] lg:justify-self-end"><img src="${heroImage(base)}" alt="" width="420" height="420" fetchpriority="high" decoding="async" class="size-full rounded-2xl object-cover shadow-card md:rounded-lg" /></div>
 </div>
-<div class="mt-4 flex justify-center gap-2 md:hidden"><span class="size-2 rounded-pill bg-primary"></span><span class="size-2 rounded-pill bg-line-strong"></span><span class="size-2 rounded-pill bg-line-strong"></span></div>
+<div class="-mb-2 mt-2 flex justify-center md:hidden"><span class="grid size-6 place-items-center"><span class="block size-2 rounded-pill bg-primary"></span></span><span class="grid size-6 place-items-center"><span class="block size-2 rounded-pill bg-line-strong"></span></span><span class="grid size-6 place-items-center"><span class="block size-2 rounded-pill bg-line-strong"></span></span></div>
+</div>
+</section>
+<section id="shell-grid" class="mx-auto mt-10 max-w-page px-4 sm:px-8 md:mt-16">
+<div class="grid gap-8 lg:grid-cols-[236px_minmax(0,1fr)]">
+<div class="hidden lg:block"></div>
+<div class="min-w-0 space-y-6">
+<div class="flex flex-wrap items-center justify-between gap-4"><div class="flex gap-6 pb-1"><span class="border-b-2 border-primary pb-1 text-sm font-medium text-accent">Todos os NFTs</span><span class="border-b-2 border-transparent pb-1 text-sm text-sand">Novos lançamentos</span><span class="border-b-2 border-transparent pb-1 text-sm text-sand">Em alta</span></div></div>
+<ul class="grid grid-cols-2 gap-4 max-sm:[&>li:nth-child(even)]:mt-10 sm:grid-cols-2 sm:gap-6 xl:grid-cols-3">${[
+  0, 1, 2,
+]
+  .map((index) => shellCard(index, base))
+  .join('')}</ul>
+</div>
 </div>
 </section>
 <article id="shell-detail" hidden class="mx-auto max-w-page pb-8 md:px-4 md:py-8 lg:px-8">
@@ -116,9 +155,15 @@ export const buildShellHtml = (base = '/') => `<div id="${SHELL_ROOT_ID}" aria-h
 </article>
 </div>
 <script>(function(){var b=${JSON.stringify(base)},d=document,p=location.pathname.slice(b.length-1),
-hero=d.getElementById('shell-hero'),bar=d.getElementById('shell-bar'),detail=d.getElementById('shell-detail');
+hero=d.getElementById('shell-hero'),bar=d.getElementById('shell-bar'),grid=d.getElementById('shell-grid'),detail=d.getElementById('shell-detail');
 if(p!=='/'&&hero)hero.remove();
 if(p!=='/'&&p!=='/mercado'&&bar)bar.remove();
+/* A grade semeada vale para a listagem sem recorte. Qualquer busca, filtro,
+   ordenação ou página muda o que aparece — aí é melhor não pintar nada. Outros
+   parâmetros (o cenário dos mocks, por exemplo) não mexem na listagem. */
+var cut=['q','tab','categoria','rede','min','max','ordenar','pagina'],
+q=new URLSearchParams(location.search);
+if(grid&&(p!=='/'||cut.some(function(k){return q.has(k)})))grid.remove();
 var m=p.match(/^\\/nft\\/.+-(\\d+)$/),i=m?(+m[1]-${TOKEN_BASE})/${TOKEN_STEP}:-1;
 if(i<0||i%1!==0){if(detail)detail.remove();return}
 var files=${JSON.stringify(ARTWORK_FILES)},offsets=${JSON.stringify(GALLERY_OFFSETS)},

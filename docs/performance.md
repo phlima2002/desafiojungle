@@ -32,18 +32,35 @@ em `lighthouse/reports/`.
 
 | Página          | Perfil  | Performance | Accessibility | Best Practices |     SEO |    LCP | CLS |    TBT |
 | --------------- | ------- | ----------: | ------------: | -------------: | ------: | -----: | --: | -----: |
-| Início          | mobile  |      **91** |       **100** |        **100** | **100** | 2,35 s |   0 | 222 ms |
-| Detalhes do NFT | mobile  |      **93** |       **100** |        **100** | **100** | 2,64 s |   0 | 152 ms |
-| Início          | desktop |     **100** |       **100** |        **100** | **100** | 0,52 s |   0 |   0 ms |
-| Detalhes do NFT | desktop |     **100** |       **100** |        **100** | **100** | 0,59 s |   0 |   1 ms |
+| Início          | mobile  |      **90** |       **100** |        **100** | **100** | 2,66 s |   0 | 192 ms |
+| Detalhes do NFT | mobile  |      **93** |       **100** |        **100** | **100** | 2,63 s |   0 | 138 ms |
+| Início          | desktop |     **100** |       **100** |        **100** | **100** | 0,58 s |   0 |   0 ms |
+| Detalhes do NFT | desktop |     **100** |       **100** |        **100** | **100** | 0,58 s |   0 |   0 ms |
 
 Metas: Performance ≥ 90 · Accessibility ≥ 95 · Best Practices ≥ 95 · SEO ≥ 90 —
 **todas atingidas nos dois perfis e nas duas páginas.**
 
 O TBT do perfil mobile é a métrica que mais oscila entre execuções — a mesma
-build mediu de 146 ms a 222 ms conforme a carga da máquina, o que move a nota de
-Performance dentro da faixa 91–94. As medianas acima são de uma máquina ociosa;
+build mediu de 138 ms a 222 ms conforme a carga da máquina, o que move a nota de
+Performance dentro da faixa 90–94. As medianas acima são de uma máquina ociosa;
 em qualquer uma das execuções as quatro categorias ficaram acima das metas.
+
+### O que o layout mobile do Figma custou, e como foi pago
+
+O herói do celular é um cartão com a arte em 120 px — pequeno demais para ser o
+maior elemento da primeira dobra. Com ele, o LCP passou a ser a primeira imagem
+da grade, que só existe depois do bundle, do worker de mocks e da consulta: a
+medição caiu para **77**, com CLS de 0,015.
+
+Duas correções, ambas no mesmo princípio do resto desta página — o que a métrica
+mede tem de estar no documento:
+
+1. o shell passou a pintar também os três primeiros cartões da grade. A listagem
+   padrão é ordenada da mais recente para a mais antiga, que é a ordem do índice
+   semeado, então a arte de cada um sai da mesma derivação que o detalhe usa;
+2. os marcadores do carrossel passaram a ocupar o lugar desde o primeiro quadro,
+   mesmo antes de a consulta dizer quantos destaques existem — era a chegada
+   deles que empurrava a grade e produzia o CLS.
 
 ## Como o mobile saiu de 77–82 para 9x
 

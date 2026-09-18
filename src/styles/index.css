@@ -160,6 +160,55 @@
 }
 
 @layer components {
+  /* Os dois controles da faixa de preço ocupam a mesma trilha, como no layout.
+     Cada um continua sendo um `input[type=range]` de verdade — operável pelo
+     teclado e anunciado como slider —; o que muda é a aparência: a trilha
+     nativa some (a trilha visível é desenhada pelo componente) e sobra o
+     polegar, que é a única parte que precisa receber o ponteiro. */
+  .range-thumb {
+    position: absolute;
+    inset-inline: 0;
+    top: 50%;
+    translate: 0 -50%;
+    width: 100%;
+    height: 1.5rem;
+    margin: 0;
+    background: transparent;
+    appearance: none;
+    pointer-events: none;
+  }
+
+  .range-thumb::-webkit-slider-thumb {
+    appearance: none;
+    width: 1rem;
+    height: 1rem;
+    border: none;
+    border-radius: var(--radius-pill);
+    background-color: var(--color-primary);
+    pointer-events: auto;
+    cursor: pointer;
+  }
+
+  .range-thumb::-moz-range-thumb {
+    width: 1rem;
+    height: 1rem;
+    border: none;
+    border-radius: var(--radius-pill);
+    background-color: var(--color-primary);
+    pointer-events: auto;
+    cursor: pointer;
+  }
+
+  .range-thumb:focus-visible::-webkit-slider-thumb {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+  }
+
+  .range-thumb:focus-visible::-moz-range-thumb {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+  }
+
   label[data-required]::after {
     content: '*';
     color: var(--color-danger);

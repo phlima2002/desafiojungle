@@ -9,11 +9,17 @@ import { cn } from '@/shared/lib/utils'
 interface NftCardProps {
   nft: NftSummary
   canFavorite: boolean
+  /**
+   * O primeiro cartão da grade é o maior elemento da primeira dobra no celular
+   * — é ele que a métrica de LCP mede. `lazy` nele adia justamente o que está
+   * sendo cronometrado.
+   */
+  priority?: boolean
   onToggleFavorite?: (nft: NftSummary) => void
   onQuickAdd?: (nft: NftSummary) => void
 }
 
-export function NftCard({ nft, canFavorite, onToggleFavorite, onQuickAdd }: NftCardProps) {
+export function NftCard({ nft, canFavorite, onToggleFavorite, onQuickAdd, priority }: NftCardProps) {
   const soldOut = nft.available === 0
   const actionClass =
     'bg-ink-950/80 text-cream hover:bg-primary hover:text-primary-foreground hover:opacity-100'
@@ -26,7 +32,8 @@ export function NftCard({ nft, canFavorite, onToggleFavorite, onQuickAdd }: NftC
           alt={nft.imageAlt}
           width={368}
           height={368}
-          loading="lazy"
+          loading={priority ? 'eager' : 'lazy'}
+          fetchPriority={priority ? 'high' : undefined}
           decoding="async"
           className="aspect-square w-full object-cover transition-transform duration-500 group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
         />
