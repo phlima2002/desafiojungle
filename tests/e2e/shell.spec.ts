@@ -32,12 +32,19 @@ test.describe('Shell estático', () => {
     await expect(page.locator(`#${SHELL_ROOT_ID}`)).toHaveCount(0)
   })
 
-  test('uma rota profunda não mostra o herói da home', async ({ page }) => {
+  test('uma rota profunda não mostra o herói da home', async ({ page }, testInfo) => {
     await page.route('**/assets/*.js', (route) => route.abort())
     await page.goto('/carrinho', { waitUntil: 'commit' })
     await expect(page.locator('#shell-hero')).toHaveCount(0)
     await expect(page.locator('#shell-detail')).toHaveCount(0)
-    await expect(page.locator(`#${SHELL_ROOT_ID}`)).toBeVisible()
+    await expect(page.locator('#shell-bar')).toHaveCount(0)
+
+    // No desktop sobra o cabeçalho do site para pintar; no celular não há
+    // cabeçalho global — cada tela traz o próprio topo —, então aqui o shell
+    // fica legitimamente vazio em vez de desenhar algo que a aplicação não tem.
+    const expectation = expect(page.locator(`#${SHELL_ROOT_ID}`))
+    if (testInfo.project.name === 'mobile-chromium') await expectation.toBeHidden()
+    else await expectation.toBeVisible()
   })
 
   // Two slugs, so the derivation is exercised on two different artworks.

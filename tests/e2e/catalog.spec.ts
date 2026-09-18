@@ -1,4 +1,4 @@
-import { bootstrap, expect, test, useScenario } from './fixtures'
+import { bootstrap, chooseSort, closeFilters, expect, openFilters, test, useScenario } from './fixtures'
 
 test.describe('Catálogo', () => {
   test('busca, filtros combinados, ordenação e paginação compõem a URL e sobrevivem a refresh', async ({
@@ -7,9 +7,13 @@ test.describe('Catálogo', () => {
     await bootstrap(page)
 
     await page.getByRole('tab', { name: 'Em alta' }).click()
+    // Abaixo de `lg` as facetas e a ordenação vivem na gaveta de filtros; no
+    // desktop, na barra lateral. O helper cobre os dois.
+    await openFilters(page)
     await page.getByRole('button', { name: /^Arte digital/ }).click()
     await page.getByRole('button', { name: /^Ethereum/ }).click()
-    await page.getByRole('main').getByLabel('Ordenar por:').selectOption('price-asc')
+    await chooseSort(page, 'price-asc')
+    await closeFilters(page)
 
     await expect(page).toHaveURL(/tab=trending/)
     await expect(page).toHaveURL(/categoria=arte-digital/)
@@ -20,6 +24,7 @@ test.describe('Catálogo', () => {
     await page.reload()
     await expect(page).toHaveURL(urlWithFilters)
     await expect(page.getByRole('tab', { name: 'Em alta' })).toHaveAttribute('aria-selected', 'true')
+    await openFilters(page)
     await expect(page.getByRole('button', { name: /^Arte digital/ })).toHaveAttribute('aria-pressed', 'true')
   })
 
@@ -56,7 +61,10 @@ test.describe('Catálogo', () => {
     await expect(field).toHaveValue('')
   })
 
-  test('a lupa do cabeçalho leva ao campo de busca já focado', async ({ page }) => {
+  test('a lupa do cabeçalho leva ao campo de busca já focado', async ({ page }, testInfo) => {
+    // O cabeçalho do site só existe a partir de `md`; no celular a busca já
+    // abre a tela, e não há atalho para ela.
+    test.skip(testInfo.project.name === 'mobile-chromium', 'sem cabeçalho no celular')
     await bootstrap(page)
     await page.getByRole('link', { name: 'Ir para a busca do catálogo' }).click()
 
@@ -78,6 +86,7 @@ test.describe('Catálogo', () => {
     if (await page3.isVisible()) {
       await page3.click()
       await expect(page).toHaveURL(/pagina=3/)
+      await openFilters(page)
       await page.getByRole('button', { name: /^Fotografia/ }).click()
       await expect(page).not.toHaveURL(/pagina=/)
     }
@@ -86,6 +95,7 @@ test.describe('Catálogo', () => {
   test('histórico do navegador restaura o estado anterior', async ({ page }) => {
     await bootstrap(page)
 
+    await openFilters(page)
     await page.getByRole('button', { name: /^Música/ }).click()
     await expect(page).toHaveURL(/categoria=musica/)
 
@@ -118,7 +128,9 @@ test.describe('Catálogo', () => {
   test('skeletons aparecem enquanto a rede está lenta', async ({ page }) => {
     await bootstrap(page)
     await page.goto('/mercado?scenario=slow-network')
-    await expect(page.locator('.skeleton').first()).toBeVisible()
+    // `:visible` porque abaixo de `lg` os esqueletos das facetas ficam na
+    // gaveta fechada; o que interessa aqui é o da grade.
+    await expect(page.locator('.skeleton:visible').first()).toBeVisible()
     await expect(page.locator('article').first()).toBeVisible({ timeout: 20_000 })
   })
 })

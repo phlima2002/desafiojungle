@@ -89,6 +89,10 @@
   --radius-md: 6px;
   --radius-lg: 8px;
   --radius-xl: 16px;
+  /* Os dois abaixo são do layout mobile, que usa cantos bem mais generosos que
+     o desktop — cards, gaveta inferior e blocos de conteúdo do celular. */
+  --radius-2xl: 24px;
+  --radius-3xl: 32px;
   --radius-pill: 999px;
 
   /* ---- elevation --------------------------------------------------- */

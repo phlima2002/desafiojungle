@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { Search, X } from 'lucide-react'
+import { cn } from '@/shared/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -21,9 +22,13 @@ import { Label } from '@/components/ui/label'
 export function SearchField({
   value,
   onChange,
+  className,
+  inputClassName,
 }: {
   value: string | undefined
   onChange: (next: string | undefined) => void
+  className?: string
+  inputClassName?: string
 }) {
   const id = useId()
   const [draft, setDraft] = useState(value ?? '')
@@ -66,7 +71,7 @@ export function SearchField({
     <form
       id="buscar"
       role="search"
-      className="relative w-full sm:max-w-sm"
+      className={cn('relative w-full sm:max-w-sm', className)}
       onSubmit={(event) => {
         event.preventDefault()
         onChange(draft.trim() || undefined)
@@ -87,7 +92,7 @@ export function SearchField({
         value={draft}
         onChange={(event) => setDraft(event.target.value)}
         placeholder="Buscar por nome, criador ou coleção"
-        className="h-9 pr-9 pl-9 text-xs"
+        className={cn('h-9 pr-9 pl-9 text-xs', inputClassName)}
       />
       {draft ? (
         <Button

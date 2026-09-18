@@ -36,8 +36,11 @@ function DialogContent({
   showCloseButton = true,
   ...props
 }: ComponentProps<typeof DialogPrimitive.Content> & {
-  /** `right` transforma o diálogo em gaveta — é o menu no mobile. */
-  side?: 'center' | 'right'
+  /**
+   * `right` transforma o diálogo em gaveta lateral — é o menu no mobile;
+   * `bottom` o traz de baixo, que é como o celular abre os filtros.
+   */
+  side?: 'center' | 'right' | 'bottom'
   showCloseButton?: boolean
 }) {
   return (
@@ -47,9 +50,11 @@ function DialogContent({
         data-slot="dialog-content"
         className={cn(
           'fixed z-50 border-line bg-card text-foreground shadow-card outline-none',
-          side === 'center'
-            ? 'top-1/2 left-1/2 w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-md border p-6'
-            : 'inset-y-0 right-0 flex w-72 max-w-[85vw] flex-col border-l p-6',
+          side === 'center' &&
+            'top-1/2 left-1/2 w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-md border p-6',
+          side === 'right' && 'inset-y-0 right-0 flex w-72 max-w-[85vw] flex-col border-l p-6',
+          side === 'bottom' &&
+            'inset-x-0 bottom-0 flex max-h-[85dvh] flex-col overflow-y-auto rounded-t-3xl border-t p-6',
           className,
         )}
         {...props}

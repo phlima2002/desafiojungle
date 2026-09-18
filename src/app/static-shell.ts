@@ -78,7 +78,7 @@ const thumb = (position: number) =>
   }"><img alt="" width="64" height="64" decoding="async" class="size-full object-cover" data-shell-thumb="${position}" /></span></li>`
 
 export const buildShellHtml = (base = '/') => `<div id="${SHELL_ROOT_ID}" aria-hidden="true">
-<header class="border-b border-line">
+<header class="hidden border-b border-line md:block">
 <div class="mx-auto flex h-18 max-w-page items-center justify-between gap-6 px-4 sm:px-8">
 <span class="text-xs font-bold tracking-[0.1em]">KURIO</span>
 <nav class="hidden md:block"><ul class="flex items-center gap-8">${NAV.map(
@@ -87,15 +87,22 @@ export const buildShellHtml = (base = '/') => `<div id="${SHELL_ROOT_ID}" aria-h
 <span class="flex items-center gap-2 sm:gap-4"></span>
 </div>
 </header>
-<section id="shell-hero" class="mx-auto max-w-page px-4 pt-12 sm:px-8">
-<div class="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_420px]">
-<div class="max-w-xl space-y-6">
-<p class="text-xs font-medium tracking-[0.1em]">Bem-vindo à Kurio</p>
-<h1 class="text-[clamp(1.75rem,6.2vw,2.6875rem)] leading-[1.35] font-bold uppercase">${SHELL_HEADLINE}</h1>
-<p class="text-xs text-muted">Descubra NFTs selecionados de criadores emergentes e consagrados. Colecione arte digital rara, apoie artistas e tenha uma parte da cultura da internet.</p>
-<span class="inline-block rounded-sm bg-primary px-6 py-3 text-base font-bold text-primary-foreground uppercase">Explorar</span>
+<div id="shell-bar" class="mx-auto flex max-w-page items-center gap-3 px-4 pt-4 sm:px-8 lg:hidden">
+<span class="h-12 min-w-0 flex-1 rounded-2xl border border-line bg-card"></span>
+<span class="size-12 shrink-0 rounded-2xl bg-primary"></span>
 </div>
-<div class="aspect-square w-full max-w-[420px] lg:justify-self-end"><img src="${heroImage(base)}" alt="" width="420" height="420" fetchpriority="high" decoding="async" class="size-full rounded-lg object-cover shadow-card" /></div>
+<section id="shell-hero" class="mx-auto max-w-page px-4 pt-4 sm:px-8 md:pt-12">
+<div class="rounded-3xl bg-card-raised p-5 md:rounded-none md:bg-transparent md:p-0">
+<div class="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 md:gap-10 lg:grid-cols-[minmax(0,1fr)_420px]">
+<div class="max-w-xl space-y-2 md:space-y-6">
+<p class="text-3xs font-medium tracking-[0.1em] whitespace-nowrap md:text-xs">Bem-vindo à Kurio</p>
+<h1 class="text-[clamp(1.05rem,4.6vw,2.6875rem)] leading-[1.35] font-bold uppercase">${SHELL_HEADLINE}</h1>
+<p class="line-clamp-3 text-3xs text-muted md:line-clamp-none md:text-xs">Descubra NFTs selecionados de criadores emergentes e consagrados. Colecione arte digital rara, apoie artistas e tenha uma parte da cultura da internet.</p>
+<span class="inline-flex items-center gap-2 text-3xs font-bold text-accent uppercase md:rounded-sm md:bg-primary md:px-6 md:py-3 md:text-base md:text-primary-foreground">Explorar</span>
+</div>
+<div class="aspect-square w-[7.5rem] sm:w-[13rem] md:w-full md:max-w-[420px] lg:justify-self-end"><img src="${heroImage(base)}" alt="" width="420" height="420" fetchpriority="high" decoding="async" class="size-full rounded-2xl object-cover shadow-card md:rounded-lg" /></div>
+</div>
+<div class="mt-4 flex justify-center gap-2 md:hidden"><span class="size-2 rounded-pill bg-primary"></span><span class="size-2 rounded-pill bg-line-strong"></span><span class="size-2 rounded-pill bg-line-strong"></span></div>
 </div>
 </section>
 <article id="shell-detail" hidden class="mx-auto max-w-page px-4 py-8 sm:px-8">
@@ -109,8 +116,9 @@ export const buildShellHtml = (base = '/') => `<div id="${SHELL_ROOT_ID}" aria-h
 </article>
 </div>
 <script>(function(){var b=${JSON.stringify(base)},d=document,p=location.pathname.slice(b.length-1),
-hero=d.getElementById('shell-hero'),detail=d.getElementById('shell-detail');
+hero=d.getElementById('shell-hero'),bar=d.getElementById('shell-bar'),detail=d.getElementById('shell-detail');
 if(p!=='/'&&hero)hero.remove();
+if(p!=='/'&&p!=='/mercado'&&bar)bar.remove();
 var m=p.match(/^\\/nft\\/.+-(\\d+)$/),i=m?(+m[1]-${TOKEN_BASE})/${TOKEN_STEP}:-1;
 if(i<0||i%1!==0){if(detail)detail.remove();return}
 var files=${JSON.stringify(ARTWORK_FILES)},offsets=${JSON.stringify(GALLERY_OFFSETS)},

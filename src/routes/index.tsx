@@ -10,10 +10,11 @@ export const Route = createFileRoute('/')({
 
 function HomePage() {
   const search = Route.useSearch()
+  // O herói vai como conteúdo da seção do catálogo porque no celular ele entra
+  // depois da barra de busca — ver o comentário em `CatalogSection`.
   return (
-    <div className="space-y-16 pb-8">
-      <HomeHero />
-      <CatalogSection search={search} routeId="/" />
+    <div className="space-y-10 pb-8 md:space-y-16">
+      <CatalogSection search={search} routeId="/" hero={<HomeHero />} />
     </div>
   )
 }

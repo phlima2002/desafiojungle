@@ -20,7 +20,7 @@ export function NftCard({ nft, canFavorite, onToggleFavorite, onQuickAdd }: NftC
 
   return (
     <article className="group relative flex flex-col gap-3">
-      <div className="relative overflow-hidden rounded-md bg-card-raised">
+      <div className="relative overflow-hidden rounded-2xl bg-card-raised sm:rounded-md">
         <img
           src={nft.imageUrl}
           alt={nft.imageAlt}
@@ -32,7 +32,7 @@ export function NftCard({ nft, canFavorite, onToggleFavorite, onQuickAdd }: NftC
         />
 
         {nft.rarity !== 'comum' ? (
-          <Badge className="absolute top-3 right-0 rounded-l-xs rounded-r-none px-2 py-1 text-3xs tracking-wide">
+          <Badge className="absolute top-3 left-0 rounded-l-none rounded-r-xs px-2 py-1 text-3xs tracking-wide sm:right-0 sm:left-auto sm:rounded-l-xs sm:rounded-r-none">
             {RARITY_LABELS[nft.rarity]}
           </Badge>
         ) : null}
@@ -46,8 +46,23 @@ export function NftCard({ nft, canFavorite, onToggleFavorite, onQuickAdd }: NftC
           </Badge>
         ) : null}
 
-        {/* Quick actions: revealed on hover, but always reachable by keyboard. */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex justify-center gap-2 p-3 opacity-0 transition-opacity group-focus-within:pointer-events-auto group-focus-within:opacity-100 group-hover:pointer-events-auto group-hover:opacity-100 motion-reduce:transition-none max-md:pointer-events-auto max-md:opacity-100">
+        {/* No celular o Figma põe só o coração, sempre visível, no alto do
+            card; a partir de `sm` volta a barra de ações que aparece no hover e
+            continua alcançável pelo teclado. */}
+        {canFavorite && onToggleFavorite ? (
+          <Button
+            type="button"
+            size="icon"
+            onClick={() => onToggleFavorite(nft)}
+            aria-pressed={nft.favorited}
+            aria-label={nft.favorited ? `Remover ${nft.name} dos favoritos` : `Favoritar ${nft.name}`}
+            className="absolute top-3 right-3 z-10 rounded-pill bg-ink-950/70 text-cream sm:hidden"
+          >
+            <Heart aria-hidden size={16} className={cn(nft.favorited && 'fill-danger text-danger')} />
+          </Button>
+        ) : null}
+
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 hidden justify-center gap-2 p-3 opacity-0 transition-opacity group-focus-within:pointer-events-auto group-focus-within:opacity-100 group-hover:pointer-events-auto group-hover:opacity-100 motion-reduce:transition-none max-md:pointer-events-auto max-md:opacity-100 sm:flex">
           {onQuickAdd ? (
             <Button
               type="button"
@@ -83,7 +98,7 @@ export function NftCard({ nft, canFavorite, onToggleFavorite, onQuickAdd }: NftC
       </div>
 
       <div className="space-y-1">
-        <h3 className="text-base">
+        <h3 className="text-3xs sm:text-base">
           <Link
             to="/nft/$slug"
             params={{ slug: nft.slug }}
@@ -93,9 +108,11 @@ export function NftCard({ nft, canFavorite, onToggleFavorite, onQuickAdd }: NftC
           </Link>
         </h3>
         <p className="flex items-baseline gap-2">
-          <span className="text-base font-bold text-accent">{formatEthWithUnit(nft.price)}</span>
+          <span className="text-3xs font-bold text-accent sm:text-base">{formatEthWithUnit(nft.price)}</span>
           {nft.compareAtPrice ? (
-            <span className="text-lg text-clay line-through">{formatEthWithUnit(nft.compareAtPrice)}</span>
+            <span className="text-3xs text-clay line-through sm:text-lg">
+              {formatEthWithUnit(nft.compareAtPrice)}
+            </span>
           ) : null}
         </p>
       </div>
@@ -106,7 +123,7 @@ export function NftCard({ nft, canFavorite, onToggleFavorite, onQuickAdd }: NftC
 export function NftCardSkeleton() {
   return (
     <div className="flex flex-col gap-3" aria-hidden>
-      <div className="skeleton aspect-square w-full rounded-md" />
+      <div className="skeleton aspect-square w-full rounded-2xl sm:rounded-md" />
       <div className="skeleton h-4 w-3/4" />
       <div className="skeleton h-4 w-1/3" />
     </div>

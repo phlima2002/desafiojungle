@@ -69,8 +69,11 @@ export async function bootstrap(page: Page, scenario: ScenarioName = 'instant') 
   await page.reload()
   await page.waitForFunction(() => Boolean(window.__kurio))
   // Wait for the shell to be interactive so that keyboard-driven tests do not
-  // race hydration.
-  await page.getByRole('link', { name: 'Kurio, página inicial' }).waitFor()
+  // race hydration. O alvo é o `main` da aplicação, não algo do cabeçalho: no
+  // celular o cabeçalho do site não existe — a navegação mora na barra
+  // inferior —, e o `main` só aparece quando o React monta, que é exatamente o
+  // que se quer esperar aqui.
+  await page.locator('main#conteudo').waitFor()
 }
 
 /** Waits for the mock control surface after a full page load. */
@@ -138,4 +141,33 @@ export { expect }
 export async function chooseOption(page: Page, label: string | RegExp, option: string | RegExp) {
   await page.getByRole('main').getByLabel(label).click()
   await page.getByRole('option', { name: option, exact: true }).click()
+}
+
+/**
+ * Abre as facetas do catálogo quando o viewport as esconde atrás do botão de
+ * filtros — abaixo de `lg` elas moram numa gaveta, como o Figma desenha no
+ * celular. No desktop não faz nada, então o mesmo teste serve aos dois.
+ */
+export async function openFilters(page: Page) {
+  const trigger = page.getByRole('button', { name: /^Filtros/ })
+  if (await trigger.isVisible().catch(() => false)) {
+    await trigger.click()
+    await page.getByRole('dialog', { name: 'Filtros' }).waitFor()
+  }
+}
+
+/** Fecha a gaveta de filtros, se estiver aberta. */
+export async function closeFilters(page: Page) {
+  const done = page.getByRole('button', { name: 'Ver resultados' })
+  if (await done.isVisible().catch(() => false)) await done.click()
+}
+
+/**
+ * Escolhe a ordenação onde quer que ela esteja: na barra do catálogo no
+ * desktop, dentro da gaveta de filtros no celular.
+ */
+export async function chooseSort(page: Page, value: string) {
+  const drawer = page.getByRole('dialog', { name: 'Filtros' })
+  const scope = (await drawer.isVisible().catch(() => false)) ? drawer : page.getByRole('main')
+  await scope.getByLabel('Ordenar por:').selectOption(value)
 }

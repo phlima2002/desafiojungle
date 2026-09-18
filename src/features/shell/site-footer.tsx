@@ -65,7 +65,7 @@ export function SiteFooter() {
   }
 
   return (
-    <footer className="mt-24">
+    <footer className="mt-24 hidden md:block">
       <div className="mx-auto max-w-page px-4 sm:px-8">
         <div className="grid gap-8 rounded-md border border-line bg-card/60 p-6 lg:grid-cols-[1fr_1fr_1fr_minmax(0,1.1fr)] lg:p-8">
           {HIGHLIGHTS.map((highlight, index) => (

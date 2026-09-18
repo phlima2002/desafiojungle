@@ -72,13 +72,13 @@ test.describe('Acessibilidade e responsividade', () => {
   })
 })
 
-test.describe('Menu mobile', () => {
+test.describe('Menu do celular', () => {
   test.use({ viewport: { width: 390, height: 844 } })
 
   test('drawer prende o foco, fecha com Escape e devolve o foco ao gatilho', async ({ page }) => {
     await bootstrap(page)
 
-    const opener = page.getByRole('button', { name: 'Abrir menu de navegação' })
+    const opener = page.getByRole('button', { name: 'Abrir menu e conta' })
     await expect(opener).toBeVisible()
     await expect(opener).toHaveAttribute('aria-expanded', 'false')
     await opener.click()
@@ -89,7 +89,7 @@ test.describe('Menu mobile', () => {
     // Enquanto o diálogo está aberto o resto da página sai da árvore de
     // acessibilidade — por isso o gatilho é procurado pelo seletor, e não pelo
     // papel: não existir mais para o leitor de tela é o comportamento correto.
-    await expect(page.locator('[aria-label="Abrir menu de navegação"]')).toHaveAttribute(
+    await expect(page.locator('[aria-label="Abrir menu e conta"]')).toHaveAttribute(
       'aria-expanded',
       'true',
     )
@@ -109,7 +109,7 @@ test.describe('Menu mobile', () => {
 
   test('navegar pelo menu leva à rota e fecha o drawer', async ({ page }) => {
     await bootstrap(page)
-    await page.getByRole('button', { name: 'Abrir menu de navegação' }).click()
+    await page.getByRole('button', { name: 'Abrir menu e conta' }).click()
     await page.getByRole('dialog').getByRole('link', { name: 'Mercado' }).click()
 
     await expect(page).toHaveURL(/\/mercado/)

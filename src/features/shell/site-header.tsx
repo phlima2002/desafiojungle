@@ -1,7 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { LogIn, Search, ShoppingCart } from 'lucide-react'
 import { useCartQuery } from '@/features/cart/use-cart'
-import { MobileNav } from './mobile-nav'
 import { useSession } from '@/features/session/use-session'
 
 const NAV = [
@@ -17,7 +16,7 @@ export function SiteHeader() {
   const itemCount = cart.data?.totals.itemCount ?? 0
 
   return (
-    <header className="border-b border-line">
+    <header className="hidden border-b border-line md:block">
       <div className="mx-auto flex h-18 max-w-page items-center justify-between gap-6 px-4 sm:px-8">
         <Link to="/" className="text-xs font-bold tracking-[0.1em]" aria-label="Kurio, página inicial">
           KURIO
@@ -72,8 +71,6 @@ export function SiteHeader() {
               </span>
             ) : null}
           </Link>
-
-          <MobileNav items={NAV} session={session} />
 
           {session ? (
             <Link
