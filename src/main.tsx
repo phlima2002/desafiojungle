@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { env } from '@/shared/config/env'
 import { setNetworkGate } from '@/shared/api/client'
 import { AppProviders } from '@/app/providers'
+import { startShellHandoffDeadline } from '@/app/shell-handoff'
 import '@/styles/index.css'
 
 function bootstrap() {
@@ -25,11 +26,20 @@ function bootstrap() {
     )
   }
 
-  createRoot(container).render(
-    <StrictMode>
-      <AppProviders />
-    </StrictMode>,
-  )
+  // The document already carries a painted shell (see `app/static-shell.ts`).
+  // Yielding one frame before the first React render lets the browser put it on
+  // screen instead of holding the first paint until the whole tree is committed:
+  // on a fast connection the bundle arrives before any frame has been produced,
+  // and without this the shell would never be seen. The cost is a single frame.
+  const render = () =>
+    createRoot(container).render(
+      <StrictMode>
+        <AppProviders />
+      </StrictMode>,
+    )
+
+  startShellHandoffDeadline()
+  requestAnimationFrame(() => setTimeout(render, 0))
 
   if (env.enableMocks) {
     // Yield twice: once for React's commit, once for the browser to paint.

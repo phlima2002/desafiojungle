@@ -12,6 +12,7 @@ import { useNftSubscription } from '@/features/realtime/realtime-provider'
 import { useCatalogQuery, useNftDetailQuery } from '@/features/catalog/use-catalog'
 import { NftCard } from '@/features/catalog/nft-card'
 import { NftDetailSkeleton } from './nft-detail-skeleton'
+import { useShellHold } from '@/app/shell-handoff'
 
 type Tab = 'detalhes' | 'avaliacoes'
 
@@ -28,6 +29,8 @@ export function NftDetailPage({ slug }: { slug: string }) {
 
   const nft = detail.data
   useNftSubscription(nft ? [nft.id] : [])
+  // The shell already shows this artwork; don't replace it with a skeleton.
+  useShellHold(detail.isPending)
 
   if (detail.isPending) return <NftDetailSkeleton />
   if (!nft) return null

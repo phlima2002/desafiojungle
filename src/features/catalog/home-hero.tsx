@@ -1,9 +1,13 @@
 import { Link } from '@tanstack/react-router'
 import { useFeaturedQuery } from './use-catalog'
+import { useShellHold } from '@/app/shell-handoff'
 
 export function HomeHero() {
   const featured = useFeaturedQuery()
   const hero = featured.data?.hero[0]
+
+  // The shell already shows this artwork; don't replace it with a skeleton.
+  useShellHold(featured.isPending)
 
   return (
     <section className="mx-auto max-w-page px-4 pt-12 sm:px-8">

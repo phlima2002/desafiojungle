@@ -1,4 +1,4 @@
-import { SHELL_HERO_IMAGE, SHELL_ROOT_ID } from '../../src/app/static-shell'
+import { GALLERY_OFFSETS, SHELL_HERO_IMAGE, SHELL_ROOT_ID, artworkForToken } from '../../src/app/static-shell'
 import { bootstrap, expect, test } from './fixtures'
 
 /**
@@ -36,6 +36,43 @@ test.describe('Shell estático', () => {
     await page.route('**/assets/*.js', (route) => route.abort())
     await page.goto('/carrinho', { waitUntil: 'commit' })
     await expect(page.locator('#shell-hero')).toHaveCount(0)
+    await expect(page.locator('#shell-detail')).toHaveCount(0)
     await expect(page.locator(`#${SHELL_ROOT_ID}`)).toBeVisible()
+  })
+
+  // Two slugs, so the derivation is exercised on two different artworks.
+  for (const slug of ['emerald-ape-100', 'neon-signal-114']) {
+    test(`a arte de /nft/${slug} vem do documento e bate com a renderizada`, async ({ page }) => {
+      const token = Number(slug.split('-').pop())
+      const expected = artworkForToken(token)
+      expect(expected).toBeTruthy()
+
+      await page.route('**/assets/*.js', (route) => route.abort())
+      await page.goto(`/nft/${slug}`, { waitUntil: 'commit' })
+      await expect(page.locator('[data-shell-main]')).toHaveAttribute('src', expected!)
+      for (const [position, offset] of GALLERY_OFFSETS.entries()) {
+        await expect(page.locator(`[data-shell-thumb="${position}"]`)).toHaveAttribute(
+          'src',
+          artworkForToken(token, offset)!,
+        )
+      }
+
+      await page.unroute('**/assets/*.js')
+      await bootstrap(page)
+      await page.goto(`/nft/${slug}`)
+      await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+      await expect(page.getByRole('main').locator('img').nth(GALLERY_OFFSETS.length)).toHaveAttribute(
+        'src',
+        expected!,
+      )
+    })
+  }
+
+  test('o shell só sai quando o herói tem o que mostrar', async ({ page }) => {
+    await bootstrap(page)
+    // Once the application is visible the shell is gone, and the hero is an
+    // image — never the skeleton the shell was there to avoid.
+    await expect(page.locator(`#${SHELL_ROOT_ID}`)).toHaveCount(0)
+    await expect(page.getByRole('main').locator('.skeleton')).toHaveCount(0)
   })
 })

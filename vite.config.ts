@@ -52,7 +52,13 @@ function staticShell() {
     name: 'kurio:static-shell',
     apply: 'build' as const,
     transformIndexHtml(html: string) {
-      return html.replace('<div id="root"></div>', `<div id="root">${SHELL_HTML}</div>`)
+      // Next to `#root`, not inside it: React clears its own container, and the
+      // shell has to outlive the first commit. `#root` is revealed by
+      // `shell-handoff.ts`.
+      return html.replace(
+        '<div id="root"></div>',
+        `${SHELL_HTML}<div id="root" style="display:none"></div>`,
+      )
     },
   }
 }

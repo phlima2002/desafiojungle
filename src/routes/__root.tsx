@@ -1,9 +1,11 @@
+import { useEffect } from 'react'
 import { Outlet, createRootRouteWithContext } from '@tanstack/react-router'
 import type { QueryClient } from '@tanstack/react-query'
 import { SiteHeader } from '@/features/shell/site-header'
 import { SiteFooter } from '@/features/shell/site-footer'
 import { NotFound } from '@/features/shell/not-found'
 import { RouteErrorBoundary } from '@/features/shell/route-error'
+import { tryFinishShellHandoff } from '@/app/shell-handoff'
 
 export interface RouterContext {
   queryClient: QueryClient
@@ -16,6 +18,10 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 })
 
 function RootLayout() {
+  // Runs after the children's layout effects, so any hold registered by the
+  // screen being drawn is already in place when this asks to hand off.
+  useEffect(tryFinishShellHandoff)
+
   return (
     <div className="flex min-h-dvh flex-col bg-background text-foreground">
       <a
