@@ -4,6 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 import { tanstackRouter } from '@tanstack/router-plugin/vite'
 import { resolve, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { SHELL_HTML } from './src/app/static-shell.ts'
 
 const rootDir = dirname(fileURLToPath(import.meta.url))
 
@@ -42,6 +43,20 @@ function inlineStylesheet() {
   }
 }
 
+/**
+ * Injects the build-time application shell into `#root`. See
+ * `src/app/static-shell.ts` for what it contains and why.
+ */
+function staticShell() {
+  return {
+    name: 'kurio:static-shell',
+    apply: 'build' as const,
+    transformIndexHtml(html: string) {
+      return html.replace('<div id="root"></div>', `<div id="root">${SHELL_HTML}</div>`)
+    },
+  }
+}
+
 function preloadLatinFont() {
   let fontHref: string | undefined
 
@@ -69,9 +84,10 @@ function preloadLatinFont() {
 
 export default defineConfig({
   plugins: [
+    staticShell(),
     preloadLatinFont(),
     inlineStylesheet(),
-    tanstackRouter({ target: 'react', autoCodeSplitting: false }),
+    tanstackRouter({ target: 'react', autoCodeSplitting: true }),
     react(),
     tailwindcss(),
   ],

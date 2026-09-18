@@ -63,6 +63,13 @@ async function run() {
             extends: 'lighthouse:default',
             settings: {
               formFactor: profile,
+              // `simulate` (the default) replays a fast local trace through a
+              // model. With the whole bundle arriving in a few milliseconds
+              // from localhost, the browser never paints the static shell as a
+              // separate frame, so the model attributes first paint to the
+              // script graph. `LH_THROTTLING=devtools` applies the throttling
+              // to the browser instead, which is what a visitor experiences.
+              ...(process.env.LH_THROTTLING ? { throttlingMethod: process.env.LH_THROTTLING } : {}),
               screenEmulation:
                 profile === 'desktop'
                   ? { mobile: false, width: 1350, height: 940, deviceScaleFactor: 1, disabled: false }

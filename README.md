@@ -3,12 +3,25 @@
 Implementação do desafio de frontend “Marketplace de NFTs” em React + TypeScript,
 com API, autenticação, carteiras e pagamentos **simulados** na camada de rede.
 
-> Estado atual: fundação completa (contratos, mocks, tempo real, roteamento,
-> estado remoto) e as telas de **Início**, **Mercado**, **Detalhes do NFT**,
-> **Carrinho**, **Login** e **Cadastro**. Pagamento, confirmação, perfil e
-> carteiras têm contratos, endpoints e handlers prontos — as telas estão em
-> construção. Veja [ARCHITECTURE.md](./ARCHITECTURE.md) para decisões e
-> limitações.
+As nove telas do desafio estão implementadas em desktop e mobile, com 110 testes
+E2E (incluindo regressão visual) passando nos dois viewports. Veja
+[ARCHITECTURE.md](./ARCHITECTURE.md) para as decisões, os contratos e as
+limitações conhecidas.
+
+## Telas
+
+| Tela                   | Rota                | Notas                                                             |
+| ---------------------- | ------------------- | ----------------------------------------------------------------- |
+| Início                 | `/`                 | Herói, facetas, ordenação e paginação — tudo na URL.              |
+| Mercado                | `/mercado`          | Mesma listagem sem o herói, para link direto de filtros.          |
+| Detalhes do NFT        | `/nft/$slug`        | Edições, criador, histórico e reação a `nft.updated`.             |
+| Carrinho               | `/carrinho`         | Quantidades, cupom, avisos de preço/estoque alterados.            |
+| Pagamento              | `/pagamento`        | Perfil do colecionador, carteira e criação idempotente do pedido. |
+| Confirmação do pedido  | `/pedido/$orderId`  | Recibo, hash da transação e `order.updated` ao vivo.              |
+| Login                  | `/entrar`           | Sessão por cookie, com mesclagem do carrinho de visitante.        |
+| Cadastro               | `/criar-conta`      | Validação por campo e conflito de e-mail vindo do servidor.       |
+| Perfil do colecionador | `/conta/perfil`     | Dados, avatar e troca de senha.                                   |
+| Carteiras              | `/conta/carteiras`  | Cadastro, conexão e promoção a principal.                         |
 
 ## Stack
 
