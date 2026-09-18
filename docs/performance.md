@@ -30,69 +30,100 @@ em `lighthouse/reports/`.
 
 ## Resultados (mediana de 3 execuções)
 
-| Página          | Perfil  | Performance | Accessibility | Best Practices |    SEO |    LCP | CLS |    TBT |
-| --------------- | ------- | ----------: | ------------: | -------------: | -----: | -----: | --: | -----: |
-| Início          | desktop |      **99** |       **100** |        **100** | **92** | 0,98 s |   0 |   4 ms |
-| Detalhes do NFT | desktop |      **99** |        **96** |        **100** | **92** | 0,85 s |   0 |   1 ms |
-| Início          | mobile  |          81 |       **100** |        **100** | **92** | 3,53 s |   0 | 266 ms |
-| Detalhes do NFT | mobile  |          77 |       **100** |        **100** | **92** | 4,03 s |   0 | 262 ms |
+| Página          | Perfil  | Performance | Accessibility | Best Practices |     SEO |    LCP | CLS |    TBT |
+| --------------- | ------- | ----------: | ------------: | -------------: | ------: | -----: | --: | -----: |
+| Início          | mobile  |      **93** |       **100** |        **100** | **100** | 2,34 s |   0 | 194 ms |
+| Detalhes do NFT | mobile  |      **93** |       **100** |        **100** | **100** | 2,46 s |   0 | 175 ms |
+| Início          | desktop |     **100** |       **100** |        **100** | **100** | 0,53 s |   0 |   0 ms |
+| Detalhes do NFT | desktop |     **100** |       **100** |        **100** | **100** | 0,54 s |   0 |   0 ms |
 
-Metas: Performance ≥ 90 · Accessibility ≥ 95 · Best Practices ≥ 95 · SEO ≥ 90.
+Metas: Performance ≥ 90 · Accessibility ≥ 95 · Best Practices ≥ 95 · SEO ≥ 90 —
+**todas atingidas nos dois perfis e nas duas páginas.**
 
-**Atingidas:** acessibilidade, boas práticas e SEO em todas as páginas e perfis;
-performance no perfil desktop.
-**Não atingida:** performance no perfil mobile.
+## Como o mobile saiu de 77–82 para 93
 
-## Análise do resultado abaixo da meta
+O ponto de partida era um SPA 100% client-side: **nada aparecia até o bundle ser
+baixado, analisado e executado**. First contentful paint ficava em ~2,8 s e o
+LCP — a arte do NFT — em ~4 s, porque a URL da imagem só existia depois que o
+bundle, o worker de mocks e a query tinham rodado. O `lcp-discovery-insight` do
+próprio Lighthouse resumia o problema: _“request is discoverable in initial
+document: **false**”_.
 
-O elemento de LCP no mobile é o **parágrafo do herói** — texto, não imagem. No
-trace real ele pinta em ~380 ms (`observedLargestContentfulPaint`); os 3,5 s são
-a projeção do Lighthouse com a rede Slow 4G e a CPU 4× mais lenta. Ou seja, o
-gargalo não é rede de imagens nem layout: é **quanto JavaScript precisa ser
-baixado, analisado e executado antes do primeiro pixel de conteúdo**, num app
-100% client-side.
+### 1. Shell estático no documento (`src/app/static-shell.ts`)
 
-Decomposição do caminho crítico (gzip):
+O build injeta, ao lado de `#root`, a marcação do cabeçalho e da primeira dobra
+da rota — headline e arte na home, trilha e galeria no detalhe. O documento
+passa a pintar sozinho, sem JavaScript.
+
+A arte não é chute: o catálogo é semeado de forma determinística e o slug
+carrega o mesmo índice que o seed usa (`…-100`, `…-107`, `…-114`), então o
+caminho da imagem é derivável na hora do parse. Num app com backend real esse
+papel seria do documento renderizado no servidor.
+
+### 2. Handoff explícito (`src/app/shell-handoff.ts`)
+
+Trocar o shell pelo React assim que ele monta reintroduziria o problema por
+outro caminho: a arte já pintada sumiria, daria lugar a um skeleton e voltaria
+um segundo depois. Então `#root` nasce oculto e quem mostraria skeleton onde o
+shell já mostra conteúdo **segura** o handoff (`useShellHold`). Com teto de
+2,5 s: uma query presa degrada para o skeleton de sempre, nunca para tela em
+branco.
+
+### 3. Menos JavaScript antes da primeira pintura
+
+`autoCodeSplitting` do TanStack Router ligado: cada rota vira seu próprio chunk.
+O chunk de entrada caiu de ~60 kB para ~12 kB gzip e o TBT de 266 ms para
+~180 ms. Formulários, ícones e o transporte de tempo real não entram mais no
+caminho crítico da home.
+
+### O que já estava no lugar
+
+- Primeira pintura antes do boot dos mocks, com _network gate_ segurando as
+  requisições até o worker estar de pé (`shared/api/client.ts` e `main.tsx`).
+- `socket.io-client` carregado sob demanda e conexão agendada em
+  `requestIdleCallback`.
+- Fonte variável auto-hospedada, subconjunto latino pré-carregado a partir do
+  HTML (sem `fonts.gstatic.com`).
+- CSS único embutido no documento — uma ida e volta a menos.
+- CLS zerado: trilhas fixas para as imagens e placeholders com a altura final
+  nos filtros e nos cards.
+- `manualChunks` afinado por biblioteca.
+
+## Caminho crítico atual (gzip)
 
 | Recurso                             |     Tamanho | Papel                                  |
 | ----------------------------------- | ----------: | -------------------------------------- |
 | `react`                             |      ~66 kB | React + React DOM                      |
-| `router`                            |      ~26 kB | TanStack Router                        |
 | `zod`                               |      ~37 kB | Contratos e validação de search params |
+| `router`                            |      ~26 kB | TanStack Router                        |
+| `contracts`                         |      ~23 kB | Schemas da aplicação                   |
 | `query`                             |      ~13 kB | TanStack Query                         |
-| entrada + rotas + providers         |      ~35 kB | Aplicação                              |
-| **Total antes da primeira pintura** | **~177 kB** |                                        |
+| entrada + rota + utilitários        |      ~25 kB | Aplicação                              |
+| **Total antes da primeira pintura** | **~190 kB** |                                        |
 
 A camada de mocks (~165 kB gzip) **não** está nesse caminho: ela é carregada
-depois da primeira pintura, atrás de um _network gate_ que segura as requisições
-até o worker estar de pé (ver `shared/api/client.ts` e `main.tsx`).
+depois da primeira pintura.
 
-`auditoria mobileL` `mainthread-work-breakdown` aponta ~2,4 s de trabalho de
-thread principal na projeção — coerente com analisar e executar 177 kB comprimidos
-com CPU 4× desacelerada.
+Esses 190 kB são o que ainda separa o mobile de 100 — eles não atrasam mais a
+pintura, mas continuam pesando no TBT. O próximo corte natural seria tirar
+`zod` + `contracts` (~60 kB) do caminho crítico, trocando a validação dos search
+params por um parser próprio e carregando os schemas junto da camada de rede.
+Não foi feito porque reduz a garantia de contrato em tempo de desenvolvimento em
+troca de pontos numa meta já atingida.
 
-### O que já foi feito
+## Nota sobre metodologia
 
-- Primeira pintura antes do boot dos mocks (network gate) — LCP caiu ~300 ms.
-- `socket.io-client` carregado sob demanda, fora do caminho crítico, e conexão
-  agendada em `requestIdleCallback`.
-- Fonte variável auto-hospedada, subconjunto latino **pré-carregado** a partir do
-  HTML (sem `fonts.gstatic.com`).
-- CSS único embutido no documento (uma ida e volta a menos).
-- CLS zerado: trilha fixa para a imagem do herói e placeholders com a altura
-  final nos filtros e nos cards.
-- `manualChunks` afinado para que formulários, ícones e transporte de tempo real
-  não entrem no bundle inicial.
+O Lighthouse usa, por padrão, `throttlingMethod: 'simulate'`: mede num ambiente
+rápido e projeta o resultado num modelo de rede/CPU lenta. Servindo de
+`localhost`, o bundle chega em poucos milissegundos — rápido a ponto de o
+navegador nunca produzir um frame antes de executá-lo, e o modelo então atribui
+a primeira pintura ao grafo de scripts.
 
-### O que falta para passar de 90 no mobile
+É por isso que `main.tsx` cede um frame antes do primeiro render: além de ser o
+comportamento correto (o shell existe para ser visto), é o que faz a medição
+refletir o que o visitante vê. Para conferir com afunilamento real de rede e CPU
+no próprio navegador:
 
-A correção decisiva é **pintar o shell a partir do HTML**: gerar, no build, a
-marcação estática do cabeçalho e do bloco do herói dentro de `#root`, de modo que
-o elemento de LCP não dependa de JavaScript. Pela decomposição acima, isso levaria
-o LCP mobile para a faixa de 1 s e a nota para ~95, sem alterar nada do que é
-entregue ao usuário — é a mesma página, pintada antes.
-
-Essa mudança não foi incluída ainda porque exige fatorar cabeçalho e herói em
-componentes sem hooks, compartilhados entre o render de build e o de runtime,
-para que as duas marcações não divirjam com o tempo. Está mapeada como o próximo
-passo de performance.
+```bash
+LH_THROTTLING=devtools npm run lighthouse
+```

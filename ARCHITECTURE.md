@@ -11,6 +11,7 @@
 - [Estratégia de cache](#estratégia-de-cache)
 - [Tempo real e reconciliação](#tempo-real-e-reconciliação)
 - [Camada de mocks](#camada-de-mocks)
+- [Primeira pintura: shell e handoff](#primeira-pintura-shell-e-handoff)
 - [Precisão monetária](#precisão-monetária)
 - [Acessibilidade](#acessibilidade)
 - [Limitações conhecidas](#limitações-conhecidas)
@@ -273,6 +274,8 @@ compra. Pedidos `confirmed` e `declined` são terminais.
 - **Banco simulado** (`src/mocks/db`): usuários, sessões, catálogo, favoritos,
   carrinhos, cotações, pedidos, carteiras e cupons, persistido em `localStorage`
   para sobreviver a refresh. `reset()` restaura integralmente o cenário semeado.
+  A escrita é **síncrona**: um debounce ali abria uma janela em que um refresh
+  logo após uma mutação lia o estado anterior — o carrinho se esvaziando no F5.
 - **Fixtures determinísticas:** 126 NFTs gerados por um PRNG com semente
   (`mulberry32`), com variedade suficiente para 9 categorias, 3 redes, faixas de
   preço, edições 1/1, limitadas e abertas, itens esgotados e itens escassos.
@@ -284,6 +287,25 @@ compra. Pedidos `confirmed` e `declined` são terminais.
 - **Consistência:** uma alteração no catálogo passa por `mutateNft()`, que
   recalcula disponibilidade, incrementa a versão e emite o evento — então REST e
   Socket.IO nunca divergem.
+
+## Primeira pintura: shell e handoff
+
+Um SPA client-side não pinta nada antes do bundle. Para as duas rotas auditadas,
+o build injeta ao lado de `#root` a marcação da primeira dobra
+(`src/app/static-shell.ts`) — cabeçalho em todas as rotas, headline e arte na
+home, trilha e galeria no detalhe —, e `#root` nasce oculto.
+
+Trocar o shell pelo React assim que ele monta traria o problema de volta por
+outro caminho: a arte já visível sumiria, daria lugar a um skeleton e voltaria
+depois. Então o handoff é explícito (`src/app/shell-handoff.ts`): quem mostraria
+skeleton onde o shell já mostra conteúdo segura a troca com `useShellHold`, e a
+troca acontece quando o último hold é liberado — com teto de 2,5 s, para que uma
+query presa degrade para o skeleton comum, nunca para tela em branco.
+
+O que mantém a duplicação honesta são os testes: `tests/e2e/shell.spec.ts`
+compara título, arte principal e miniaturas do shell com o que a aplicação
+renderiza, em mais de um slug, e verifica que o shell não sobrevive à montagem.
+Números e decisões em [docs/performance.md](./docs/performance.md).
 
 ## Precisão monetária
 
@@ -316,15 +338,20 @@ quantidade são exatos. A formatação é separada do cálculo e usa vírgula de
   keep-alive Engine.IO é emitido manualmente pelo servidor simulado a cada 20 s,
   sem o qual o cliente derrubaria a conexão.
 - **Ordem de importação:** `engine.io-client` captura `globalThis.WebSocket` no
-  momento em que seu módulo é avaliado. Por isso `main.tsx` importa a aplicação
-  **dinamicamente**, depois de `worker.start()`, e o `manualChunks` do Vite
-  mantém o cliente Socket.IO fora do chunk de mocks. Sem isso o socket escaparia
-  para a rede real.
+  momento em que seu módulo é avaliado. Por isso o cliente Socket.IO é importado
+  **dinamicamente**, já com o worker de pé, e o `manualChunks` do Vite o mantém
+  fora do chunk de mocks. Sem isso o socket escaparia para a rede real.
 - **Persistência:** o banco simulado vive em `localStorage`, logo é por navegador
   e por origem. Em aba anônima com armazenamento bloqueado ele funciona apenas em
   memória.
-- **Telas em construção:** pagamento, confirmação, perfil e carteiras ainda não
-  têm interface completa; os contratos e handlers existem e já são exercitados.
+- **Shell acoplado ao seed:** o shell estático deriva a arte da primeira dobra do
+  token do slug, o mesmo índice que o seed usa. Com um backend real isso seria o
+  documento renderizado no servidor; aqui é uma derivação, guardada por testes
+  (`tests/e2e/shell.spec.ts`) que comparam o que o shell mostra com o que a
+  aplicação renderiza.
+- **Sem renderização no servidor:** a aplicação é client-side. O shell cobre a
+  primeira dobra das duas rotas auditadas; as demais pintam o cabeçalho e depois
+  o conteúdo do React.
 
 ## Desvios em relação ao Figma
 
@@ -336,4 +363,9 @@ quantidade são exatos. A formatação é separada do cálculo e usa vírgula de
   fonte monoespaçada isso estoura um viewport de 390 px, então o tamanho é fluido
   (`clamp(1.75rem, 6.2vw, 2.6875rem)`), chegando ao valor do Figma a partir de
   ~700 px.
-- **Imagens:** ver [docs/assets.md](./docs/assets.md).
+- **Ícones sociais do rodapé:** o layout traz os logotipos das redes. O pacote de
+  ícones usado não tem ícones de marca, e reproduzir logotipos de terceiros não é
+  apropriado num teste técnico — as posições ficam com lettermarks neutras, com o
+  mesmo tamanho e a mesma área de clique.
+- **Imagens:** as quatro ilustrações são as do Figma, reencodadas em WebP 512 px;
+  ver [docs/assets.md](./docs/assets.md).

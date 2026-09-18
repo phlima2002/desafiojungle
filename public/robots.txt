@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# As rotas de conta exigem sessão e não têm valor em busca.
+Disallow: /conta/
+Disallow: /pagamento
+Disallow: /pedido/

@@ -3,25 +3,35 @@
 Implementação do desafio de frontend “Marketplace de NFTs” em React + TypeScript,
 com API, autenticação, carteiras e pagamentos **simulados** na camada de rede.
 
-As nove telas do desafio estão implementadas em desktop e mobile, com 110 testes
-E2E (incluindo regressão visual) passando nos dois viewports. Veja
-[ARCHITECTURE.md](./ARCHITECTURE.md) para as decisões, os contratos e as
-limitações conhecidas.
+As nove telas do desafio estão implementadas em desktop e mobile, com 124 testes
+E2E (incluindo regressão visual) passando nos dois viewports e as quatro metas de
+Lighthouse atingidas nos dois perfis. Veja [ARCHITECTURE.md](./ARCHITECTURE.md)
+para as decisões, os contratos e as limitações conhecidas.
+
+| Lighthouse (mediana de 3) | Performance | Accessibility | Best Practices |     SEO |
+| ------------------------- | ----------: | ------------: | -------------: | ------: |
+| Início — mobile           |      **93** |       **100** |        **100** | **100** |
+| Detalhes do NFT — mobile  |      **93** |       **100** |        **100** | **100** |
+| Início — desktop          |     **100** |       **100** |        **100** | **100** |
+| Detalhes do NFT — desktop |     **100** |       **100** |        **100** | **100** |
+
+Metas: 90 / 95 / 95 / 90. Reprodução e análise em
+[docs/performance.md](./docs/performance.md).
 
 ## Telas
 
-| Tela                   | Rota                | Notas                                                             |
-| ---------------------- | ------------------- | ----------------------------------------------------------------- |
-| Início                 | `/`                 | Herói, facetas, ordenação e paginação — tudo na URL.              |
-| Mercado                | `/mercado`          | Mesma listagem sem o herói, para link direto de filtros.          |
-| Detalhes do NFT        | `/nft/$slug`        | Edições, criador, histórico e reação a `nft.updated`.             |
-| Carrinho               | `/carrinho`         | Quantidades, cupom, avisos de preço/estoque alterados.            |
-| Pagamento              | `/pagamento`        | Perfil do colecionador, carteira e criação idempotente do pedido. |
-| Confirmação do pedido  | `/pedido/$orderId`  | Recibo, hash da transação e `order.updated` ao vivo.              |
-| Login                  | `/entrar`           | Sessão por cookie, com mesclagem do carrinho de visitante.        |
-| Cadastro               | `/criar-conta`      | Validação por campo e conflito de e-mail vindo do servidor.       |
-| Perfil do colecionador | `/conta/perfil`     | Dados, avatar e troca de senha.                                   |
-| Carteiras              | `/conta/carteiras`  | Cadastro, conexão e promoção a principal.                         |
+| Tela                   | Rota               | Notas                                                             |
+| ---------------------- | ------------------ | ----------------------------------------------------------------- |
+| Início                 | `/`                | Herói, facetas, ordenação e paginação — tudo na URL.              |
+| Mercado                | `/mercado`         | Mesma listagem sem o herói, para link direto de filtros.          |
+| Detalhes do NFT        | `/nft/$slug`       | Edições, criador, histórico e reação a `nft.updated`.             |
+| Carrinho               | `/carrinho`        | Quantidades, cupom, avisos de preço/estoque alterados.            |
+| Pagamento              | `/pagamento`       | Perfil do colecionador, carteira e criação idempotente do pedido. |
+| Confirmação do pedido  | `/pedido/$orderId` | Recibo, hash da transação e `order.updated` ao vivo.              |
+| Login                  | `/entrar`          | Sessão por cookie, com mesclagem do carrinho de visitante.        |
+| Cadastro               | `/criar-conta`     | Validação por campo e conflito de e-mail vindo do servidor.       |
+| Perfil do colecionador | `/conta/perfil`    | Dados, avatar e troca de senha.                                   |
+| Carteiras              | `/conta/carteiras` | Cadastro, conexão e promoção a principal.                         |
 
 ## Stack
 
@@ -61,18 +71,19 @@ API REST e o canal Socket.IO são interceptados no navegador.
 
 ## Comandos
 
-| Comando               | O que faz                                                     |
-| --------------------- | ------------------------------------------------------------- |
-| `npm run dev`         | Desenvolvimento com mocks.                                    |
-| `npm run build`       | Typecheck + build de produção (mocks incluídos).              |
-| `npm run preview`     | Serve o build de produção.                                    |
-| `npm run typecheck`   | Checagem de tipos.                                            |
-| `npm run lint`        | Lint (oxlint).                                                |
-| `npm run format`      | Prettier.                                                     |
-| `npm run test:e2e`    | Playwright (sobe o build automaticamente).                    |
-| `npm run test:e2e:ui` | Playwright em modo interativo.                                |
-| `npm run test:report` | Abre o relatório HTML do Playwright.                          |
-| `npm run lighthouse`  | Auditoria Lighthouse (3 medições por página/perfil, mediana). |
+| Comando                   | O que faz                                                     |
+| ------------------------- | ------------------------------------------------------------- |
+| `npm run dev`             | Desenvolvimento com mocks.                                    |
+| `npm run build`           | Typecheck + build de produção (mocks incluídos).              |
+| `npm run preview`         | Serve o build de produção.                                    |
+| `npm run typecheck`       | Checagem de tipos.                                            |
+| `npm run lint`            | Lint (oxlint).                                                |
+| `npm run format`          | Prettier.                                                     |
+| `npm run test:e2e`        | Playwright (sobe o build automaticamente).                    |
+| `npm run test:e2e:ui`     | Playwright em modo interativo.                                |
+| `npm run test:report`     | Abre o relatório HTML do Playwright.                          |
+| `npm run lighthouse`      | Auditoria Lighthouse (3 medições por página/perfil, mediana). |
+| `npm run test:e2e:update` | Regenera as baselines de regressão visual.                    |
 
 ## Credenciais fictícias
 
@@ -172,4 +183,18 @@ determinística. Traces e vídeos ficam retidos apenas em falha.
   limitações e desvios do Figma.
 - [docs/design-tokens.md](./docs/design-tokens.md) — origem de cada cor, tamanho
   e espaçamento extraídos do arquivo do Figma.
-- [docs/assets.md](./docs/assets.md) — situação das imagens e substituições.
+- [docs/assets.md](./docs/assets.md) — origem das imagens, dos ícones e da fonte.
+- [docs/performance.md](./docs/performance.md) — método, números e o que foi
+  feito para atingir as metas.
+
+## Deploy
+
+O projeto é estático: `npm run build` gera `dist/`. O `vercel.json` já traz o
+_framework preset_, o fallback de SPA para as rotas do client e os cabeçalhos de
+cache (`assets/` imutável, `index.html` e o service worker sem cache).
+
+Na Vercel, basta **importar o repositório** — build `npm run build`, saída
+`dist`, sem variáveis de ambiente obrigatórias (os defaults deixam a camada de
+mocks ligada, que é o modo de demonstração). Em qualquer outra hospedagem
+estática o único requisito é o mesmo fallback: toda rota que não corresponda a um
+arquivo deve servir `index.html`.
