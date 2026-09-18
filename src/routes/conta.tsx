@@ -3,6 +3,7 @@ import { Download, Heart, LifeBuoy, LogOut, Tag, User, Wallet, Zap } from 'lucid
 import { requireSession } from '@/app/guards'
 import { useLogout } from '@/features/session/use-session'
 import { OutOfScopeNotice } from '@/features/shell/out-of-scope'
+import { Button } from '@/components/ui/button'
 
 export const Route = createFileRoute('/conta')({
   beforeLoad: ({ context, location }) => requireSession(context.queryClient, location.href),
@@ -54,8 +55,9 @@ function AccountLayout() {
           ))}
 
           <li className="mt-1 border-t border-line pt-1">
-            <button
+            <Button
               type="button"
+              variant="ghost"
               onClick={() =>
                 logout.mutate(undefined, {
                   // Leaving a protected page is part of logging out: the guard
@@ -63,11 +65,11 @@ function AccountLayout() {
                   onSettled: () => void navigate({ to: '/', search: {} }),
                 })
               }
-              className="flex w-full items-center gap-3 rounded-sm px-2 py-2.5 text-sm font-bold text-accent"
+              className="h-auto w-full justify-start gap-3 px-2 py-2.5 text-sm text-accent"
             >
               <LogOut aria-hidden size={16} />
               Sair
-            </button>
+            </Button>
           </li>
         </ul>
       </nav>
