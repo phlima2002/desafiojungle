@@ -263,11 +263,15 @@ export function CheckoutPage() {
                   <dt>Desconto do lançamento</dt>
                   <dd className="text-success">(−) {formatEthWithUnit(quote.totals.discount)}</dd>
                 </div>
+                {/* Ver o comentário equivalente no carrinho: `<p>` solto dentro
+                    de `<dl>` é markup inválido. */}
                 <div className="flex justify-between">
                   <dt>Taxa de rede</dt>
-                  <dd>{formatEthWithUnit(quote.totals.networkFee, 4)}</dd>
+                  <dd className="text-right">
+                    {formatEthWithUnit(quote.totals.networkFee, 4)}
+                    <span className="block text-3xs text-clay">Taxa estimada</span>
+                  </dd>
                 </div>
-                <p className="text-center text-3xs text-clay">Taxa estimada</p>
                 <div className="flex justify-between border-t border-line pt-3 text-base font-bold">
                   <dt>Total</dt>
                   <dd className="text-accent">{formatEthWithUnit(quote.totals.total, 4)}</dd>

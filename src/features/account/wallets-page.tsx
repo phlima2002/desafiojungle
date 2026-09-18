@@ -183,10 +183,6 @@ export function WalletsPage() {
             {editing ? 'Salvar carteira' : 'Cadastrar carteira'}
           </Button>
 
-          <label className="flex items-center gap-2 text-3xs text-muted">
-            <input type="checkbox" {...form.register('role')} value="primary" className="sr-only" />
-          </label>
-
           {editing ? (
             <Button
               type="button"

@@ -351,6 +351,13 @@ um menu do Radix. Detalhes, tabela de uso e as duas exceções deliberadas estã
 - Alternativas textuais descritivas em todas as imagens do catálogo.
 - Estados nunca dependem só de cor (esgotado tem rótulo, favorito tem
   `aria-pressed`, aba ativa tem `aria-selected`).
+- Todas as combinações de texto e fundo da paleta passam de 5:1 (AA pede 4,5).
+
+O Lighthouse audita duas páginas; `tests/e2e/axe.spec.ts` passa o **axe** pelas
+nove, autenticado e com item no carrinho, nos dois viewports e com a gaveta de
+navegação aberta, exigindo zero violações WCAG 2 A/AA. Foi ele que pegou o `<p>`
+solto dentro de um `<dl>` no carrinho e no pagamento, e um `<label>` vazio
+sobrando na tela de carteiras.
 
 ## Limitações conhecidas
 

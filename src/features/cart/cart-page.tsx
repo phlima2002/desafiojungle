@@ -242,11 +242,16 @@ export function CartPage() {
                 <dt>Desconto do lançamento</dt>
                 <dd className="text-success">(−) {formatEthWithUnit(totals!.discount)}</dd>
               </div>
-              <div className="flex items-baseline justify-between">
+              {/* A nota da taxa mora dentro do `<dd>` a que se refere: um
+                  `<p>` solto dentro de `<dl>` é markup inválido, e o axe
+                  reprova (regra `definition-list`). */}
+              <div className="flex flex-wrap items-baseline justify-between">
                 <dt>Taxa de rede</dt>
-                <dd>{formatEthWithUnit(totals!.networkFee, 4)}</dd>
+                <dd className="text-right">
+                  {formatEthWithUnit(totals!.networkFee, 4)}
+                  <span className="block text-3xs text-clay">Taxa estimada</span>
+                </dd>
               </div>
-              <p className="text-right text-3xs text-clay">Taxa estimada</p>
 
               <div className="flex items-baseline justify-between border-t border-line pt-4 text-base font-bold">
                 <dt>Total</dt>
