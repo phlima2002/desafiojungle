@@ -23,6 +23,54 @@ test.describe('Catálogo', () => {
     await expect(page.getByRole('button', { name: /^Arte digital/ })).toHaveAttribute('aria-pressed', 'true')
   })
 
+  test('o campo de busca filtra o catálogo, sobrevive ao refresh e limpa', async ({ page }) => {
+    await bootstrap(page)
+    await page.goto('/mercado')
+
+    const field = page.getByRole('searchbox', { name: 'Buscar NFTs' })
+    await field.fill('Emerald')
+
+    // Só depois da pausa de 300 ms o valor chega à URL — até lá o campo é
+    // local, e é isso que impede uma navegação por tecla digitada.
+    await expect(page).toHaveURL(/q=Emerald/)
+
+    const cards = page.locator('main article')
+    await expect(cards.first()).toBeVisible()
+    for (const name of await cards.getByRole('heading').allInnerTexts()) {
+      expect(name).toContain('Emerald')
+    }
+
+    await page.reload()
+    await expect(field).toHaveValue('Emerald')
+    await expect(cards.first()).toContainText('Emerald')
+
+    // Digitar substitui a entrada do histórico: um voltar só devolve o
+    // catálogo inteiro, não cada letra.
+    await page.goBack()
+    await expect(page).not.toHaveURL(/q=/)
+
+    await page.goForward()
+    await expect(page).toHaveURL(/q=Emerald/)
+    await page.getByRole('button', { name: 'Limpar busca' }).click()
+    await expect(page).not.toHaveURL(/q=/)
+    await expect(field).toHaveValue('')
+  })
+
+  test('a lupa do cabeçalho leva ao campo de busca já focado', async ({ page }) => {
+    await bootstrap(page)
+    await page.getByRole('link', { name: 'Ir para a busca do catálogo' }).click()
+
+    await expect(page).toHaveURL(/\/mercado#buscar$/)
+    await expect(page.getByRole('searchbox', { name: 'Buscar NFTs' })).toBeFocused()
+  })
+
+  test('uma busca sem resultados oferece uma saída', async ({ page }) => {
+    await bootstrap(page)
+    await page.goto('/mercado?q=zzzznaoexiste')
+    await expect(page.getByText('Nenhum NFT encontrado')).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Limpar filtros' })).toBeVisible()
+  })
+
   test('mudança de filtro reinicia a paginação', async ({ page }) => {
     await bootstrap(page)
 

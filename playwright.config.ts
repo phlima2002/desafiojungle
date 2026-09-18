@@ -18,7 +18,11 @@ export default defineConfig({
   timeout: 45_000,
   expect: {
     timeout: 10_000,
-    toHaveScreenshot: { maxDiffPixelRatio: 0.02, animations: 'disabled', caret: 'hide' },
+    // 0,2% de uma captura de página inteira ainda absorve a diferença de
+    // antialiasing entre execuções, mas não esconde um controle novo na barra
+    // do catálogo — com os 2% de antes, a busca inteira coube dentro da
+    // tolerância e a suíte passou sem enxergar a mudança.
+    toHaveScreenshot: { maxDiffPixelRatio: 0.002, animations: 'disabled', caret: 'hide' },
   },
   use: {
     baseURL,

@@ -40,10 +40,16 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-2 sm:gap-4">
+          {/* Leva ao campo de busca do catálogo, não a uma busca própria: o
+              `hash` faz o router rolar até o formulário, que se foca sozinho ao
+              ver `#buscar`. O rótulo é diferente do rótulo do campo de
+              propósito — dois controles com o mesmo nome acessível na mesma
+              página confundem quem navega por lista de elementos. */}
           <Link
             to="/mercado"
+            hash="buscar"
             className="rounded-sm p-2 text-foreground transition-colors hover:text-accent"
-            aria-label="Buscar NFTs"
+            aria-label="Ir para a busca do catálogo"
           >
             <Search aria-hidden size={18} />
           </Link>

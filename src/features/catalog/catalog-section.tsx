@@ -10,6 +10,7 @@ import { useNftSubscription } from '@/features/realtime/realtime-provider'
 import { useCatalogQuery } from './use-catalog'
 import { NftCard, NftCardSkeleton } from './nft-card'
 import { PriceRangeFilter } from './price-range-filter'
+import { SearchField } from './search-field'
 import { PAGE_SIZE, toListQuery, toggleInList, withFilter, type CatalogSearch } from './search-params'
 import { Button } from '@/components/ui/button'
 
@@ -45,8 +46,18 @@ export function CatalogSection({ search, routeId }: CatalogSectionProps) {
   const items: NftSummary[] = catalog.data?.items ?? []
   useNftSubscription(items.map((item) => item.id))
 
-  const update = (patch: Partial<CatalogSearch>) => {
-    void navigate({ to: routeId, search: withFilter(search, patch) as never })
+  /**
+   * `replace` existe por causa da busca: digitar empurra um valor novo a cada
+   * pausa de 300 ms, e cada um deles viraria uma entrada no histórico — o botão
+   * de voltar andaria letra a letra. Os outros filtros continuam empilhando
+   * normalmente, que é o que se espera de um clique.
+   */
+  const update = (patch: Partial<CatalogSearch>, options?: { replace?: boolean }) => {
+    void navigate({
+      to: routeId,
+      search: withFilter(search, patch) as never,
+      replace: options?.replace,
+    })
   }
 
   const pagination = catalog.data?.pagination
@@ -145,6 +156,8 @@ export function CatalogSection({ search, routeId }: CatalogSectionProps) {
         </aside>
 
         <div className="min-w-0 space-y-6">
+          <SearchField value={search.q} onChange={(q) => update({ q }, { replace: true })} />
+
           <div className="flex flex-wrap items-center justify-between gap-4">
             {/* Recortes são filtros que vivem na URL, não painéis de conteúdo:
                 uma `Tabs` do Radix apontaria `aria-controls` para painéis que
@@ -176,13 +189,13 @@ export function CatalogSection({ search, routeId }: CatalogSectionProps) {
               })}
             </div>
 
-            {/* Aqui o controle é nativo de propósito: é o único campo das duas
-                páginas auditadas, e um `<select>` do sistema dispensa ~12 kB de
+            {/* Aqui o controle é nativo de propósito: é o único `select` das
+                duas páginas auditadas, e um do sistema dispensa ~12 kB de
                 JavaScript no caminho crítico — além de abrir o seletor nativo no
                 celular. O `Select` do shadcn/ui é usado nos formulários, onde
                 não pesa na medição e o menu estilizado faz diferença. */}
             <label className="flex min-w-0 items-center gap-2 text-sm text-sand">
-              <span>Ordenar por:</span>
+              <span className="shrink-0">Ordenar por:</span>
               <select
                 value={search.ordenar ?? 'recent'}
                 onChange={(event) => update({ ordenar: event.target.value as never })}

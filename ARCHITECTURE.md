@@ -90,6 +90,12 @@ fato aplicou. Arrays viajam como chaves repetidas
 `app/search-serialization.ts` substitui a serialização JSON padrão do TanStack
 Router para que as duas coincidam e o endereço continue legível.
 
+A busca (`?q=`) segue a mesma regra, com duas diferenças que só ela precisa: o
+campo mantém o texto em estado local e só o empurra para a URL depois de 300 ms
+parado — sem isso seria uma navegação e uma consulta por tecla — e navega com
+`replace`, para que voltar devolva o catálogo de antes da busca em vez de
+desfazer letra por letra. `features/catalog/search-field.tsx` tem o detalhe.
+
 ## Modelo de erro
 
 Toda resposta de erro tem a mesma forma:

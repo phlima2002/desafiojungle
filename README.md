@@ -23,8 +23,8 @@ Metas: 90 / 95 / 95 / 90. Reprodução e análise em
 
 | Tela                   | Rota               | Notas                                                             |
 | ---------------------- | ------------------ | ----------------------------------------------------------------- |
-| Início                 | `/`                | Herói, facetas, ordenação e paginação — tudo na URL.              |
-| Mercado                | `/mercado`         | Mesma listagem sem o herói, para link direto de filtros.          |
+| Início                 | `/`                | Herói, busca, facetas, ordenação e paginação — tudo na URL.       |
+| Mercado                | `/mercado`         | Mesma listagem sem o herói, para link direto de busca e filtros.  |
 | Detalhes do NFT        | `/nft/$slug`       | Edições, criador, histórico e reação a `nft.updated`.             |
 | Carrinho               | `/carrinho`        | Quantidades, cupom, avisos de preço/estoque alterados.            |
 | Pagamento              | `/pagamento`       | Perfil do colecionador, carteira e criação idempotente do pedido. |
