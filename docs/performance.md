@@ -32,8 +32,8 @@ em `lighthouse/reports/`.
 
 | Página          | Perfil  | Performance | Accessibility | Best Practices |     SEO |    LCP | CLS |    TBT |
 | --------------- | ------- | ----------: | ------------: | -------------: | ------: | -----: | --: | -----: |
-| Início          | mobile  |      **92** |       **100** |        **100** | **100** | 2,35 s |   0 | 195 ms |
-| Detalhes do NFT | mobile  |      **91** |       **100** |        **100** | **100** | 2,62 s |   0 | 195 ms |
+| Início          | mobile  |      **93** |       **100** |        **100** | **100** | 2,36 s |   0 | 167 ms |
+| Detalhes do NFT | mobile  |      **91** |       **100** |        **100** | **100** | 2,61 s |   0 | 202 ms |
 | Início          | desktop |     **100** |       **100** |        **100** | **100** | 0,53 s |   0 |   0 ms |
 | Detalhes do NFT | desktop |     **100** |       **100** |        **100** | **100** | 0,54 s |   0 |   0 ms |
 
@@ -90,7 +90,10 @@ caminho crítico da home.
 ### O que já estava no lugar
 
 - Primeira pintura antes do boot dos mocks, com _network gate_ segurando as
-  requisições até o worker estar de pé (`shared/api/client.ts` e `main.tsx`).
+  requisições até o worker estar de pé (`shared/api/client.ts` e `main.tsx`). A
+  camada de mocks é analisada em `requestIdleCallback` (com teto de 1 s): são
+  ~165 kB gzip que não têm por que disputar a thread principal logo depois da
+  primeira pintura.
 - `socket.io-client` carregado sob demanda e conexão agendada em
   `requestIdleCallback`.
 - Fonte variável auto-hospedada, subconjunto latino pré-carregado a partir do
@@ -125,6 +128,14 @@ pintura, mas continuam pesando no TBT. O próximo corte natural seria tirar
 params por um parser próprio e carregando os schemas junto da camada de rede.
 Não foi feito porque reduz a garantia de contrato em tempo de desenvolvimento em
 troca de pontos numa meta já atingida.
+
+## Publicação em subcaminho
+
+`VITE_BASE=/repo/` faz assets, rotas, escopo do service worker dos mocks e as
+imagens do shell assumirem o prefixo — é assim que o GitHub Pages serve um
+repositório de projeto. `npm run smoke` sobe o build e confere justamente o que
+a suíte E2E não vê, porque ela roda sempre da raiz: caminho de asset sem
+prefixo, escopo errado do worker e link direto sem fallback de SPA.
 
 ## Nota sobre metodologia
 

@@ -2,11 +2,19 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { tanstackRouter } from '@tanstack/router-plugin/vite'
-import { resolve, dirname } from 'node:path'
+import { copyFileSync } from 'node:fs'
+import { resolve, dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { SHELL_HTML } from './src/app/static-shell.ts'
+import { buildShellHtml } from './src/app/static-shell.ts'
 
 const rootDir = dirname(fileURLToPath(import.meta.url))
+
+/**
+ * Serve da raiz por padrão. `VITE_BASE=/repo/` faz a aplicação inteira — assets,
+ * rotas, service worker dos mocks e as imagens do shell — assumir o subcaminho,
+ * que é como o GitHub Pages publica um repositório de projeto.
+ */
+const base = process.env.VITE_BASE || '/'
 
 /**
  * The variable font is imported from the stylesheet, so the browser only
@@ -35,7 +43,7 @@ function inlineStylesheet() {
 
       const css = String(cssFile.source)
       html.source = html.source.replace(
-        new RegExp(`<link[^>]+href="/${cssFile.fileName}"[^>]*>`),
+        new RegExp(`<link[^>]+href="${base}${cssFile.fileName}"[^>]*>`),
         `<style>${css}</style>`,
       )
       delete bundle[cssFile.fileName!]
@@ -55,7 +63,29 @@ function staticShell() {
       // Next to `#root`, not inside it: React clears its own container, and the
       // shell has to outlive the first commit. `#root` is revealed by
       // `shell-handoff.ts`.
-      return html.replace('<div id="root"></div>', `${SHELL_HTML}<div id="root" style="display:none"></div>`)
+      return html
+        .replace('href="/favicon.svg"', `href="${base}favicon.svg"`)
+        .replace('<div id="root"></div>', `${buildShellHtml(base)}<div id="root" style="display:none"></div>`)
+    },
+  }
+}
+
+/**
+ * Hospedagem estática sem regra de reescrita (GitHub Pages) devolve `404.html`
+ * para qualquer caminho que não seja um arquivo. Servindo o próprio documento
+ * ali, um link direto para `/nft/...` continua abrindo a aplicação.
+ */
+function spaFallback() {
+  return {
+    name: 'kurio:spa-fallback',
+    apply: 'build' as const,
+    enforce: 'post' as const,
+    // Depois de escrito, para copiar o documento final — já com o CSS embutido
+    // e o shell dentro dele.
+    writeBundle(options: { dir?: string }) {
+      const dir = options.dir
+      if (!dir) return
+      copyFileSync(join(dir, 'index.html'), join(dir, '404.html'))
     },
   }
 }
@@ -70,7 +100,7 @@ function preloadLatinFont() {
       const asset = Object.values(bundle).find((file) =>
         /roboto-mono-latin-wght-normal-.*\.woff2$/.test(file.fileName ?? ''),
       )
-      if (asset?.fileName) fontHref = `/${asset.fileName}`
+      if (asset?.fileName) fontHref = `${base}${asset.fileName}`
     },
     transformIndexHtml() {
       if (!fontHref) return []
@@ -86,8 +116,10 @@ function preloadLatinFont() {
 }
 
 export default defineConfig({
+  base,
   plugins: [
     staticShell(),
+    spaFallback(),
     preloadLatinFont(),
     inlineStylesheet(),
     tanstackRouter({ target: 'react', autoCodeSplitting: true }),
@@ -115,10 +147,11 @@ export default defineConfig({
           // mocks chunk — it has to load after MSW installs its override.
           if (id.includes('socket.io-client') || id.includes('engine.io-client')) return 'realtime'
           if (id.includes('/msw/') || id.includes('@mswjs') || id.includes('.io-parser')) return 'mocks'
-          // Antes da regra de `react`: `@radix-ui/react-*` casaria com
-          // `/react/` e entraria no chunk do framework. Devolvendo `undefined`,
-          // o bundler coloca cada primitivo junto de quem o usa — a home e o
-          // detalhe não baixam o diálogo nem os campos de formulário.
+          // Precisa vir antes da regra de `react`: `@radix-ui/react-*` casaria
+          // com `/react/` e entraria no chunk do framework. Devolvendo
+          // `undefined`, o bundler decide onde colocar cada primitivo — um
+          // chunk `radix` nomeado só fez o empacotador juntá-lo ao do React e
+          // servir os dois em toda rota, inclusive nas que não usam nenhum.
           if (id.includes('@radix-ui') || id.includes('react-remove-scroll') || id.includes('aria-hidden'))
             return undefined
           if (id.includes('/react-dom/') || id.includes('/react/') || id.includes('scheduler')) return 'react'

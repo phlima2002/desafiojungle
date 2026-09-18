@@ -11,7 +11,7 @@ limitações conhecidas.
 
 | Lighthouse (mediana de 3) | Performance | Accessibility | Best Practices |     SEO |
 | ------------------------- | ----------: | ------------: | -------------: | ------: |
-| Início — mobile           |      **92** |       **100** |        **100** | **100** |
+| Início — mobile           |      **93** |       **100** |        **100** | **100** |
 | Detalhes do NFT — mobile  |      **91** |       **100** |        **100** | **100** |
 | Início — desktop          |     **100** |       **100** |        **100** | **100** |
 | Detalhes do NFT — desktop |     **100** |       **100** |        **100** | **100** |
@@ -70,6 +70,7 @@ API REST e o canal Socket.IO são interceptados no navegador.
 | `VITE_SOCKET_URL`   | `https://api.kurio.test` | Endpoint do Socket.IO (interceptado pelo MSW). |
 | `VITE_ENABLE_MOCKS` | `true`                   | Liga/desliga toda a camada de simulação.       |
 | `VITE_MOCK_SEED`    | `20260917`               | Semente do gerador determinístico de fixtures. |
+| `VITE_BASE`         | `/`                      | Caminho em que a aplicação é publicada.        |
 
 ## Comandos
 
@@ -81,6 +82,7 @@ API REST e o canal Socket.IO são interceptados no navegador.
 | `npm run typecheck`       | Checagem de tipos.                                            |
 | `npm run lint`            | Lint (oxlint).                                                |
 | `npm run format`          | Prettier.                                                     |
+| `npm run smoke`           | Fumaça sobre o build publicado (inclusive em subcaminho).     |
 | `npm run test:unit`       | Vitest (aritmética em ETH, URL do catálogo, contratos).       |
 | `npm run test:e2e`        | Playwright (sobe o build automaticamente).                    |
 | `npm run test:e2e:ui`     | Playwright em modo interativo.                                |
@@ -203,12 +205,26 @@ e pull request. As baselines visuais são de Linux, e o runner também.
 
 ## Deploy
 
-O projeto é estático: `npm run build` gera `dist/`. O `vercel.json` já traz o
-_framework preset_, o fallback de SPA para as rotas do client e os cabeçalhos de
-cache (`assets/` imutável, `index.html` e o service worker sem cache).
+O projeto é estático: `npm run build` gera `dist/`. Há dois caminhos prontos.
 
-Na Vercel, basta **importar o repositório** — build `npm run build`, saída
-`dist`, sem variáveis de ambiente obrigatórias (os defaults deixam a camada de
-mocks ligada, que é o modo de demonstração). Em qualquer outra hospedagem
-estática o único requisito é o mesmo fallback: toda rota que não corresponda a um
-arquivo deve servir `index.html`.
+**GitHub Pages, automático.** `.github/workflows/pages.yml` publica a cada push
+na `main`. É preciso habilitar uma vez em _Settings → Pages → Source: GitHub
+Actions_. O workflow constrói com `VITE_BASE=/<repositório>/` — a aplicação
+inteira (assets, rotas, service worker dos mocks e as imagens do shell) assume o
+subcaminho — e roda `npm run smoke` antes de publicar.
+
+**Vercel, importando o repositório.** O `vercel.json` já traz o _framework
+preset_, o build, a saída, o fallback de SPA e os cabeçalhos de cache
+(`assets/` imutável, `index.html` e o service worker sem cache). Nenhuma variável
+de ambiente é obrigatória.
+
+Em qualquer outra hospedagem estática o requisito é o fallback: toda rota que não
+corresponda a um arquivo deve servir `index.html`. O build já escreve um
+`404.html` idêntico ao documento, que é como o GitHub Pages resolve isso.
+
+Para conferir um build antes de publicar:
+
+```bash
+npm run build && npm run smoke
+VITE_BASE=/repo/ npm run build && VITE_BASE=/repo/ npm run smoke
+```

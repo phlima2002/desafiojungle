@@ -374,6 +374,10 @@ um menu do Radix. Detalhes, tabela de uso e as duas exceções deliberadas estã
 - **Sem renderização no servidor:** a aplicação é client-side. O shell cobre a
   primeira dobra das duas rotas auditadas; as demais pintam o cabeçalho e depois
   o conteúdo do React.
+- **Publicação em subcaminho:** funciona (`VITE_BASE=/repo/`, que é como o
+  GitHub Pages serve), mas o `VITE_API_BASE_URL` passa a ser `/repo/api` — o
+  service worker do MSW só intercepta dentro do próprio escopo. Com um backend
+  real em outro domínio isso não se aplica.
 
 ## Desvios em relação ao Figma
 

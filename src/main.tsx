@@ -40,14 +40,25 @@ function bootstrap() {
   requestAnimationFrame(() => setTimeout(render, 0))
 
   if (env.enableMocks) {
-    // Yield twice: once for React's commit, once for the browser to paint.
-    requestAnimationFrame(() => {
-      setTimeout(async () => {
-        const { startMockServer } = await import('@/mocks/browser')
-        await startMockServer()
-        releaseGate?.()
-      }, 0)
-    })
+    // A camada de mocks tem ~165 kB gzip; analisá-la logo depois da primeira
+    // pintura empurra o *total blocking time* para cima sem adiantar nada, já
+    // que as requisições estão seguras no network gate. Então ela espera a
+    // thread principal ficar ociosa — com teto, para que uma página que nunca
+    // fica ociosa não deixe o colecionador em skeleton eterno.
+    const boot = async () => {
+      const { startMockServer } = await import('@/mocks/browser')
+      await startMockServer()
+      releaseGate?.()
+    }
+
+    const schedule =
+      'requestIdleCallback' in window
+        ? () => window.requestIdleCallback(() => void boot(), { timeout: 1_000 })
+        : () => window.setTimeout(() => void boot(), 0)
+
+    // Duas cessões antes de agendar: uma para o commit do React, outra para o
+    // navegador pintar.
+    requestAnimationFrame(() => setTimeout(schedule, 0))
   }
 }
 

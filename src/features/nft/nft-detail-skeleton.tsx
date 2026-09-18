@@ -1,4 +1,5 @@
 import { GALLERY_OFFSETS, artworkForToken } from '@/app/static-shell'
+import { env } from '@/shared/config/env'
 
 /**
  * Carregando o detalhe. A arte não vira um retângulo cinza: ela já está no
@@ -12,7 +13,7 @@ import { GALLERY_OFFSETS, artworkForToken } from '@/app/static-shell'
 export function NftDetailSkeleton({ slug }: { slug?: string }) {
   const token = Number(slug?.split('-').pop())
   const gallery = GALLERY_OFFSETS.map((offset) =>
-    Number.isFinite(token) ? artworkForToken(token, offset) : undefined,
+    Number.isFinite(token) ? artworkForToken(token, offset, env.basePath) : undefined,
   )
   const main = gallery[0]
 

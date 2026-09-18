@@ -6,7 +6,14 @@ function flag(value: string | undefined, fallback: boolean): boolean {
 }
 
 export const env = {
-  apiBaseUrl: raw.VITE_API_BASE_URL ?? '/api',
+  /** `/` na raiz, `/repo/` quando publicado em subcaminho (ver vite.config.ts). */
+  basePath: raw.BASE_URL,
+  /**
+   * Prefixo das chamadas REST. Ele segue o `base` de propósito: o service worker
+   * do MSW só intercepta dentro do seu escopo, e num subcaminho um `/api`
+   * absoluto ficaria de fora.
+   */
+  apiBaseUrl: raw.VITE_API_BASE_URL ?? `${raw.BASE_URL}api`,
   socketUrl: raw.VITE_SOCKET_URL ?? 'https://api.kurio.test',
   /** Mocks are on by default; the flag exists so a real backend can be plugged in. */
   enableMocks: flag(raw.VITE_ENABLE_MOCKS, true),

@@ -1,4 +1,4 @@
-import { GALLERY_OFFSETS, SHELL_HERO_IMAGE, SHELL_ROOT_ID, artworkForToken } from '../../src/app/static-shell'
+import { GALLERY_OFFSETS, SHELL_ROOT_ID, artworkForToken, heroImage } from '../../src/app/static-shell'
 import { bootstrap, expect, test } from './fixtures'
 
 /**
@@ -17,13 +17,13 @@ test.describe('Shell estático', () => {
     const shell = page.locator(`#${SHELL_ROOT_ID}`)
     // `getByRole` is out: the shell is `aria-hidden`, so it has no a11y tree.
     await expect(shell.locator('h1')).toHaveText('Seja dono do futuroda arte digital')
-    await expect(shell.locator('img')).toHaveAttribute('src', SHELL_HERO_IMAGE)
+    await expect(shell.locator('img')).toHaveAttribute('src', heroImage())
   })
 
   test('o herói renderizado corresponde ao do shell', async ({ page }) => {
     await bootstrap(page)
     const hero = page.getByRole('main').locator('img').first()
-    await expect(hero).toHaveAttribute('src', SHELL_HERO_IMAGE)
+    await expect(hero).toHaveAttribute('src', heroImage())
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Seja dono do futuroda arte digital')
   })
 

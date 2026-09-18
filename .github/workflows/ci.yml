@@ -37,6 +37,9 @@ jobs:
       - name: Testes de unidade
         run: npm run test:unit
 
+      - name: Build
+        run: npm run build
+
       - name: Navegador do Playwright
         run: npx playwright install --with-deps chromium
 
@@ -45,6 +48,9 @@ jobs:
       # com outro sistema operacional daria diferença de antialiasing.
       - name: Testes E2E e regressão visual
         run: npm run test:e2e
+
+      - name: Fumaça sobre o build publicado
+        run: npm run smoke
 
       - name: Relatório do Playwright
         if: ${{ !cancelled() }}

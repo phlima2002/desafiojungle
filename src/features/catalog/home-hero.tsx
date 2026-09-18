@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { useFeaturedQuery } from './use-catalog'
-import { SHELL_HERO_IMAGE } from '@/app/static-shell'
+import { heroImage } from '@/app/static-shell'
+import { env } from '@/shared/config/env'
 
 export function HomeHero() {
   const featured = useFeaturedQuery()
@@ -8,7 +9,7 @@ export function HomeHero() {
   // While the query is in flight the artwork is not unknown: the document was
   // served with it (see `app/static-shell.ts`). A skeleton here would blink the
   // piece out of the page for no reason, so the known image stays put.
-  const heroImage = hero?.imageUrl ?? SHELL_HERO_IMAGE
+  const heroSrc = hero?.imageUrl ?? heroImage(env.basePath)
 
   return (
     <section className="mx-auto max-w-page px-4 pt-12 sm:px-8">
@@ -39,7 +40,7 @@ export function HomeHero() {
             exactly the same space, so swapping them shifts nothing. */}
         <div className="aspect-square w-full max-w-[420px] lg:justify-self-end">
           <img
-            src={heroImage}
+            src={heroSrc}
             alt={hero?.imageAlt ?? ''}
             width={420}
             height={420}

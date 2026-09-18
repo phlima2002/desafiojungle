@@ -8,6 +8,7 @@
     "build": "tsc -b --noEmit && vite build",
     "lint": "oxlint src tests",
     "preview": "vite preview",
+    "smoke": "node scripts/smoke.mjs",
     "typecheck": "tsc -b --noEmit",
     "format": "prettier --write .",
     "test:unit": "vitest run",

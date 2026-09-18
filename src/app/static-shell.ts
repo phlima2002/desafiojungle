@@ -38,7 +38,8 @@ export const SHELL_HEADLINE = 'Seja dono do futuro<br />da arte digital'
  * The catalogue is seeded deterministically, so the hero artwork is known ahead
  * of time and the shell ships the real `<img>`.
  */
-export const SHELL_HERO_IMAGE = '/nft/ape-bucket.webp'
+export const SHELL_HERO_FILE = 'ape-bucket'
+export const heroImage = (base = '/') => `${base}nft/${SHELL_HERO_FILE}.webp`
 
 /**
  * Same problem on `/nft/<slug>`, where the LCP element is the artwork and the
@@ -55,10 +56,14 @@ export const TOKEN_STEP = 7
 /** The gallery offsets `seed.ts` uses, in order. */
 export const GALLERY_OFFSETS = [0, 1, 3]
 
-export function artworkForToken(token: number, offset = 0): string | undefined {
+/**
+ * `base` é o `BASE_URL` do Vite: a aplicação também roda servida de um
+ * subcaminho (GitHub Pages), e aí os caminhos absolutos precisam do prefixo.
+ */
+export function artworkForToken(token: number, offset = 0, base = '/'): string | undefined {
   const index = (token - TOKEN_BASE) / TOKEN_STEP
   if (index < 0 || index % 1 !== 0) return undefined
-  return `/nft/${ARTWORK_FILES[(index + offset) % ARTWORK_FILES.length]}.webp`
+  return `${base}nft/${ARTWORK_FILES[(index + offset) % ARTWORK_FILES.length]}.webp`
 }
 
 /**
@@ -72,7 +77,7 @@ const thumb = (position: number) =>
     position === 0 ? 'border-primary' : 'border-transparent'
   }"><img alt="" width="64" height="64" decoding="async" class="size-full object-cover" data-shell-thumb="${position}" /></span></li>`
 
-export const SHELL_HTML = `<div id="${SHELL_ROOT_ID}" aria-hidden="true">
+export const buildShellHtml = (base = '/') => `<div id="${SHELL_ROOT_ID}" aria-hidden="true">
 <header class="border-b border-line">
 <div class="mx-auto flex h-18 max-w-page items-center justify-between gap-6 px-4 sm:px-8">
 <span class="text-xs font-bold tracking-[0.1em]">KURIO</span>
@@ -90,7 +95,7 @@ export const SHELL_HTML = `<div id="${SHELL_ROOT_ID}" aria-hidden="true">
 <p class="text-xs text-muted">Descubra NFTs selecionados de criadores emergentes e consagrados. Colecione arte digital rara, apoie artistas e tenha uma parte da cultura da internet.</p>
 <span class="inline-block rounded-sm bg-primary px-6 py-3 text-base font-bold text-primary-foreground uppercase">Explorar</span>
 </div>
-<div class="aspect-square w-full max-w-[420px] lg:justify-self-end"><img src="${SHELL_HERO_IMAGE}" alt="" width="420" height="420" fetchpriority="high" decoding="async" class="size-full rounded-lg object-cover shadow-card" /></div>
+<div class="aspect-square w-full max-w-[420px] lg:justify-self-end"><img src="${heroImage(base)}" alt="" width="420" height="420" fetchpriority="high" decoding="async" class="size-full rounded-lg object-cover shadow-card" /></div>
 </div>
 </section>
 <article id="shell-detail" hidden class="mx-auto max-w-page px-4 py-8 sm:px-8">
@@ -103,12 +108,13 @@ export const SHELL_HTML = `<div id="${SHELL_ROOT_ID}" aria-hidden="true">
 </div>
 </article>
 </div>
-<script>(function(){var p=location.pathname,d=document,hero=d.getElementById('shell-hero'),detail=d.getElementById('shell-detail');
+<script>(function(){var b=${JSON.stringify(base)},d=document,p=location.pathname.slice(b.length-1),
+hero=d.getElementById('shell-hero'),detail=d.getElementById('shell-detail');
 if(p!=='/'&&hero)hero.remove();
 var m=p.match(/^\\/nft\\/.+-(\\d+)$/),i=m?(+m[1]-${TOKEN_BASE})/${TOKEN_STEP}:-1;
 if(i<0||i%1!==0){if(detail)detail.remove();return}
 var files=${JSON.stringify(ARTWORK_FILES)},offsets=${JSON.stringify(GALLERY_OFFSETS)},
-url=function(o){return '/nft/'+files[(i+o)%${ARTWORK_FILES.length}]+'.webp'};
+url=function(o){return b+'nft/'+files[(i+o)%${ARTWORK_FILES.length}]+'.webp'};
 d.querySelector('[data-shell-main]').src=url(offsets[0]);
 offsets.forEach(function(o,n){d.querySelector('[data-shell-thumb="'+n+'"]').src=url(o)});
 detail.hidden=false})()</script>`
