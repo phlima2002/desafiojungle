@@ -11,6 +11,7 @@ import { useCatalogQuery } from './use-catalog'
 import { NftCard, NftCardSkeleton } from './nft-card'
 import { PriceRangeFilter } from './price-range-filter'
 import { PAGE_SIZE, toListQuery, toggleInList, withFilter, type CatalogSearch } from './search-params'
+import { Button } from '@/components/ui/button'
 
 const TABS = [
   { value: 'all', label: 'Todos os NFTs' },
@@ -75,20 +76,22 @@ export function CatalogSection({ search, routeId }: CatalogSectionProps) {
                 const active = search.categoria?.includes(facet.value as never) ?? false
                 return (
                   <li key={facet.value}>
-                    <button
+                    <Button
                       type="button"
+                      variant="ghost"
+                      size="sm"
                       aria-pressed={active}
                       onClick={() =>
                         update({ categoria: toggleInList(search.categoria, facet.value as never) })
                       }
                       className={cn(
-                        'flex w-full items-center justify-between gap-2 py-1 text-sm transition-colors',
-                        active ? 'font-bold text-accent' : 'text-sand hover:text-accent',
+                        'h-auto w-full justify-between px-0 py-1 text-sm',
+                        active ? 'font-bold text-accent' : 'font-normal text-sand hover:text-accent',
                       )}
                     >
                       <span>{facet.label}</span>
                       <span className="font-bold">({facet.count})</span>
-                    </button>
+                    </Button>
                   </li>
                 )
               })}
@@ -120,18 +123,20 @@ export function CatalogSection({ search, routeId }: CatalogSectionProps) {
                 const active = search.rede?.includes(facet.value as never) ?? false
                 return (
                   <li key={facet.value}>
-                    <button
+                    <Button
                       type="button"
+                      variant="ghost"
+                      size="sm"
                       aria-pressed={active}
                       onClick={() => update({ rede: toggleInList(search.rede, facet.value as never) })}
                       className={cn(
-                        'flex w-full items-center justify-between gap-2 py-1 text-sm transition-colors',
-                        active ? 'font-bold text-accent' : 'text-sand hover:text-accent',
+                        'h-auto w-full justify-between px-0 py-1 text-sm',
+                        active ? 'font-bold text-accent' : 'font-normal text-sand hover:text-accent',
                       )}
                     >
                       <span>{facet.label}</span>
                       <span className="font-bold">({facet.count})</span>
-                    </button>
+                    </Button>
                   </li>
                 )
               })}
@@ -141,35 +146,47 @@ export function CatalogSection({ search, routeId }: CatalogSectionProps) {
 
         <div className="min-w-0 space-y-6">
           <div className="flex flex-wrap items-center justify-between gap-4">
+            {/* Recortes são filtros que vivem na URL, não painéis de conteúdo:
+                uma `Tabs` do Radix apontaria `aria-controls` para painéis que
+                não existem (o Lighthouse reprova), então aqui a lista de abas é
+                escrita à mão — o `Tabs` do shadcn/ui é usado no detalhe do NFT,
+                onde os painéis existem de verdade. */}
             <div role="tablist" aria-label="Recortes do catálogo" className="flex flex-wrap gap-6">
               {TABS.map((tab) => {
                 const active = (search.tab ?? 'all') === tab.value
                 return (
-                  <button
+                  <Button
                     key={tab.value}
                     type="button"
                     role="tab"
+                    variant="ghost"
+                    size="sm"
                     aria-selected={active}
                     onClick={() => update({ tab: tab.value })}
                     className={cn(
-                      'border-b-2 pb-1 text-sm transition-colors',
+                      'h-auto rounded-none border-b-2 px-0 pb-1 text-sm',
                       active
                         ? 'border-primary font-medium text-accent'
-                        : 'border-transparent text-sand hover:text-accent',
+                        : 'border-transparent font-normal text-sand hover:text-accent',
                     )}
                   >
                     {tab.label}
-                  </button>
+                  </Button>
                 )
               })}
             </div>
 
-            <label className="flex items-center gap-2 text-sm text-sand">
+            {/* Aqui o controle é nativo de propósito: é o único campo das duas
+                páginas auditadas, e um `<select>` do sistema dispensa ~12 kB de
+                JavaScript no caminho crítico — além de abrir o seletor nativo no
+                celular. O `Select` do shadcn/ui é usado nos formulários, onde
+                não pesa na medição e o menu estilizado faz diferença. */}
+            <label className="flex min-w-0 items-center gap-2 text-sm text-sand">
               <span>Ordenar por:</span>
               <select
                 value={search.ordenar ?? 'recent'}
                 onChange={(event) => update({ ordenar: event.target.value as never })}
-                className="max-w-[14rem] min-w-0 rounded-sm border border-line bg-card px-2 py-1 text-sm text-foreground"
+                className="h-9 max-w-[14rem] min-w-0 rounded-sm border border-line bg-card px-2 text-sm text-foreground"
               >
                 {SORTS.map((sort) => (
                   <option key={sort.value} value={sort.value}>
@@ -193,13 +210,15 @@ export function CatalogSection({ search, routeId }: CatalogSectionProps) {
               <div role="alert" className="rounded-md border border-line bg-card p-8 text-center">
                 <p className="text-base font-bold">Não foi possível carregar o catálogo.</p>
                 <p className="mt-2 text-xs text-muted">{catalog.error.message}</p>
-                <button
+                <Button
                   type="button"
+                  variant="outline"
+                  size="sm"
                   onClick={() => void catalog.refetch()}
-                  className="mt-4 rounded-sm border border-primary px-4 py-2 text-xs font-bold text-accent hover:bg-primary hover:text-primary-foreground"
+                  className="mt-4"
                 >
                   Tentar de novo
-                </button>
+                </Button>
               </div>
             ) : items.length === 0 ? (
               <div className="rounded-md border border-line bg-card p-10 text-center">
@@ -246,22 +265,23 @@ export function CatalogSection({ search, routeId }: CatalogSectionProps) {
           </div>
 
           {pagination && pagination.totalPages > 1 ? (
-            <nav aria-label="Paginação" className="flex justify-center gap-2">
+            <nav aria-label="Paginação" className="flex flex-wrap justify-center gap-2">
               {Array.from({ length: pagination.totalPages }, (_, index) => index + 1).map((page) => (
-                <button
+                <Button
                   key={page}
                   type="button"
+                  size="icon"
+                  variant={page === pagination.page ? 'default' : 'secondary'}
                   aria-current={page === pagination.page ? 'page' : undefined}
                   onClick={() => update({ pagina: page === 1 ? undefined : page })}
                   className={cn(
-                    'size-9 rounded-sm text-xs font-bold transition-colors',
-                    page === pagination.page
-                      ? 'bg-primary text-primary-foreground'
-                      : 'border border-line text-sand hover:border-primary hover:text-accent',
+                    'text-xs',
+                    page !== pagination.page &&
+                      'bg-transparent text-sand hover:border-primary hover:text-accent',
                   )}
                 >
                   {page}
-                </button>
+                </Button>
               ))}
             </nav>
           ) : null}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useId } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate } from '@tanstack/react-router'
@@ -18,6 +18,12 @@ import { useCartQuery } from '@/features/cart/use-cart'
 import { useSession } from '@/features/session/use-session'
 import { useNftSubscription, useRealtime } from '@/features/realtime/realtime-provider'
 import { useQuote, usePlaceOrder, useWalletConnection, useWalletsQuery } from './use-checkout'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Label } from '@/components/ui/label'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 function defaultsFrom(wallet: Wallet | null, email: string, username: string): CollectorDetails {
   return {
@@ -37,6 +43,7 @@ function defaultsFrom(wallet: Wallet | null, email: string, username: string): C
 }
 
 export function CheckoutPage() {
+  const networkLabelId = useId()
   const navigate = useNavigate()
   const { session } = useSession()
   const cart = useCartQuery()
@@ -161,24 +168,24 @@ export function CheckoutPage() {
 
           <WalletProfileFields
             register={form.register as never}
+            control={form.control as never}
             errors={form.formState.errors}
             variant="collector"
           />
 
-          <label className="flex items-center gap-2 text-xs">
-            <input
-              type="checkbox"
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id="outra-carteira"
               checked={useOtherWallet}
-              onChange={(event) => setUseOtherWallet(event.target.checked)}
-              className="size-4 accent-[var(--color-primary)]"
+              onCheckedChange={(checked) => setUseOtherWallet(checked === true)}
             />
-            Usar outra carteira?
-          </label>
+            <Label htmlFor="outra-carteira" className="text-xs">
+              Usar outra carteira?
+            </Label>
+          </div>
 
           <div className="max-w-md">
-            <label htmlFor="observacao" className="block text-sm">
-              Observação do colecionador (opcional)
-            </label>
+            <Label htmlFor="observacao">Observação do colecionador (opcional)</Label>
             <textarea
               id="observacao"
               rows={5}
@@ -209,13 +216,9 @@ export function CheckoutPage() {
           ) : quoteError ? (
             <div role="alert" className="space-y-3 text-xs">
               <p className="text-danger">{quoteError.message}</p>
-              <button
-                type="button"
-                onClick={() => refresh()}
-                className="rounded-sm border border-primary px-4 py-2 text-xs font-bold text-accent"
-              >
+              <Button type="button" variant="outline" size="sm" onClick={() => refresh()}>
                 Recalcular
-              </button>
+              </Button>
             </div>
           ) : quote ? (
             <>
@@ -286,80 +289,75 @@ export function CheckoutPage() {
                 </Link>
               </p>
             ) : (
-              <ul className="space-y-2">
+              <RadioGroup
+                aria-label="Carteira usada na compra"
+                value={selectedWallet?.id ?? ''}
+                onValueChange={(value) => {
+                  setWalletId(value)
+                  setNetworkOverride(null)
+                }}
+              >
                 {walletList.map((wallet) => {
                   const active = wallet.id === selectedWallet?.id
                   return (
-                    <li key={wallet.id}>
-                      <label
-                        className={cn(
-                          'flex cursor-pointer items-center gap-3 rounded-sm border p-3 transition-colors',
-                          active ? 'border-primary bg-primary/5' : 'border-line',
-                        )}
-                      >
-                        <input
-                          type="radio"
-                          name="wallet"
-                          value={wallet.id}
-                          checked={active}
-                          onChange={() => {
-                            setWalletId(wallet.id)
-                            setNetworkOverride(null)
-                          }}
-                          className="accent-[var(--color-primary)]"
-                        />
-                        <span className="min-w-0 flex-1">
-                          <span className="block truncate text-3xs font-bold">
-                            {WALLET_PROVIDER_LABELS[wallet.provider]}
-                          </span>
-                          <span className="block truncate text-3xs text-muted">
-                            {wallet.label} · {NETWORK_LABELS[wallet.network]}
-                          </span>
+                    <Label
+                      key={wallet.id}
+                      htmlFor={`carteira-${wallet.id}`}
+                      className={cn(
+                        'flex cursor-pointer items-center gap-3 rounded-sm border p-3 transition-colors',
+                        active ? 'border-primary bg-primary/5' : 'border-line',
+                      )}
+                    >
+                      <RadioGroupItem id={`carteira-${wallet.id}`} value={wallet.id} />
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-3xs font-bold">
+                          {WALLET_PROVIDER_LABELS[wallet.provider]}
                         </span>
-                        <span
-                          className={cn(
-                            'text-3xs font-bold',
-                            wallet.connected ? 'text-success' : 'text-clay',
-                          )}
-                        >
-                          {wallet.connected ? 'Conectada' : 'Desconectada'}
+                        <span className="block truncate text-3xs text-muted">
+                          {wallet.label} · {NETWORK_LABELS[wallet.network]}
                         </span>
-                      </label>
-                    </li>
+                      </span>
+                      <Badge variant={wallet.connected ? 'success' : 'outline'} className="border-0">
+                        {wallet.connected ? 'Conectada' : 'Desconectada'}
+                      </Badge>
+                    </Label>
                   )
                 })}
-              </ul>
+              </RadioGroup>
             )}
 
             {selectedWallet ? (
               <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
-                <button
+                <Button
                   type="button"
+                  variant="outline"
+                  size="sm"
                   onClick={() =>
                     selectedWallet.connected
                       ? disconnect.mutate(selectedWallet.id)
                       : connect.mutate(selectedWallet.id)
                   }
                   disabled={connect.isPending || disconnect.isPending}
-                  className="rounded-sm border border-primary px-3 py-1.5 text-3xs font-bold text-accent transition-colors hover:bg-primary hover:text-primary-foreground disabled:opacity-50"
+                  className="h-auto px-3 py-1.5 text-3xs"
                 >
                   {selectedWallet.connected ? 'Desconectar' : 'Conectar carteira'}
-                </button>
+                </Button>
 
-                <label className="flex items-center gap-2 text-3xs">
-                  <span>Rede</span>
-                  <select
-                    value={network}
-                    onChange={(event) => setNetworkOverride(event.target.value as Network)}
-                    className="rounded-sm border border-line bg-card-raised px-2 py-1 text-3xs"
-                  >
-                    {Object.entries(NETWORK_LABELS).map(([value, label]) => (
-                      <option key={value} value={value}>
-                        {label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+                <div className="flex items-center gap-2 text-3xs">
+                  <span id={networkLabelId}>Rede</span>
+                  <Select value={network} onValueChange={(value) => setNetworkOverride(value as Network)}>
+                    <SelectTrigger size="sm" aria-labelledby={networkLabelId} className="w-36">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(NETWORK_LABELS).map(([value, label]) => (
+                        <SelectItem key={value} value={value}>
+                          {label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             ) : null}
 
@@ -378,43 +376,49 @@ export function CheckoutPage() {
                   <li key={`${problem.cartItemId}-${problem.kind}`}>{problem.message}</li>
                 ))}
               </ul>
-              <button
+              <Button
                 type="button"
+                variant="outline"
+                size="sm"
                 onClick={() => quote && setAcknowledged(quote.fingerprint)}
-                className="rounded-sm border border-primary px-3 py-1.5 text-3xs font-bold text-accent"
+                className="h-auto px-3 py-1.5 text-3xs"
               >
                 Revisar e recalcular
-              </button>
+              </Button>
             </div>
           ) : null}
 
           {phase.kind === 'needs-review' ? (
             <div role="alert" className="space-y-2 rounded-sm border border-danger/40 bg-danger/10 p-3">
               <p className="text-3xs text-danger">{phase.message}</p>
-              <button
+              <Button
                 type="button"
+                variant="outline"
+                size="sm"
                 onClick={() => {
                   reset()
                   setAcknowledged(null)
                   refresh()
                 }}
-                className="rounded-sm border border-primary px-3 py-1.5 text-3xs font-bold text-accent"
+                className="h-auto px-3 py-1.5 text-3xs"
               >
                 Recalcular e revisar
-              </button>
+              </Button>
             </div>
           ) : null}
 
           {phase.kind === 'failed' ? (
             <div role="alert" className="space-y-2">
               <p className="text-3xs text-danger">{phase.message}</p>
-              <button
+              <Button
                 type="button"
+                variant="outline"
+                size="sm"
                 onClick={() => void retry()}
-                className="rounded-sm border border-primary px-3 py-1.5 text-3xs font-bold text-accent"
+                className="h-auto px-3 py-1.5 text-3xs"
               >
                 Tentar de novo
-              </button>
+              </Button>
             </div>
           ) : null}
 
@@ -422,18 +426,19 @@ export function CheckoutPage() {
             <p className="text-3xs text-clay">Conecte a carteira para confirmar o pedido.</p>
           ) : null}
 
-          <button
+          <Button
             type="submit"
+            size="sm"
             disabled={!canSubmit}
             aria-busy={phase.kind === 'submitting'}
-            className="w-full rounded-sm bg-primary px-5 py-3 text-xs font-bold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full"
           >
             {phase.kind === 'submitting' ? 'Enviando pedido…' : 'Confirmar compra'}
-          </button>
+          </Button>
 
-          <Link to="/carrinho" className="block text-center text-3xs text-sand underline underline-offset-4">
-            Voltar ao carrinho
-          </Link>
+          <Button asChild variant="link" size="sm" className="w-full text-3xs font-normal text-sand">
+            <Link to="/carrinho">Voltar ao carrinho</Link>
+          </Button>
         </aside>
       </form>
     </div>

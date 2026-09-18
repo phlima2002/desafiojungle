@@ -8,6 +8,8 @@ import { PasswordInput } from '@/features/account/password-field'
 import { Route } from '@/routes/entrar'
 import { AuthCard } from './auth-card'
 import { Field } from './field'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 
 export function LoginPage() {
   const navigate = useNavigate()
@@ -50,7 +52,7 @@ export function LoginPage() {
 
         <Field label="E-mail" error={form.formState.errors.email?.message}>
           {(props) => (
-            <input
+            <Input
               {...props}
               type="email"
               autoComplete="email"
@@ -68,7 +70,7 @@ export function LoginPage() {
 
         <div className="flex items-center justify-between gap-4">
           <label className="flex items-center gap-2 text-2xs text-muted">
-            <input
+            <Input
               type="checkbox"
               {...form.register('remember')}
               className="size-4 accent-[var(--color-primary)]"
@@ -83,13 +85,9 @@ export function LoginPage() {
           </span>
         </div>
 
-        <button
-          type="submit"
-          disabled={form.formState.isSubmitting}
-          className="w-full rounded-sm bg-primary px-5 py-3 text-base font-medium text-primary-foreground disabled:opacity-60"
-        >
+        <Button type="submit" disabled={form.formState.isSubmitting} className="w-full">
           {form.formState.isSubmitting ? 'Entrando…' : 'Entrar'}
-        </button>
+        </Button>
       </form>
     </AuthCard>
   )

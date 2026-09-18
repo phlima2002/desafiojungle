@@ -68,6 +68,32 @@ test.describe('Shell estático', () => {
     })
   }
 
+  /**
+   * O detalhe é onde isto pega: se a imagem do shell for um pixel menor que a
+   * da página, a imagem da página vira um candidato *maior* a LCP e a métrica
+   * volta a marcar o segundo desenho — o shell deixa de servir para o que foi
+   * feito, sem que nada pareça quebrado.
+   */
+  test('a arte do shell tem exatamente o tamanho da arte renderizada', async ({ page }) => {
+    const width = async () =>
+      page.evaluate(() => {
+        const img = document.querySelector('#shell [data-shell-main], main article img.aspect-square')
+        return img ? Math.round(img.getBoundingClientRect().width) : 0
+      })
+
+    await page.route('**/assets/*.js', (route) => route.abort())
+    await page.goto('/nft/emerald-ape-100', { waitUntil: 'commit' })
+    await expect(page.locator('[data-shell-main]')).toBeVisible()
+    const shellWidth = await width()
+    expect(shellWidth).toBeGreaterThan(0)
+
+    await page.unroute('**/assets/*.js')
+    await bootstrap(page)
+    await page.goto('/nft/emerald-ape-100')
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+    expect(await width()).toBe(shellWidth)
+  })
+
   test('o shell só sai quando o herói tem o que mostrar', async ({ page }) => {
     await bootstrap(page)
     // Once the application is visible the shell is gone, and the hero is an

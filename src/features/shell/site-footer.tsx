@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { Button } from '@/components/ui/button'
 
 const HIGHLIGHTS = [
   {
@@ -98,12 +99,9 @@ export function SiteFooter() {
                 placeholder="digite seu e-mail..."
                 className="min-w-0 flex-1 rounded-sm border border-line bg-card-raised px-3 py-2 text-xs placeholder:text-clay"
               />
-              <button
-                type="submit"
-                className="rounded-sm bg-primary px-4 py-2 text-xs font-bold text-primary-foreground"
-              >
+              <Button type="submit" size="sm" className="h-auto py-2">
                 Enviar
-              </button>
+              </Button>
             </form>
             <p aria-live="polite" className="mt-3 min-h-[2.75rem] text-2xs text-muted">
               {subscribed

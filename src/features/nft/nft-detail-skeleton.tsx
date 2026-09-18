@@ -25,11 +25,14 @@ export function NftDetailSkeleton({ slug }: { slug?: string }) {
           <ul className="flex shrink-0 flex-col gap-3">
             {gallery.map((url, index) => (
               <li key={GALLERY_OFFSETS[index]}>
-                <span className="block overflow-hidden rounded-sm border-2 border-transparent">
+                {/* Mesma caixa do `Button` que a página real usa: 64 px com a
+                    borda por dentro, para que a imagem principal não mude de
+                    tamanho entre o esqueleto e o conteúdo. */}
+                <span className="block size-16 overflow-hidden rounded-sm border-2 border-transparent">
                   {url ? (
-                    <img src={url} alt="" width={64} height={64} className="size-16 object-cover" />
+                    <img src={url} alt="" width={64} height={64} className="size-full object-cover" />
                   ) : (
-                    <span className="skeleton block size-16" />
+                    <span className="skeleton block size-full" />
                   )}
                 </span>
               </li>

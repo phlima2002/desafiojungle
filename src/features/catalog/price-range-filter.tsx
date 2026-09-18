@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { formatEth } from '@/shared/lib/money'
+import { Button } from '@/components/ui/button'
 
 interface PriceRangeFilterProps {
   bounds: { min: string; max: string }
@@ -66,13 +67,9 @@ export function PriceRangeFilter({ bounds, value, onApply }: PriceRangeFilterPro
         Preço: {formatEth(min.toFixed(2))} – {formatEth(max.toFixed(2))} ETH
       </p>
 
-      <button
-        type="button"
-        onClick={apply}
-        className="mt-3 rounded-sm bg-primary px-4 py-1.5 text-base font-bold text-primary-foreground"
-      >
+      <Button type="button" onClick={apply} className="mt-3 h-auto px-4 py-1.5">
         Aplicar
-      </button>
+      </Button>
     </fieldset>
   )
 }

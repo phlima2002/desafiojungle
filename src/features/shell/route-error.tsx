@@ -1,5 +1,6 @@
 import type { ErrorComponentProps } from '@tanstack/react-router'
 import { isApiError } from '@/shared/api/errors'
+import { Button } from '@/components/ui/button'
 
 export function RouteErrorBoundary({ error, reset }: ErrorComponentProps) {
   const message = isApiError(error) ? error.message : 'Algo deu errado ao carregar esta página.'
@@ -11,13 +12,9 @@ export function RouteErrorBoundary({ error, reset }: ErrorComponentProps) {
     >
       <h1 className="text-h2 font-bold">Não foi possível carregar</h1>
       <p className="text-sm text-muted">{message}</p>
-      <button
-        type="button"
-        onClick={reset}
-        className="rounded-md border border-primary px-5 py-3 text-base font-bold text-accent transition-colors hover:bg-primary hover:text-primary-foreground"
-      >
+      <Button type="button" variant="outline" onClick={reset} className="rounded-md">
         Tentar de novo
-      </button>
+      </Button>
     </section>
   )
 }

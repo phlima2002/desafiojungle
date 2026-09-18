@@ -1,5 +1,5 @@
 import type { Page } from '@playwright/test'
-import { bootstrap, expect, login, test, useScenario, waitForMocks } from './fixtures'
+import { chooseOption, bootstrap, expect, login, test, useScenario, waitForMocks } from './fixtures'
 
 async function addItemAndGoToCheckout(page: Page) {
   await page.goto('/mercado')
@@ -146,13 +146,13 @@ test.describe('Compra', () => {
     await main.getByLabel('Apelido da carteira').fill('Ledger de teste')
     await main.getByLabel('Nome de exibição').fill('Ana Ribeiro')
     await main.getByLabel('Nome do perfil').fill('Ana Ribeiro')
-    await main.getByLabel('Tipo de carteira').selectOption('ledger')
-    await main.getByLabel('Rede', { exact: true }).selectOption('ethereum')
+    await chooseOption(page, 'Tipo de carteira', 'Ledger')
+    await chooseOption(page, /^Rede$/, 'Ethereum')
     await main.getByLabel('Endereço da carteira').fill('0x1111111111111111111111111111111111111111')
     await main.getByLabel('Código de indicação').fill('KURIO-TEST')
     await main.getByLabel('E-mail').fill('ana@kurio.test')
     await main.getByLabel('Nome ENS', { exact: true }).fill('anatest')
-    await main.getByLabel('Função da carteira').selectOption('secondary')
+    await chooseOption(page, 'Função da carteira', 'Secundária')
     await page.getByRole('button', { name: 'Cadastrar carteira' }).click()
 
     const row = page.getByRole('listitem').filter({ hasText: 'Ledger de teste' })

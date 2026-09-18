@@ -61,10 +61,16 @@ export function artworkForToken(token: number, offset = 0): string | undefined {
   return `/nft/${ARTWORK_FILES[(index + offset) % ARTWORK_FILES.length]}.webp`
 }
 
+/**
+ * `size-16` na moldura, não na imagem: a miniatura da página real é um `Button`
+ * de 64 px com `border-2` por dentro. Quatro pixels de diferença aqui alargam a
+ * imagem principal, e uma imagem maior que a do shell vira um novo candidato a
+ * LCP — o shell perde a função.
+ */
 const thumb = (position: number) =>
-  `<li><span class="block overflow-hidden rounded-sm border-2 ${
+  `<li><span class="block size-16 overflow-hidden rounded-sm border-2 ${
     position === 0 ? 'border-primary' : 'border-transparent'
-  }"><img alt="" width="64" height="64" decoding="async" class="size-16 object-cover" data-shell-thumb="${position}" /></span></li>`
+  }"><img alt="" width="64" height="64" decoding="async" class="size-full object-cover" data-shell-thumb="${position}" /></span></li>`
 
 export const SHELL_HTML = `<div id="${SHELL_ROOT_ID}" aria-hidden="true">
 <header class="border-b border-line">

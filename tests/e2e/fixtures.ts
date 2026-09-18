@@ -120,3 +120,13 @@ export async function login(page: Page, user: keyof typeof USERS = 'ana') {
 
 export const test = base
 export { expect }
+
+/**
+ * O `Select` do shadcn/ui é um menu do Radix, não um `<select>` nativo: abre-se
+ * o gatilho e escolhe-se a opção pelo papel `option`, exatamente como faria
+ * quem usa a interface.
+ */
+export async function chooseOption(page: Page, label: string | RegExp, option: string | RegExp) {
+  await page.getByRole('main').getByLabel(label).click()
+  await page.getByRole('option', { name: option, exact: true }).click()
+}

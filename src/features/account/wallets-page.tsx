@@ -12,6 +12,8 @@ import { cn } from '@/shared/lib/utils'
 import { NETWORK_LABELS } from '@/features/catalog/labels'
 import { useWallets } from './use-account'
 import { WalletProfileFields } from './wallet-profile-fields'
+import { FormSelect } from '@/components/form-select'
+import { Button } from '@/components/ui/button'
 
 const EMPTY: WalletInput = {
   label: '',
@@ -73,16 +75,18 @@ export function WalletsPage() {
             Estas carteiras ficam disponíveis no pagamento e para receber NFTs comprados.
           </p>
         </div>
-        <button
+        <Button
           type="button"
+          variant="link"
+          size="sm"
           onClick={() => {
             setEditing(null)
             reset({ ...EMPTY, role: 'primary' })
           }}
-          className="text-xs font-bold text-accent underline underline-offset-4"
+          className="h-auto p-0 text-xs"
         >
           Adicionar
-        </button>
+        </Button>
       </header>
 
       {query.isPending ? (
@@ -121,22 +125,26 @@ export function WalletsPage() {
               </p>
 
               <div className="flex gap-2">
-                <button
+                <Button
                   type="button"
+                  variant="secondary"
+                  size="sm"
                   onClick={() =>
                     wallet.connected ? disconnect.mutate(wallet.id) : connect.mutate(wallet.id)
                   }
-                  className="rounded-sm border border-line px-3 py-1.5 text-3xs font-bold text-sand transition-colors hover:border-primary hover:text-accent"
+                  className="h-auto bg-transparent px-3 py-1.5 text-3xs text-sand hover:border-primary hover:text-accent"
                 >
                   {wallet.connected ? 'Desconectar' : 'Conectar'}
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
+                  variant="secondary"
+                  size="sm"
                   onClick={() => setEditing(wallet)}
-                  className="rounded-sm border border-line px-3 py-1.5 text-3xs font-bold text-sand transition-colors hover:border-primary hover:text-accent"
+                  className="h-auto bg-transparent px-3 py-1.5 text-3xs text-sand hover:border-primary hover:text-accent"
                 >
                   Editar
-                </button>
+                </Button>
               </div>
             </li>
           ))}
@@ -160,44 +168,51 @@ export function WalletsPage() {
 
         <WalletProfileFields
           register={form.register as never}
+          control={form.control as never}
           errors={form.formState.errors}
           variant="wallet"
         />
 
         <div className="flex flex-wrap items-center gap-4">
-          <button
+          <Button
             type="submit"
+            size="sm"
             disabled={form.formState.isSubmitting}
-            className="rounded-sm bg-primary px-5 py-2.5 text-xs font-bold text-primary-foreground disabled:opacity-60"
+            className="h-auto px-5 py-2.5"
           >
             {editing ? 'Salvar carteira' : 'Cadastrar carteira'}
-          </button>
+          </Button>
 
           <label className="flex items-center gap-2 text-3xs text-muted">
             <input type="checkbox" {...form.register('role')} value="primary" className="sr-only" />
           </label>
 
           {editing ? (
-            <button
+            <Button
               type="button"
+              variant="link"
+              size="sm"
               onClick={() => setEditing(null)}
-              className="text-3xs text-sand underline underline-offset-4"
+              className="h-auto p-0 text-3xs font-normal text-sand"
             >
               cancelar edição
-            </button>
+            </Button>
           ) : null}
 
-          <label className="flex items-center gap-2 text-3xs">
+          <div className="flex items-center gap-2 text-3xs">
             <span>Função</span>
-            <select
+            <FormSelect
+              control={form.control}
+              name="role"
+              size="sm"
               aria-label="Função da carteira"
-              {...form.register('role')}
-              className="rounded-sm border border-line bg-card px-2 py-1 text-3xs"
-            >
-              <option value="primary">Principal</option>
-              <option value="secondary">Secundária</option>
-            </select>
-          </label>
+              className="w-36"
+              options={[
+                { value: 'primary', label: 'Principal' },
+                { value: 'secondary', label: 'Secundária' },
+              ]}
+            />
+          </div>
         </div>
       </form>
 

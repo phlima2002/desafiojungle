@@ -1,4 +1,5 @@
 import { Minus, Plus } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import { cn } from '@/shared/lib/utils'
 
 interface QuantityStepperProps {
@@ -24,20 +25,19 @@ export function QuantityStepper({
   onChange,
 }: QuantityStepperProps) {
   const clamp = (next: number) => Math.max(min, Math.min(max, next))
-  const buttonClass =
-    'grid size-7 shrink-0 place-items-center rounded-pill bg-primary text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40'
 
   return (
     <div className="flex items-center gap-2">
-      <button
+      <Button
         type="button"
-        className={buttonClass}
+        size="pill"
+        className="size-7"
         disabled={disabled || value <= min}
         onClick={() => onChange(clamp(value - 1))}
         aria-label={`Diminuir quantidade de ${label}`}
       >
         <Minus aria-hidden size={14} />
-      </button>
+      </Button>
 
       <input
         type="number"
@@ -54,15 +54,16 @@ export function QuantityStepper({
         )}
       />
 
-      <button
+      <Button
         type="button"
-        className={buttonClass}
+        size="pill"
+        className="size-7"
         disabled={disabled || value >= max}
         onClick={() => onChange(clamp(value + 1))}
         aria-label={`Aumentar quantidade de ${label}`}
       >
         <Plus aria-hidden size={14} />
-      </button>
+      </Button>
     </div>
   )
 }

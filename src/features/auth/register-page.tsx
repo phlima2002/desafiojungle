@@ -8,6 +8,8 @@ import { PasswordInput } from '@/features/account/password-field'
 import { Route } from '@/routes/criar-conta'
 import { AuthCard } from './auth-card'
 import { Field } from './field'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 
 export function RegisterPage() {
   const navigate = useNavigate()
@@ -55,12 +57,12 @@ export function RegisterPage() {
         ) : null}
 
         <Field label="Nome" error={form.formState.errors.name?.message}>
-          {(props) => <input {...props} autoComplete="name" {...form.register('name')} />}
+          {(props) => <Input {...props} autoComplete="name" {...form.register('name')} />}
         </Field>
 
         <Field label="E-mail" error={form.formState.errors.email?.message}>
           {(props) => (
-            <input
+            <Input
               {...props}
               type="email"
               autoComplete="email"
@@ -88,13 +90,9 @@ export function RegisterPage() {
           )}
         </Field>
 
-        <button
-          type="submit"
-          disabled={form.formState.isSubmitting}
-          className="w-full rounded-sm bg-primary px-5 py-3 text-base font-medium text-primary-foreground disabled:opacity-60"
-        >
+        <Button type="submit" disabled={form.formState.isSubmitting} className="w-full">
           {form.formState.isSubmitting ? 'Criando…' : 'Criar conta'}
-        </button>
+        </Button>
       </form>
     </AuthCard>
   )

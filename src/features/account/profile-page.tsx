@@ -14,6 +14,9 @@ import { isApiError } from '@/shared/api/errors'
 import { Field } from '@/features/auth/field'
 import { PasswordInput } from './password-field'
 import { useChangePassword, useProfileQuery, useUpdateAvatar, useUpdateProfile } from './use-account'
+import { Input } from '@/components/ui/input'
+import { FormSelect } from '@/components/form-select'
+import { Button } from '@/components/ui/button'
 
 export function ProfilePage() {
   const profile = useProfileQuery()
@@ -88,15 +91,15 @@ export function ProfilePage() {
 
         <div className="grid gap-x-8 gap-y-5 md:grid-cols-2">
           <Field label="Nome de exibição" required error={form.formState.errors.displayName?.message}>
-            {(props) => <input {...props} autoComplete="name" {...form.register('displayName')} />}
+            {(props) => <Input {...props} autoComplete="name" {...form.register('displayName')} />}
           </Field>
 
           <Field label="Nome de usuário" required error={form.formState.errors.username?.message}>
-            {(props) => <input {...props} autoComplete="username" {...form.register('username')} />}
+            {(props) => <Input {...props} autoComplete="username" {...form.register('username')} />}
           </Field>
 
           <Field label="E-mail" required error={form.formState.errors.email?.message}>
-            {(props) => <input {...props} type="email" autoComplete="email" {...form.register('email')} />}
+            {(props) => <Input {...props} type="email" autoComplete="email" {...form.register('email')} />}
           </Field>
 
           <Field
@@ -106,24 +109,21 @@ export function ProfilePage() {
           >
             {(props) => (
               <span className="flex gap-2">
-                <select
-                  aria-label="Domínio ENS"
-                  {...form.register('ensTld')}
-                  className="rounded-sm border border-line bg-card px-2 py-2.5 text-sm text-foreground"
-                >
-                  {ensTldSchema.options.map((tld) => (
-                    <option key={tld} value={tld}>
-                      {tld}
-                    </option>
-                  ))}
-                </select>
-                <input {...props} className={`${props.className} flex-1`} {...form.register('ensName')} />
+                <span className="w-24 shrink-0">
+                  <FormSelect
+                    control={form.control}
+                    name="ensTld"
+                    aria-label="Domínio ENS"
+                    options={ensTldSchema.options.map((tld) => ({ value: tld, label: tld }))}
+                  />
+                </span>
+                <Input {...props} className="flex-1" {...form.register('ensName')} />
               </span>
             )}
           </Field>
 
           <Field label="Apelido da carteira" required error={form.formState.errors.walletLabel?.message}>
-            {(props) => <input {...props} {...form.register('walletLabel')} />}
+            {(props) => <Input {...props} {...form.register('walletLabel')} />}
           </Field>
 
           <div className="space-y-1.5">
@@ -146,7 +146,7 @@ export function ProfilePage() {
                 </span>
               )}
 
-              <input
+              <Input
                 ref={fileInput}
                 id="avatar"
                 type="file"
@@ -183,13 +183,14 @@ export function ProfilePage() {
         </div>
 
         <div className="flex items-center gap-4">
-          <button
+          <Button
             type="submit"
+            size="sm"
             disabled={form.formState.isSubmitting}
-            className="rounded-sm bg-primary px-6 py-2.5 text-xs font-bold text-primary-foreground disabled:opacity-60"
+            className="h-auto px-6 py-2.5"
           >
             {form.formState.isSubmitting ? 'Salvando…' : 'Salvar'}
-          </button>
+          </Button>
           {updateProfile.isSuccess && !form.formState.isDirty ? (
             <p role="status" className="text-3xs text-success">
               Dados salvos.
@@ -235,13 +236,14 @@ export function ProfilePage() {
         </Field>
 
         <div className="flex items-center gap-4">
-          <button
+          <Button
             type="submit"
+            size="sm"
             disabled={passwordForm.formState.isSubmitting}
-            className="rounded-sm bg-primary px-6 py-2.5 text-xs font-bold text-primary-foreground disabled:opacity-60"
+            className="h-auto px-6 py-2.5"
           >
             {passwordForm.formState.isSubmitting ? 'Alterando…' : 'Salvar'}
-          </button>
+          </Button>
           {changePassword.isSuccess ? (
             <p role="status" className="text-3xs text-success">
               Senha alterada.

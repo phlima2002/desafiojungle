@@ -38,10 +38,17 @@ test.describe('Acessibilidade e responsividade', () => {
       for (const route of routes) {
         await page.goto(route)
         await expect(page.locator('.skeleton')).toHaveCount(0)
-        const overflow = await page.evaluate(
-          () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
-        )
-        expect(overflow, `${route} em ${width}px`).toBeLessThanOrEqual(1)
+        // `poll` em vez de um `evaluate` solto: um guard pode redirecionar logo
+        // depois do goto e destruir o contexto de execução no meio da medição.
+        await expect
+          .poll(
+            () =>
+              page.evaluate(
+                () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+              ),
+            { message: `${route} em ${width}px` },
+          )
+          .toBeLessThanOrEqual(1)
       }
     }
   })
@@ -72,20 +79,31 @@ test.describe('Menu mobile', () => {
 
     const opener = page.getByRole('button', { name: 'Abrir menu de navegação' })
     await expect(opener).toBeVisible()
+    await expect(opener).toHaveAttribute('aria-expanded', 'false')
     await opener.click()
 
     const dialog = page.getByRole('dialog', { name: 'Menu de navegação' })
     await expect(dialog).toBeVisible()
-    await expect(opener).toHaveAttribute('aria-expanded', 'true')
+
+    // Enquanto o diálogo está aberto o resto da página sai da árvore de
+    // acessibilidade — por isso o gatilho é procurado pelo seletor, e não pelo
+    // papel: não existir mais para o leitor de tela é o comportamento correto.
+    await expect(page.locator('[aria-label="Abrir menu de navegação"]')).toHaveAttribute(
+      'aria-expanded',
+      'true',
+    )
 
     // The focus lives inside the dialog, never behind it.
     await page.keyboard.press('Tab')
-    const focusedInsideDialog = await page.evaluate(() => Boolean(document.activeElement?.closest('dialog')))
+    const focusedInsideDialog = await page.evaluate(() =>
+      Boolean(document.activeElement?.closest('[role="dialog"]')),
+    )
     expect(focusedInsideDialog).toBe(true)
 
     await page.keyboard.press('Escape')
     await expect(dialog).toBeHidden()
     await expect(opener).toBeFocused()
+    await expect(opener).toHaveAttribute('aria-expanded', 'false')
   })
 
   test('navegar pelo menu leva à rota e fecha o drawer', async ({ page }) => {

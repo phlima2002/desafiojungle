@@ -1,4 +1,4 @@
-import { USERS, bootstrap, expect, login, test } from './fixtures'
+import { chooseOption, USERS, bootstrap, expect, login, test } from './fixtures'
 
 test.describe('Perfil', () => {
   test('edita os dados e a alteração permanece após refresh', async ({ page }) => {
@@ -113,7 +113,7 @@ test.describe('Carteiras', () => {
     await main.getByLabel('Código de indicação').fill('KURIO-NOVO')
     await main.getByLabel('E-mail').fill('ana@kurio.test')
     await main.getByLabel('Nome ENS', { exact: true }).fill('cofrenovo')
-    await main.getByLabel('Função da carteira').selectOption('primary')
+    await chooseOption(page, 'Função da carteira', 'Principal')
     await page.getByRole('button', { name: 'Cadastrar carteira' }).click()
 
     const row = page.getByRole('listitem').filter({ hasText: 'Cofre novo' })

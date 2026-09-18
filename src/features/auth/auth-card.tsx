@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { Link } from '@tanstack/react-router'
 import { cn } from '@/shared/lib/utils'
+import { Button } from '@/components/ui/button'
 
 /**
  * Login and sign-up share one card. In the layout it sits in a modal over the
@@ -55,17 +56,18 @@ export function AuthCard({
             { label: 'Continuar com Facebook', mark: 'f', color: 'text-brand-facebook' },
           ].map((provider) => (
             <li key={provider.label}>
-              <button
+              <Button
                 type="button"
+                variant="secondary"
                 disabled
                 title="Login social não faz parte do escopo do desafio"
-                className="flex w-full items-center justify-center gap-3 rounded-sm border border-line px-4 py-2.5 text-2xs text-sand disabled:cursor-not-allowed disabled:opacity-60"
+                className="h-auto w-full bg-transparent py-2.5 text-2xs font-normal text-sand"
               >
                 <span aria-hidden className={cn('text-base font-bold', provider.color)}>
                   {provider.mark}
                 </span>
                 {provider.label}
-              </button>
+              </Button>
             </li>
           ))}
         </ul>

@@ -54,12 +54,17 @@ export function SiteHeader() {
             aria-label={itemCount > 0 ? `Carrinho com ${itemCount} itens` : 'Carrinho vazio'}
           >
             <ShoppingCart aria-hidden size={18} />
-            <span
-              aria-hidden
-              className="absolute -top-0.5 -right-0.5 grid h-4 min-w-4 place-items-center rounded-pill bg-primary px-1 text-micro font-medium text-primary-foreground"
-            >
-              {itemCount}
-            </span>
+            {/* O contador só existe quando há o que contar: um "0" visível ao
+                lado do rótulo "Carrinho vazio" é uma divergência entre texto
+                visível e nome acessível (axe: label-content-name-mismatch). */}
+            {itemCount > 0 ? (
+              <span
+                aria-hidden
+                className="absolute -top-0.5 -right-0.5 grid h-4 min-w-4 place-items-center rounded-pill bg-primary px-1 text-micro font-medium text-primary-foreground"
+              >
+                {itemCount}
+              </span>
+            ) : null}
           </Link>
 
           <MobileNav items={NAV} session={session} />

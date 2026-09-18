@@ -1,17 +1,18 @@
 import { useId, type ReactNode } from 'react'
+import { Label } from '@/components/ui/label'
 
 interface FieldRenderProps {
   id: string
   'aria-invalid': boolean
   'aria-describedby': string | undefined
   required?: boolean
-  className: string
 }
 
 /**
  * Every form control in the app goes through here so that the label, the error
  * message and the control stay wired together (`aria-describedby`,
- * `aria-invalid`) without each form re-implementing it.
+ * `aria-invalid`) without each form re-implementing it. The control itself is
+ * the caller's (`Input`, `Select`, `textarea`); this owns only the plumbing.
  */
 export function Field({
   label,
@@ -36,16 +37,14 @@ export function Field({
     <div className="space-y-1.5">
       {/* The required marker is drawn with CSS rather than a text node, so the
           label's accessible name stays exactly what the designer wrote. */}
-      <label htmlFor={id} className="block text-sm" data-required={required || undefined}>
+      <Label htmlFor={id} data-required={required || undefined}>
         {label}
-      </label>
+      </Label>
       {children({
         id,
         'aria-invalid': Boolean(error),
         'aria-describedby': describedBy,
         required,
-        className:
-          'w-full rounded-sm border border-line bg-card px-3 py-2.5 text-sm text-foreground placeholder:text-clay aria-[invalid=true]:border-danger',
       })}
       {hint ? (
         <p id={hintId} className="text-3xs text-clay">

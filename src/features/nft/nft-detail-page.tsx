@@ -11,6 +11,8 @@ import { useAddToCart } from '@/features/cart/use-cart'
 import { useNftSubscription } from '@/features/realtime/realtime-provider'
 import { useCatalogQuery, useNftDetailQuery } from '@/features/catalog/use-catalog'
 import { NftCard } from '@/features/catalog/nft-card'
+import { Button } from '@/components/ui/button'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { NftDetailSkeleton } from './nft-detail-skeleton'
 
 type Tab = 'detalhes' | 'avaliacoes'
@@ -51,13 +53,14 @@ export function NftDetailPage({ slug }: { slug: string }) {
           <ul className="flex shrink-0 flex-col gap-3">
             {gallery.map((image, index) => (
               <li key={`${image.url}#${image.alt}`}>
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
                   onClick={() => setActiveImage(index)}
                   aria-label={`Ver imagem ${index + 1} de ${gallery.length}`}
                   aria-current={index === activeImage}
                   className={cn(
-                    'block overflow-hidden rounded-sm border-2 transition-colors',
+                    'size-16 overflow-hidden rounded-sm border-2 p-0',
                     index === activeImage ? 'border-primary' : 'border-transparent hover:border-line',
                   )}
                 >
@@ -70,7 +73,7 @@ export function NftDetailPage({ slug }: { slug: string }) {
                     decoding="async"
                     className="size-16 object-cover"
                   />
-                </button>
+                </Button>
               </li>
             ))}
           </ul>
@@ -126,9 +129,11 @@ export function NftDetailPage({ slug }: { slug: string }) {
                 const unavailable = edition.available === 0
                 const active = edition.id === selected.id
                 return (
-                  <button
+                  <Button
                     key={edition.id}
                     type="button"
+                    variant="ghost"
+                    size="sm"
                     disabled={unavailable}
                     aria-pressed={active}
                     onClick={() => {
@@ -136,7 +141,7 @@ export function NftDetailPage({ slug }: { slug: string }) {
                       setQuantity(1)
                     }}
                     className={cn(
-                      'rounded-pill border px-3 py-1 text-3xs transition-colors',
+                      'h-auto rounded-pill border px-3 py-1 text-3xs font-normal',
                       active
                         ? 'border-primary text-accent'
                         : 'border-transparent text-sand hover:text-accent',
@@ -147,7 +152,7 @@ export function NftDetailPage({ slug }: { slug: string }) {
                     <span className="sr-only">
                       {unavailable ? ' — esgotada' : ` — ${edition.available} disponíveis`}
                     </span>
-                  </button>
+                  </Button>
                 )
               })}
               <span className="rounded-pill px-3 py-1 text-3xs text-clay">
@@ -165,25 +170,26 @@ export function NftDetailPage({ slug }: { slug: string }) {
               onChange={setQuantity}
             />
 
-            <button
+            <Button
               type="button"
               disabled={soldOut || addToCart.isPending}
               onClick={() => addToCart.mutate({ nftId: nft.id, editionId: selected.id, quantity })}
-              className="rounded-sm bg-primary px-8 py-2.5 text-3xs font-bold tracking-wide text-primary-foreground uppercase transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+              className="h-auto px-8 py-2.5 text-3xs tracking-wide"
             >
               {soldOut ? 'Esgotado' : addToCart.isPending ? 'Adicionando…' : 'Comprar'}
-            </button>
+            </Button>
 
             {session ? (
-              <button
+              <Button
                 type="button"
+                variant="secondary"
                 aria-pressed={nft.favorited}
                 onClick={() => toggleFavorite.mutate({ nftId: nft.id, favorited: !nft.favorited })}
-                className="flex items-center gap-2 rounded-sm border border-line px-5 py-2.5 text-3xs text-sand transition-colors hover:border-primary hover:text-accent"
+                className="h-auto bg-transparent px-5 py-2.5 text-3xs font-normal text-sand hover:border-primary hover:text-accent"
               >
                 <Heart aria-hidden size={14} className={cn(nft.favorited && 'fill-danger text-danger')} />
                 {nft.favorited ? 'Nos favoritos' : 'Favoritar'}
-              </button>
+              </Button>
             ) : null}
           </div>
 
@@ -216,35 +222,24 @@ export function NftDetailPage({ slug }: { slug: string }) {
       </div>
 
       <section className="mt-12 border-t border-line pt-6">
-        <div role="tablist" aria-label="Informações do NFT" className="flex gap-8">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={tab === 'detalhes'}
-            onClick={() => setTab('detalhes')}
-            className={cn(
-              'border-b-2 pb-2 text-sm transition-colors',
-              tab === 'detalhes' ? 'border-primary font-bold text-accent' : 'border-transparent text-sand',
-            )}
-          >
-            Detalhes do NFT
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={tab === 'avaliacoes'}
-            onClick={() => setTab('avaliacoes')}
-            className={cn(
-              'border-b-2 pb-2 text-sm transition-colors',
-              tab === 'avaliacoes' ? 'border-primary font-bold text-accent' : 'border-transparent text-sand',
-            )}
-          >
-            Avaliações de colecionadores ({nft.reviewCount})
-          </button>
-        </div>
+        <Tabs value={tab} onValueChange={(value) => setTab(value as Tab)}>
+          <TabsList aria-label="Informações do NFT" className="gap-8 border-0">
+            <TabsTrigger value="detalhes" className="pb-2 text-sm">
+              Detalhes do NFT
+            </TabsTrigger>
+            <TabsTrigger value="avaliacoes" className="pb-2 text-sm">
+              Avaliações de colecionadores ({nft.reviewCount})
+            </TabsTrigger>
+          </TabsList>
 
-        <div className="mt-6 space-y-4 text-xs text-muted">
-          {tab === 'detalhes' ? (
+          {/* `forceMount` mantém os dois painéis no documento: o `aria-controls`
+              de cada aba continua apontando para um elemento que existe, e o
+              inativo some por CSS. */}
+          <TabsContent
+            value="detalhes"
+            forceMount
+            className="mt-6 space-y-4 text-xs text-muted data-[state=inactive]:hidden"
+          >
             <>
               <p>{nft.description}</p>
               <p>
@@ -268,13 +263,19 @@ export function NftDetailPage({ slug }: { slug: string }) {
                 </dd>
               </dl>
             </>
-          ) : (
+          </TabsContent>
+
+          <TabsContent
+            value="avaliacoes"
+            forceMount
+            className="mt-6 space-y-4 text-xs text-muted data-[state=inactive]:hidden"
+          >
             <p>
               As {nft.reviewCount} avaliações desta obra não fazem parte do escopo do desafio — nenhuma
               resenha simulada é exibida aqui.
             </p>
-          )}
-        </div>
+          </TabsContent>
+        </Tabs>
       </section>
 
       <MoreFromCollection collectionId={nft.collectionId} currentId={nft.id} />

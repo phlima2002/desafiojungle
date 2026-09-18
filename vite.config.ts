@@ -115,6 +115,12 @@ export default defineConfig({
           // mocks chunk — it has to load after MSW installs its override.
           if (id.includes('socket.io-client') || id.includes('engine.io-client')) return 'realtime'
           if (id.includes('/msw/') || id.includes('@mswjs') || id.includes('.io-parser')) return 'mocks'
+          // Antes da regra de `react`: `@radix-ui/react-*` casaria com
+          // `/react/` e entraria no chunk do framework. Devolvendo `undefined`,
+          // o bundler coloca cada primitivo junto de quem o usa — a home e o
+          // detalhe não baixam o diálogo nem os campos de formulário.
+          if (id.includes('@radix-ui') || id.includes('react-remove-scroll') || id.includes('aria-hidden'))
+            return undefined
           if (id.includes('/react-dom/') || id.includes('/react/') || id.includes('scheduler')) return 'react'
           if (id.includes('@tanstack/react-router') || id.includes('@tanstack/router')) return 'router'
           if (id.includes('@tanstack/react-query') || id.includes('@tanstack/query')) return 'query'
