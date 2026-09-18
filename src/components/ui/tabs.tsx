@@ -10,7 +10,7 @@ function TabsList({ className, ...props }: ComponentProps<typeof TabsPrimitive.L
   return (
     <TabsPrimitive.List
       data-slot="tabs-list"
-      className={cn('flex items-center gap-6 border-b border-line', className)}
+      className={cn('flex flex-wrap items-center gap-6 border-b border-line', className)}
       {...props}
     />
   )

@@ -38,14 +38,15 @@ test.describe('Acessibilidade e responsividade', () => {
       for (const route of routes) {
         await page.goto(route)
         await expect(page.locator('.skeleton')).toHaveCount(0)
-        // `poll` em vez de um `evaluate` solto: um guard pode redirecionar logo
-        // depois do goto e destruir o contexto de execução no meio da medição.
+        // Um guard pode redirecionar logo depois do goto e destruir o contexto
+        // de execução no meio da medição; nesse caso a medida é refeita na
+        // página em que a navegação parou, que é justamente a que interessa.
         await expect
           .poll(
             () =>
-              page.evaluate(
-                () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
-              ),
+              page
+                .evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
+                .catch(() => Number.NaN),
             { message: `${route} em ${width}px` },
           )
           .toBeLessThanOrEqual(1)
