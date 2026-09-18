@@ -50,6 +50,25 @@ test.describe('Compra', () => {
     await expect(page.getByText('Seu carrinho está vazio')).toBeVisible()
   })
 
+  /**
+   * O formulário chega preenchido pela carteira e pelo perfil. Se algum campo
+   * vier com um valor que o próprio schema recusa — o nome de usuário já veio
+   * com o nome de exibição, que tem espaço —, o colecionador só descobre ao
+   * tentar confirmar. Este teste compra sem tocar em nada.
+   */
+  test('o formulário pré-preenchido é válido como vem', async ({ page }) => {
+    await bootstrap(page)
+    await login(page, 'ana')
+    await addItemAndGoToCheckout(page)
+
+    const walletGroup = page.getByRole('group', { name: 'Carteira e rede' })
+    await expect(walletGroup.getByText('Conectada').first()).toBeVisible()
+    await page.getByRole('button', { name: 'Confirmar compra' }).click()
+
+    await expect(page).toHaveURL(/\/pedido\//)
+    await expect(page.getByRole('alert')).toHaveCount(0)
+  })
+
   test('pagamento recusado mostra o motivo e é terminal', async ({ page }) => {
     await bootstrap(page, 'payment-declined')
     await login(page, 'ana')

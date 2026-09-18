@@ -4,7 +4,7 @@ Implementação do desafio de frontend “Marketplace de NFTs” em React + Type
 com API, autenticação, carteiras e pagamentos **simulados** na camada de rede.
 
 As nove telas do desafio estão implementadas em desktop e mobile, com 29 testes
-de unidade e 132 E2E (incluindo regressão visual e auditoria axe) passando nos dois viewports, e
+de unidade e 134 E2E (incluindo regressão visual e auditoria axe) passando nos dois viewports, e
 as quatro metas de Lighthouse atingidas nos dois perfis. Veja
 [ARCHITECTURE.md](./ARCHITECTURE.md) para as decisões, os contratos e as
 limitações conhecidas.
@@ -12,7 +12,7 @@ limitações conhecidas.
 | Lighthouse (mediana de 3) | Performance | Accessibility | Best Practices |     SEO |
 | ------------------------- | ----------: | ------------: | -------------: | ------: |
 | Início — mobile           |      **93** |       **100** |        **100** | **100** |
-| Detalhes do NFT — mobile  |      **91** |       **100** |        **100** | **100** |
+| Detalhes do NFT — mobile  |      **92** |       **100** |        **100** | **100** |
 | Início — desktop          |     **100** |       **100** |        **100** | **100** |
 | Detalhes do NFT — desktop |     **100** |       **100** |        **100** | **100** |
 

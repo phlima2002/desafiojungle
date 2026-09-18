@@ -32,8 +32,8 @@ em `lighthouse/reports/`.
 
 | Página          | Perfil  | Performance | Accessibility | Best Practices |     SEO |    LCP | CLS |    TBT |
 | --------------- | ------- | ----------: | ------------: | -------------: | ------: | -----: | --: | -----: |
-| Início          | mobile  |      **93** |       **100** |        **100** | **100** | 2,36 s |   0 | 167 ms |
-| Detalhes do NFT | mobile  |      **91** |       **100** |        **100** | **100** | 2,61 s |   0 | 202 ms |
+| Início          | mobile  |      **93** |       **100** |        **100** | **100** | 2,37 s |   0 | 184 ms |
+| Detalhes do NFT | mobile  |      **92** |       **100** |        **100** | **100** | 2,74 s |   0 | 147 ms |
 | Início          | desktop |     **100** |       **100** |        **100** | **100** | 0,53 s |   0 |   0 ms |
 | Detalhes do NFT | desktop |     **100** |       **100** |        **100** | **100** | 0,54 s |   0 |   0 ms |
 

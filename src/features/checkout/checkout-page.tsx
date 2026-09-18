@@ -17,6 +17,7 @@ import { WalletProfileFields } from '@/features/account/wallet-profile-fields'
 import { useCartQuery } from '@/features/cart/use-cart'
 import { useSession } from '@/features/session/use-session'
 import { useNftSubscription, useRealtime } from '@/features/realtime/realtime-provider'
+import { useProfileQuery } from '@/features/account/use-account'
 import { useQuote, usePlaceOrder, useWalletConnection, useWalletsQuery } from './use-checkout'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -48,6 +49,10 @@ export function CheckoutPage() {
   const { session } = useSession()
   const cart = useCartQuery()
   const wallets = useWalletsQuery()
+  // O nome de usuário vive no perfil, não na sessão. Preencher o campo com o
+  // nome de exibição deixava "Ana Ribeiro" num campo que não aceita espaço:
+  // o colecionador só descobria ao tentar confirmar a compra.
+  const profile = useProfileQuery()
   const { connect, disconnect } = useWalletConnection()
 
   const [networkOverride, setNetworkOverride] = useState<Network | null>(null)
@@ -78,7 +83,7 @@ export function CheckoutPage() {
 
   const form = useForm<CollectorDetails>({
     resolver: zodResolver(collectorDetailsSchema),
-    defaultValues: defaultsFrom(null, session?.user.email ?? '', session?.user.displayName ?? ''),
+    defaultValues: defaultsFrom(null, session?.user.email ?? '', profile.data?.username ?? ''),
   })
 
   // Prefilling from the wallet happens once per wallet, and never over
@@ -89,11 +94,11 @@ export function CheckoutPage() {
 
   useEffect(() => {
     if (!selectedWallet || isDirty) return
-    resetForm(defaultsFrom(selectedWallet, session?.user.email ?? '', session?.user.displayName ?? ''))
+    resetForm(defaultsFrom(selectedWallet, session?.user.email ?? '', profile.data?.username ?? ''))
     // `selectedWallet` is identified by its id: re-running on every object
     // identity would fight the collector's typing.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedWalletId, session?.user.email, session?.user.displayName, resetForm])
+  }, [selectedWalletId, session?.user.email, profile.data?.username, resetForm])
 
   useEffect(() => {
     if (phase.kind === 'placed') {
