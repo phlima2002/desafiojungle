@@ -10,6 +10,7 @@ import { useNftSubscription } from '@/features/realtime/realtime-provider'
 import { useCatalogQuery } from './use-catalog'
 import { NftCard, NftCardSkeleton } from './nft-card'
 import { CatalogFilters, SORTS } from './catalog-filters'
+import { FeaturedNft } from './featured-nft'
 import { MobileCatalogBar } from './mobile-catalog-bar'
 import { SearchField } from './search-field'
 import { PAGE_SIZE, pageWindow, toListQuery, withFilter, type CatalogSearch } from './search-params'
@@ -65,6 +66,7 @@ export function CatalogSection({ search, routeId, hero }: CatalogSectionProps) {
 
   const pagination = catalog.data?.pagination
   const facets = catalog.data?.facets
+  const featured = items.find((item) => item.compareAtPrice) ?? items[0]
 
   return (
     <>
@@ -83,7 +85,13 @@ export function CatalogSection({ search, routeId, hero }: CatalogSectionProps) {
         <div className="grid gap-8 lg:grid-cols-[236px_minmax(0,1fr)]">
           {/* Abaixo de `lg` as facetas moram na gaveta que o botão de filtros
             abre (ver `MobileCatalogBar`), como o Figma desenha no celular. */}
-          <CatalogFilters search={search} facets={facets} update={update} className="hidden lg:block" />
+          {/* `self-start` porque a lateral não é uma coluna que acompanha a
+            altura da grade: sem isso o cartão das facetas esticava até o fim da
+            listagem e ficava com um vão enorme embaixo do último filtro. */}
+          <div className="hidden space-y-6 self-start lg:block">
+            <CatalogFilters search={search} facets={facets} update={update} />
+            {featured ? <FeaturedNft nft={featured} /> : null}
+          </div>
 
           <div className="min-w-0 space-y-6">
             <SearchField

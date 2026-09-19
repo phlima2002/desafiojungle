@@ -13,7 +13,11 @@ jobs:
   verify:
     name: Tipos, lint, formato e testes
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    # O runner do GitHub tem dois núcleos; a suíte E2E roda os dois projetos
+    # (desktop e celular) com dois workers e leva perto de meia hora lá, contra
+    # oito minutos na máquina de desenvolvimento. O teto de 25 minutos cancelava
+    # a execução no meio — o check ficava vermelho sem nenhum teste ter falhado.
+    timeout-minutes: 50
 
     steps:
       - uses: actions/checkout@v4
