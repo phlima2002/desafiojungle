@@ -11,6 +11,32 @@
  */
 import { chromium } from '@playwright/test'
 import { preview } from 'vite'
+import { readFileSync, readdirSync, existsSync } from 'node:fs'
+import { join } from 'node:path'
+
+/**
+ * Todo arquivo que um chunk cita precisa existir no `dist`.
+ *
+ * O `vite preview` responde o `index.html` para qualquer caminho desconhecido,
+ * então um asset que ficou de fora do build passa por aqui sem erro — mas
+ * publicado ele devolve 404 de verdade, o ajudante de preload do Vite rejeita e
+ * a rota inteira cai no error boundary. Foi assim que a folha de estilo,
+ * apagada do bundle depois de inlinada, derrubou o site publicado enquanto
+ * tudo passava em desenvolvimento. Esta verificação é de arquivos, não de
+ * navegador, de propósito: é a única que enxerga a diferença.
+ */
+function checkAssetReferences() {
+  const dir = join(process.cwd(), 'dist', 'assets')
+  const files = readdirSync(dir)
+  const missing = new Set()
+  for (const name of files.filter((f) => f.endsWith('.js'))) {
+    const code = readFileSync(join(dir, name), 'utf8')
+    for (const [, ref] of code.matchAll(/["'`](?:[^"'`]*\/)?assets\/([\w.-]+\.(?:css|js|woff2?))["'`]/g)) {
+      if (!existsSync(join(dir, ref))) missing.add(`${ref} (citado em ${name})`)
+    }
+  }
+  if (missing.size) throw new Error([...missing].join(', '))
+}
 
 const server = await preview({
   base: process.env.VITE_BASE || '/',
@@ -34,6 +60,8 @@ async function step(name, fn) {
     process.exitCode = 1
   }
 }
+
+await step('todo asset citado existe no dist', async () => checkAssetReferences())
 
 await page.goto(`${origin}/?scenario=instant`)
 await page.waitForFunction(() => Boolean(window.__kurio), null, { timeout: 20000 })

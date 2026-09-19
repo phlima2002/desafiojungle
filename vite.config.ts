@@ -46,7 +46,25 @@ function inlineStylesheet() {
         new RegExp(`<link[^>]+href="${base}${cssFile.fileName}"[^>]*>`),
         `<style>${css}</style>`,
       )
-      delete bundle[cssFile.fileName!]
+      /**
+       * O arquivo continua publicado, vazio.
+       *
+       * Apagá-lo do bundle parecia limpeza óbvia — o conteúdo já está no
+       * documento —, mas o ajudante de preload que o Vite injeta nos imports
+       * dinâmicos guarda a lista de CSS de cada chunk e tenta carregá-los
+       * antes de resolver o import. Sem o arquivo, esse `<link>` dá 404, o
+       * ajudante rejeita, o import dinâmico falha e a rota inteira cai no
+       * error boundary: "Não foi possível carregar".
+       *
+       * Em desenvolvimento e no `vite preview` isso passava despercebido,
+       * porque o servidor responde o `index.html` para qualquer caminho
+       * desconhecido — o 404 nunca acontecia. Publicado (GitHub Pages,
+       * Vercel), um caminho com extensão devolve 404 de verdade.
+       *
+       * Um comentário no lugar do conteúdo resolve as duas pontas: o preload
+       * encontra o arquivo e resolve, e nada é baixado duas vezes.
+       */
+      cssFile.source = `/* Inlined into index.html at build time — see kurio:inline-stylesheet. */\n`
     },
   }
 }
