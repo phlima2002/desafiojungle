@@ -5,6 +5,16 @@ import { setNetworkGate } from '@/shared/api/client'
 import { AppProviders } from '@/app/providers'
 import '@/styles/index.css'
 
+/** Executa `fn` uma vez só, seja qual for o gatilho que chegar primeiro. */
+function once(fn: () => void): () => void {
+  let done = false
+  return () => {
+    if (done) return
+    done = true
+    fn()
+  }
+}
+
 function bootstrap() {
   const container = document.getElementById('root')
   if (!container) throw new Error('Elemento #root não encontrado')
@@ -37,7 +47,19 @@ function bootstrap() {
       </StrictMode>,
     )
 
-  requestAnimationFrame(() => setTimeout(render, 0))
+  /**
+   * `requestAnimationFrame` não dispara enquanto a aba está oculta — e uma aba
+   * de fundo é o caso comum: link aberto com o meio do mouse, sessão
+   * restaurada, aba pré-carregada. Sem o temporizador abaixo a primeira
+   * renderização ficava presa até a pessoa olhar para a aba, e o que ela
+   * encontrava ao voltar era a página em branco do shell sem aplicação.
+   *
+   * O quadro continua sendo o caminho normal (dispara em ~16 ms, bem antes do
+   * teto); o temporizador é só a saída para quando ele nunca vem.
+   */
+  const renderOnce = once(render)
+  requestAnimationFrame(() => setTimeout(renderOnce, 0))
+  window.setTimeout(renderOnce, 200)
 
   if (env.enableMocks) {
     // A camada de mocks tem ~165 kB gzip; analisá-la logo depois da primeira
@@ -51,10 +73,13 @@ function bootstrap() {
       releaseGate?.()
     }
 
-    const schedule =
-      'requestIdleCallback' in window
-        ? () => window.requestIdleCallback(() => void boot(), { timeout: 1_000 })
-        : () => window.setTimeout(() => void boot(), 0)
+    // `requestIdleCallback` também é suspenso em aba oculta, mesmo com
+    // `timeout`: o mesmo `once` protege as duas pontas.
+    const bootOnce = once(() => void boot())
+    const schedule = () => {
+      if ('requestIdleCallback' in window) window.requestIdleCallback(bootOnce, { timeout: 1_000 })
+      window.setTimeout(bootOnce, 1_500)
+    }
 
     // Duas cessões antes de agendar: uma para o commit do React, outra para o
     // navegador pintar. E, antes das duas, o evento `load`: com o shell
@@ -64,7 +89,14 @@ function bootstrap() {
     // Esperar o `load` tira esse trabalho do caminho crítico sem atrasar nada
     // que a pessoa veja: as requisições seguem presas no network gate e a
     // primeira dobra já está na tela.
-    const afterPaint = () => requestAnimationFrame(() => setTimeout(schedule, 0))
+    // Mesmo cuidado com a aba oculta: aqui um quadro que não vem deixaria a
+    // camada de mocks sem carregar e o network gate fechado para sempre — a
+    // aplicação renderiza e fica em esqueleto eterno.
+    const scheduleOnce = once(schedule)
+    const afterPaint = () => {
+      requestAnimationFrame(() => setTimeout(scheduleOnce, 0))
+      window.setTimeout(scheduleOnce, 1_000)
+    }
     if (document.readyState === 'complete') afterPaint()
     else window.addEventListener('load', afterPaint, { once: true })
   }
