@@ -207,7 +207,7 @@ e pull request. As baselines visuais são de Linux, e o runner também.
 
 ## Deploy
 
-A aplicação está no ar em **https://phlima2002.github.io/desafiojungle/**.
+A aplicação está no ar em **https://desafiojungle.vercel.app/ e https://phlima2002.github.io/desafiojungle/**.
 
 O projeto é estático: `npm run build` gera `dist/`. Há dois caminhos prontos.
 
