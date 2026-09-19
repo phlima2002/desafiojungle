@@ -54,7 +54,7 @@ export const ARTWORK_FILES = ['ape-varsity', 'ape-bucket', 'ape-noir', 'ape-head
 export const TOKEN_BASE = 100
 export const TOKEN_STEP = 7
 /** The gallery offsets `seed.ts` uses, in order. */
-export const GALLERY_OFFSETS = [0, 1, 3]
+export const GALLERY_OFFSETS = [0, 1, 3, 2]
 
 /**
  * `base` é o `BASE_URL` do Vite: a aplicação também roda servida de um

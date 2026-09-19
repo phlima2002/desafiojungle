@@ -9,6 +9,8 @@ export const cartItemSchema = z.object({
   editionId: idSchema,
   name: z.string(),
   editionLabel: z.string(),
+  /** Mostrado na linha do carrinho, como no layout. */
+  tokenId: z.string(),
   imageUrl: z.string(),
   imageAlt: z.string(),
   network: networkSchema,

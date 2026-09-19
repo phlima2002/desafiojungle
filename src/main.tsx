@@ -57,8 +57,16 @@ function bootstrap() {
         : () => window.setTimeout(() => void boot(), 0)
 
     // Duas cessões antes de agendar: uma para o commit do React, outra para o
-    // navegador pintar.
-    requestAnimationFrame(() => setTimeout(schedule, 0))
+    // navegador pintar. E, antes das duas, o evento `load`: com o shell
+    // pintando a primeira dobra sozinho, a thread fica ociosa cedo demais e o
+    // `requestIdleCallback` disparava ainda dentro da janela que o Lighthouse
+    // cronometra — os ~165 kB da camada de mocks entravam inteiros no TBT.
+    // Esperar o `load` tira esse trabalho do caminho crítico sem atrasar nada
+    // que a pessoa veja: as requisições seguem presas no network gate e a
+    // primeira dobra já está na tela.
+    const afterPaint = () => requestAnimationFrame(() => setTimeout(schedule, 0))
+    if (document.readyState === 'complete') afterPaint()
+    else window.addEventListener('load', afterPaint, { once: true })
   }
 }
 

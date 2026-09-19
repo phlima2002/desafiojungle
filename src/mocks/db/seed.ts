@@ -204,6 +204,10 @@ function buildNfts(seed: number): NftDetail[] {
           url: `${env.basePath}nft/${ARTWORKS[(i + 3) % ARTWORKS.length]!.file}.webp`,
           alt: `${name} — detalhe do traço`,
         },
+        {
+          url: `${env.basePath}nft/${ARTWORKS[(i + 2) % ARTWORKS.length]!.file}.webp`,
+          alt: `${name} — vista da coleção`,
+        },
       ],
       editions,
       contractAddress:

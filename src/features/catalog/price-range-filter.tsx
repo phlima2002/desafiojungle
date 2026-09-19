@@ -41,7 +41,7 @@ export function PriceRangeFilter({ bounds, value, onApply }: PriceRangeFilterPro
   }
 
   return (
-    <fieldset className="rounded-2xl bg-card p-5 md:rounded-md">
+    <fieldset className="mt-8">
       <legend className="mb-4 text-lg font-bold">Faixa de preço</legend>
 
       <div className="relative h-6">

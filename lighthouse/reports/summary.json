@@ -1,0 +1,85 @@
+{
+  "generatedAt": "2026-09-19T13:28:44.999Z",
+  "node": "v22.22.2",
+  "lighthouse": "13.4.1",
+  "runsPerPage": 3,
+  "scenario": "instant",
+  "results": [
+    {
+      "page": "inicio",
+      "profile": "mobile",
+      "url": "/?scenario=instant",
+      "runs": 3,
+      "scores": {
+        "performance": 86,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "lcpMs": 2631,
+        "cls": 0,
+        "tbtMs": 332
+      },
+      "lighthouseVersion": "13.4.1",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/141.0.0.0 Safari/537.36"
+    },
+    {
+      "page": "detalhe",
+      "profile": "mobile",
+      "url": "/nft/emerald-ape-100?scenario=instant",
+      "runs": 3,
+      "scores": {
+        "performance": 91,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "lcpMs": 2626,
+        "cls": 0,
+        "tbtMs": 187
+      },
+      "lighthouseVersion": "13.4.1",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/141.0.0.0 Safari/537.36"
+    },
+    {
+      "page": "inicio",
+      "profile": "desktop",
+      "url": "/?scenario=instant",
+      "runs": 3,
+      "scores": {
+        "performance": 100,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "lcpMs": 600,
+        "cls": 0,
+        "tbtMs": 0
+      },
+      "lighthouseVersion": "13.4.1",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/141.0.0.0 Safari/537.36"
+    },
+    {
+      "page": "detalhe",
+      "profile": "desktop",
+      "url": "/nft/emerald-ape-100?scenario=instant",
+      "runs": 3,
+      "scores": {
+        "performance": 100,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "lcpMs": 588,
+        "cls": 0,
+        "tbtMs": 2
+      },
+      "lighthouseVersion": "13.4.1",
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/141.0.0.0 Safari/537.36"
+    }
+  ]
+}

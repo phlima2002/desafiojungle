@@ -273,6 +273,7 @@ export function projectCart(cart: MockCart): Cart {
       editionId: edition.id,
       name: nft.name,
       editionLabel: edition.label,
+      tokenId: nft.tokenId,
       imageUrl: nft.imageUrl,
       imageAlt: nft.imageAlt,
       network: nft.network,

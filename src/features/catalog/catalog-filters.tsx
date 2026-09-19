@@ -35,7 +35,9 @@ export function CatalogFilters({
   withSort?: boolean
 }) {
   return (
-    <div className={cn('min-w-0 space-y-6', className)}>
+    /* No layout a barra lateral é um bloco só: um cartão com as três seções
+       dentro, separadas por espaço, não três cartões soltos. */
+    <div className={cn('min-w-0 rounded-2xl bg-card p-5 md:rounded-md', className)}>
       {withSort ? (
         <label className="flex flex-col gap-2 text-sm text-sand">
           Ordenar por:
@@ -53,7 +55,7 @@ export function CatalogFilters({
         </label>
       ) : null}
 
-      <fieldset className="rounded-2xl bg-card p-5 md:rounded-md">
+      <fieldset>
         <legend className="mb-3 text-lg font-bold">Coleções</legend>
         <ul className="space-y-2">
           {/* Placeholder rows keep the sidebar's height stable while the
@@ -97,10 +99,10 @@ export function CatalogFilters({
           onApply={(next) => update(next)}
         />
       ) : (
-        <div className="skeleton h-40 w-full rounded-2xl md:rounded-md" aria-hidden />
+        <div className="skeleton mt-8 h-40 w-full rounded-sm" aria-hidden />
       )}
 
-      <fieldset className="rounded-2xl bg-card p-5 md:rounded-md">
+      <fieldset className="mt-8">
         <legend className="mb-3 text-lg font-bold">Rede</legend>
         <ul className="space-y-2">
           {facets

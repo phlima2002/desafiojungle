@@ -116,7 +116,7 @@ export function CartPage() {
                     >
                       {item.name}
                     </Link>
-                    <p className="truncate text-3xs text-muted">{item.editionLabel}</p>
+                    <p className="truncate text-3xs text-muted">ID do token: #{item.tokenId}</p>
                     <p className="mt-1 text-base font-bold text-accent">
                       {formatEthWithUnit(item.lineTotal)}
                     </p>
@@ -143,7 +143,7 @@ export function CartPage() {
               ))}
             </ul>
 
-            <Table containerClassName="hidden sm:block">
+            <Table containerClassName="hidden rounded-none border-0 sm:block">
               <TableCaption>Itens no carrinho, com preço, quantidade e total</TableCaption>
               <TableHeader>
                 <TableRow className="border-line">
@@ -186,7 +186,7 @@ export function CartPage() {
                           >
                             {item.name}
                           </Link>
-                          <p className="truncate text-3xs text-muted">{item.editionLabel}</p>
+                          <p className="truncate text-3xs text-muted">ID do token: #{item.tokenId}</p>
                           <p className="mt-1 text-3xs font-bold text-accent sm:hidden">
                             {formatEthWithUnit(item.unitPrice)}
                             {item.quantity > 1 ? (

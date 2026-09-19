@@ -98,14 +98,13 @@ export function CatalogSection({ search, routeId, hero }: CatalogSectionProps) {
                 não existem (o Lighthouse reprova), então aqui a lista de abas é
                 escrita à mão — o `Tabs` do shadcn/ui é usado no detalhe do NFT,
                 onde os painéis existem de verdade. */}
-              {/* No celular as três abas não cabem lado a lado sem encolher a
-                  fonte a ponto de ficarem ilegíveis, e quebrá-las em duas linhas
-                  empurra o catálogo para baixo. Então elas rolam na horizontal,
-                  numa faixa só, como o Figma mostra. */}
+              {/* As três abas cabem numa linha só, sem rolagem: no celular a
+                  fonte encolhe e o espaço entre elas aperta o suficiente para
+                  que as três fiquem visíveis de uma vez, como no layout. */}
               <div
                 role="tablist"
                 aria-label="Recortes do catálogo"
-                className="-mx-4 flex max-w-full gap-6 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0"
+                className="flex w-full min-w-0 justify-between gap-2 sm:w-auto sm:justify-start sm:gap-6"
               >
                 {TABS.map((tab) => {
                   const active = (search.tab ?? 'all') === tab.value
@@ -119,7 +118,7 @@ export function CatalogSection({ search, routeId, hero }: CatalogSectionProps) {
                       aria-selected={active}
                       onClick={() => update({ tab: tab.value })}
                       className={cn(
-                        'h-auto rounded-none border-b-2 px-0 pb-1 text-sm',
+                        'h-auto rounded-none border-b-2 px-0 pb-1 text-3xs sm:text-sm',
                         active
                           ? 'border-primary font-medium text-accent'
                           : 'border-transparent font-normal text-sand hover:text-accent',

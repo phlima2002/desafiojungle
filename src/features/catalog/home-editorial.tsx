@@ -69,7 +69,7 @@ const POSTS = [
   },
 ]
 
-export function HomeEditorial() {
+export default function HomeEditorial() {
   return (
     <>
       <section aria-labelledby="destaques-editoriais" className="mx-auto max-w-page px-4 sm:px-8">
@@ -80,19 +80,21 @@ export function HomeEditorial() {
         <ul className="grid gap-6 md:grid-cols-2">
           {PROMOS.map((promo) => (
             <li key={promo.title}>
-              <article className="flex h-full items-center gap-5 overflow-hidden rounded-2xl bg-card-raised p-4 md:rounded-md">
+              {/* No layout a arte sangra até as bordas do cartão e ocupa cerca
+                  de um terço dele; o texto fica à direita, alinhado à direita. */}
+              <article className="flex h-full items-stretch overflow-hidden rounded-2xl bg-card-raised md:rounded-md">
                 <img
                   src={promo.art}
                   alt={promo.alt}
-                  width={240}
-                  height={240}
+                  width={260}
+                  height={260}
                   loading="lazy"
                   decoding="async"
-                  className="size-28 shrink-0 rounded-xl object-cover sm:size-40 md:rounded-sm"
+                  className="aspect-square w-[38%] max-w-[260px] shrink-0 object-cover"
                 />
-                <div className="min-w-0 space-y-3 text-right">
-                  <h3 className="text-base font-bold md:text-lg">{promo.title}</h3>
-                  <p className="text-3xs text-muted">{promo.body}</p>
+                <div className="flex min-w-0 flex-1 flex-col items-end justify-center gap-3 p-5 text-right">
+                  <h3 className="max-w-[16ch] text-base font-bold text-balance md:text-lg">{promo.title}</h3>
+                  <p className="max-w-[28ch] text-3xs text-muted">{promo.body}</p>
                   <Link
                     to="/mercado"
                     search={promo.search}

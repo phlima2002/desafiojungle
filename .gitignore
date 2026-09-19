@@ -10,5 +10,8 @@ playwright-report
 test-results
 blob-report
 playwright/.cache
-lighthouse/reports
+# Os relatórios da auditoria fazem parte da entrega (ver docs/performance.md),
+# então ficam versionados — o que o .gitignore evita é o lixo das execuções
+# exploratórias, que vive em lighthouse/tmp.
+lighthouse/tmp
 *.tmp.mjs

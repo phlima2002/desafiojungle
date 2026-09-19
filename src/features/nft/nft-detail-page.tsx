@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
-import { Heart, Star } from 'lucide-react'
+import { Heart, Star, ZoomIn } from 'lucide-react'
 import { formatEthWithUnit } from '@/shared/lib/money'
 import { cn } from '@/shared/lib/utils'
 import { NETWORK_LABELS } from '@/features/catalog/labels'
@@ -15,6 +15,7 @@ import { useCatalogQuery, useNftDetailQuery } from '@/features/catalog/use-catal
 import { NftCard } from '@/features/catalog/nft-card'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { NftDetailSkeleton } from './nft-detail-skeleton'
 import { ShareButton } from './share-button'
 
@@ -30,6 +31,7 @@ export function NftDetailPage({ slug }: { slug: string }) {
   const [quantity, setQuantity] = useState(1)
   const [activeImage, setActiveImage] = useState(0)
   const [tab, setTab] = useState<Tab>('detalhes')
+  const [zoomed, setZoomed] = useState(false)
 
   const nft = detail.data
   useNftSubscription(nft ? [nft.id] : [])
@@ -104,18 +106,46 @@ export function NftDetailPage({ slug }: { slug: string }) {
             ))}
           </ul>
 
-          <img
-            src={gallery[activeImage]!.url}
-            alt={gallery[activeImage]!.alt}
-            width={600}
-            height={600}
-            fetchPriority="high"
-            decoding="async"
-            className="aspect-square min-w-0 flex-1 rounded-b-3xl object-cover md:rounded-md md:border md:border-line"
-          />
+          <div className="relative min-w-0 flex-1">
+            <img
+              src={gallery[activeImage]!.url}
+              alt={gallery[activeImage]!.alt}
+              width={600}
+              height={600}
+              fetchPriority="high"
+              decoding="async"
+              className="aspect-square w-full rounded-b-3xl object-cover md:rounded-md md:border md:border-line"
+            />
+            {/* A lupa do layout: a arte abre em tamanho cheio num diálogo, que
+                é o que o Radix já sabe fazer com foco preso e Escape. */}
+            <Button
+              type="button"
+              size="icon"
+              variant="secondary"
+              onClick={() => setZoomed(true)}
+              aria-label={`Ampliar a arte de ${nft.name}`}
+              className="absolute top-3 right-3 hidden rounded-pill bg-ink-950/70 text-cream md:grid"
+            >
+              <ZoomIn aria-hidden size={18} />
+            </Button>
+          </div>
+
+          <Dialog open={zoomed} onOpenChange={setZoomed}>
+            <DialogContent aria-describedby={undefined} className="max-w-3xl p-3">
+              <DialogTitle className="sr-only">{nft.name} em tamanho ampliado</DialogTitle>
+              <img
+                src={gallery[activeImage]!.url}
+                alt={gallery[activeImage]!.alt}
+                width={900}
+                height={900}
+                decoding="async"
+                className="aspect-square w-full rounded-sm object-cover"
+              />
+            </DialogContent>
+          </Dialog>
         </div>
 
-        <div className="mx-4 min-w-0 space-y-4 rounded-3xl bg-card p-5 md:mx-0 md:rounded-none md:bg-transparent md:p-0">
+        <div className="mx-4 min-w-0 space-y-4 rounded-3xl bg-card p-5 max-md:px-5 md:mx-0 md:rounded-none md:bg-transparent md:p-0">
           <div className="flex items-start justify-between gap-3">
             <h1 className="text-h3 font-bold md:text-h1">{nft.name}</h1>
 
@@ -258,19 +288,6 @@ export function NftDetailPage({ slug }: { slug: string }) {
             >
               {soldOut ? 'Esgotado' : addToCart.isPending ? 'Adicionando…' : 'Comprar'}
             </Button>
-
-            {session ? (
-              <Button
-                type="button"
-                variant="secondary"
-                aria-pressed={nft.favorited}
-                onClick={() => toggleFavorite.mutate({ nftId: nft.id, favorited: !nft.favorited })}
-                className="hidden h-auto bg-transparent px-5 py-2.5 text-3xs font-normal text-sand hover:border-primary hover:text-accent md:inline-flex"
-              >
-                <Heart aria-hidden size={14} className={cn(nft.favorited && 'fill-danger text-danger')} />
-                {nft.favorited ? 'Nos favoritos' : 'Favoritar'}
-              </Button>
-            ) : null}
           </div>
 
           {addToCart.isError ? (
@@ -301,7 +318,7 @@ export function NftDetailPage({ slug }: { slug: string }) {
         </div>
       </div>
 
-      <section className="mt-12 border-t border-line pt-6">
+      <section className="mt-12 border-t border-line px-4 pt-6 md:px-0">
         <Tabs value={tab} onValueChange={(value) => setTab(value as Tab)}>
           <TabsList aria-label="Informações do NFT" className="gap-8 border-0">
             <TabsTrigger value="detalhes" className="pb-2 text-sm">
@@ -372,7 +389,7 @@ function MoreFromCollection({ collectionId, currentId }: { collectionId: string;
   if (items.length === 0) return null
 
   return (
-    <section aria-labelledby="mais-colecao" className="mt-14">
+    <section aria-labelledby="mais-colecao" className="mt-14 px-4 md:px-0">
       <h2 id="mais-colecao" className="text-md font-bold text-accent">
         Mais desta coleção
       </h2>
